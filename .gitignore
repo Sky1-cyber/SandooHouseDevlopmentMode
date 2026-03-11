@@ -29,3 +29,6 @@ dist/
 
 # Ignore secrets or environment variables
 *.env
+
+# Ignore local development settings
+appsettings.Development.json

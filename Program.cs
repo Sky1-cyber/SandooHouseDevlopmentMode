@@ -6,10 +6,38 @@ using BCrypt.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// --- Build connection string dynamically ---
+string connectionString;
+
+//var env = builder.Environment; // optional if you want
+
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+var dbPass = Environment.GetEnvironmentVariable("DB_PASS");
+
+if (!string.IsNullOrEmpty(dbHost) &&
+    !string.IsNullOrEmpty(dbPort) &&
+    !string.IsNullOrEmpty(dbName) &&
+    !string.IsNullOrEmpty(dbUser) &&
+    !string.IsNullOrEmpty(dbPass))
+{
+    // Production / Render
+    connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass};SSL Mode=Require;Trust Server Certificate=true;";
+}
+else
+{
+    // Local development
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+}
+
+// --- Add services ---
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
 builder.Services.AddAuthentication("MyCookieAuthenticationScheme")
     .AddCookie("MyCookieAuthenticationScheme", options =>
     {
@@ -32,7 +60,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    // Only create default admin if not exists
     if (!db.Admins.Any(a => a.Email == "admin@example.com"))
     {
         var defaultAdmin = new Admin
@@ -51,8 +78,8 @@ using (var scope = app.Services.CreateScope())
         db.SaveChanges();
     }
 }
-// ----------------------------
 
+// --- Middleware ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

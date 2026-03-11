@@ -1,0 +1,176 @@
+﻿@model Admin
+@using System.Globalization
+@using Sandoohouse.Models.Enum
+@{
+    ViewData["Title"] = "Account Profile";
+}
+<div class="page-inner">
+    <div class="page-header">
+        <h3 class="fw-bold mb-3">Profile</h3>
+        <ul class="breadcrumbs mb-3">
+            <li class="nav-home">
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Account" asp-action="Index">Admin</a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Account" asp-action="Index">Account Details</a>
+            </li>
+        </ul>
+    </div>
+    <div class="container py-5">
+        <div class="row justify-content-center ">
+            <div class="col-lg-8 ">
+
+                <!-- Profile Card -->
+                <div class="card shadow-lg rounded-4 overflow-hidden">
+                    <div class="row g-0">
+
+                        <!-- Left Column: Avatar & Status -->
+                        <div class="col-md-4 text-center bg-gradient-primary position-relative d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 250px;">
+                            <!-- Avatar -->
+                            <div class="position-relative mt-4">
+                                <div
+                                    class="rounded-circle border border-4 border-white shadow-lg overflow-hidden bg-white"
+                                    style="width: 130px; height: 130px;">
+                                    <img
+                                        src="@Url.Content(Model.ProfileImageFile != null ? $"~/Admin/{Model.ProfileImageFile}" : "~/l60Hf.png")"
+                                        alt="@Model.FirstName @Model.LastName"
+                                        class="w-100 h-100" style="object-fit: cover;"/>
+                                </div>
+                                <!-- Status Dot -->
+                                <span
+                                    class="position-absolute bottom-0 end-0 rounded-circle border border-2 border-white"
+                                    style="width: 20px; height: 20px; background-color:@(Model.Status == Status.Active ? "#28a745" : "#6c757d")"
+                                    title="@Model.Status"></span>
+                            </div>
+
+                            <!-- Name & Role -->
+                            <h3 class="text-white mt-3 mb-1">@Model.FirstName @Model.LastName</h3>
+                            <span class="badge text-white px-3 py-2 rounded-pill bg-opacity-50"
+                                  style="background-color: rgba(255,255,255,0.2);">
+                            <i class="bi bi-shield-check me-1"></i>Administrator
+                        </span>
+                        </div>
+
+                        <!-- Right Column: Info -->
+                        <div class="col-md-8">
+                            <div class="card-body p-4">
+
+                                <!-- Contact Info -->
+                                <h5 class="fw-bold mb-3">Contact Information</h5>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-envelope-fill text-primary me-2 fs-5"></i>
+                                    <div class="flex-grow-1">@Model.Email</div>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            onclick="copyToClipboard('@Model.Email')" title="Copy email">
+                                        <i class="bi bi-files"></i>
+                                    </button>
+                                </div>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <i class="bi bi-telephone-fill text-primary me-2 fs-5"></i>
+                                    <div
+                                        class="flex-grow-1">
+                                        @(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                                    {
+                                        <button class="btn btn-sm btn-outline-primary"
+                                                onclick="copyToClipboard('@Model.PhoneNumber')" title="Copy phone">
+                                            <i class="bi bi-files"></i>
+                                        </button>
+                                    }
+                                </div>
+
+                                <hr/>
+
+                                <!-- Account Stats -->
+                                <h5 class="fw-bold mb-3">Account Information</h5>
+                                <div class="row text-center text-md-start">
+                                    <div class="col-md-6 mb-2">
+                                        <div class="text-muted small">Profile ID</div>
+                                        <div class="fw-semibold">ADS00-@Model.Id-88</div>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <div class="text-muted small">Status</div>
+                                        <div class="fw-semibold"
+                                             style="color:@(Model.Status == Status.Active ? "#28a745" : "#6c757d")">@Model.Status</div>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <div class="text-muted small">Created At</div>
+                                        <div
+                                            class="fw-semibold">@Model.CreatedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)</div>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <div class="text-muted small">Last Updated</div>
+                                        <div
+                                            class="fw-semibold">
+                                            @(Model.UpdatedAt == DateTime.MinValue ? "Never" : Model.UpdatedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture))
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <div class="text-muted small">Account Age</div>
+                                        <div
+                                            class="fw-semibold">@((int)(DateTime.UtcNow - Model.CreatedAt).TotalDays) days
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex gap-2 mt-4 flex-wrap">
+                                    <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@Model.Id" class="btn btn-primary flex-grow-1">
+                                        <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                                    </a>
+                                    <a asp-action="Index" asp-controller="Home"
+                                       class="btn btn-outline-secondary flex-grow-1">
+                                        <i class="bi bi-arrow-left me-2"></i>Dashboard
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div> <!-- End row -->
+                </div> <!-- End card -->
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Copy to Clipboard JS -->
+<!-- Single Toast Container for Copy Notifications -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Copied to clipboard!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            // Show toast
+            var toastEl = document.getElementById('copyToast');
+            var toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+            toast.show();
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            alert('Failed to copy!');
+        });
+    }
+</script>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

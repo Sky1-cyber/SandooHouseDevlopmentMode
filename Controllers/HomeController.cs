@@ -1,0 +1,102 @@
+using System.Diagnostics;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Sandoohouse.ApplicationProgram;
+using Sandoohouse.Models;
+using Sandoohouse.Models.Enum;
+
+namespace Sandoohouse.Controllers;
+
+public class HomeController : Controller
+{
+    private readonly ApplicationDbContext _applicationDbContext;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+
+    public HomeController(ApplicationDbContext applicationDbContext, IWebHostEnvironment webHostEnvironment)
+    {
+        _applicationDbContext = applicationDbContext;
+        _webHostEnvironment = webHostEnvironment;
+    }
+    
+    [Authorize]
+    public IActionResult Index()
+    {
+        int totalAdminsCount = _applicationDbContext.Admins.Count();
+        
+        ViewBag.TotalAdminsCount = totalAdminsCount;
+        return View();
+    }
+    
+    public IActionResult Login()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Login(string Email, string Password)
+    {
+        var admin = _applicationDbContext.Admins
+            .FirstOrDefault(x => x.Email == Email);
+
+        if (admin == null)
+        {
+            TempData["ErrorMessage"] = "Invalid email or password";
+            return RedirectToAction("Login", "Home");
+        }
+
+        // Check account status
+        if (admin.Status == Status.Suspended)
+        {
+            TempData["ErrorMessage"] = "Your account has been suspended. Please contact administrator.";
+            return RedirectToAction("Login", "Home");
+        }
+
+        bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(Password, admin.Password);
+
+        if (!isPasswordCorrect)
+        {
+            TempData["ErrorMessage"] = "Incorrect password";
+            return RedirectToAction("Login", "Home");
+        }
+
+        // ✅ Update online status
+        admin.Status = Status.Active;
+        admin.IsOnline = true;
+
+        _applicationDbContext.Admins.Update(admin); // Optional: explicitly mark as updated
+        await _applicationDbContext.SaveChangesAsync(); // <-- THIS IS WHAT WAS MISSING
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
+            new Claim(ClaimTypes.Email, admin.Email ?? ""),
+            new Claim(ClaimTypes.Name, admin.FirstName ?? ""),
+            new Claim("LastName", admin.LastName ?? ""),
+            new Claim(ClaimTypes.MobilePhone, admin.PhoneNumber ?? ""),
+            new Claim("ProfileImageFile", admin.ProfileImageFile ?? ""),
+            new Claim("IsOnline", admin.IsOnline.ToString()) 
+        };
+
+        var claimIdentity = new ClaimsIdentity(claims, "MyCookieAuthenticationScheme");
+
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = true,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+        };
+
+        await HttpContext.SignInAsync(
+            "MyCookieAuthenticationScheme",
+            new ClaimsPrincipal(claimIdentity),
+            authProperties);
+
+        return RedirectToAction("Index", "Home");
+    }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+}

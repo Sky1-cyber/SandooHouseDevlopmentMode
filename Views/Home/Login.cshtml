@@ -1,0 +1,161 @@
+﻿@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Login</title>
+    <link rel="icon" href="~/assets/img/kaiadmin/SandooHouse.ico" type="text/x-icon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/> <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style> body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f6f9;
+            padding: 15px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background: white;
+        }
+
+        .login-header {
+            text-align: center;
+            padding-bottom: 10px;
+        }
+
+        .login-header h3 {
+            font-weight: 700;
+            color: #4e73df;
+        }
+
+        .form-control {
+            height: 45px;
+            border-radius: 8px;
+        }
+
+        .btn-login {
+            height: 45px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 15px;
+            color: #888;
+        }
+
+        .alert {
+            font-size: 14px;
+        }
+
+        /* Tablet */
+        @@media (max-width: 768px) {
+            .login-card {
+                max-width: 90%;
+            }
+        }
+
+        /* Mobile */
+        @@media (max-width: 576px) {
+            body {
+                padding: 20px;
+            }
+
+            .login-card {
+                padding: 20px;
+                border-radius: 12px;
+            }
+
+            .login-header h3 {
+                font-size: 22px;
+            }
+
+            .form-control {
+                height: 42px;
+            }
+
+            .btn-login {
+                height: 42px;
+            }
+
+            .footer-text {
+                font-size: 12px;
+            }
+
+            .mb-3.d-flex {
+                flex-direction: column;
+                gap: 10px;
+                align-items: start !important;
+            }
+        }
+
+        /* Small phones */
+        @@media (max-width: 375px) {
+            .login-header h3 {
+                font-size: 20px;
+            }
+
+            .login-card {
+                padding: 15px;
+            }
+        } </style>
+</head>
+<body>
+<div class="card login-card p-4">
+    <div class="login-header"><h3>Welcome Back</h3>
+        <p class="text-muted">Login to your account</p></div>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger text-center"> @TempData["ErrorMessage"] </div>
+    }
+    <form asp-controller="Home" asp-action="Login" method="post">
+        <div class="mb-3"><label class="form-label">Email</label>
+            <div class="input-group"><span class="input-group-text"> <i class="bi bi-envelope"></i> </span> <input
+                    type="email" name="Email" class="form-control" placeholder="Enter your email" required/></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Password</label>
+            <div class="input-group"><span class="input-group-text"> <i class="bi bi-lock"></i> </span> <input
+                    type="password" name="Password" id="password" class="form-control" placeholder="Enter your password"
+                    required/> <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword()"> <i
+                        class="bi bi-eye" id="toggleIcon"></i> </span></div>
+        </div>
+        <div class="mb-3 d-flex justify-content-between">
+            <div class="form-check"><input type="checkbox" class="form-check-input" id="remember"> <label for="remember"
+                                                                                                          class="form-check-label">Remember
+                    me</label></div>
+            <a asp-controller="Account" asp-action="ForgotPassword" class="text-decoration-none">Forgot Password?</a></div>
+        <button type="submit" class="btn btn-primary w-100 btn-login"> Sign In</button>
+    </form>
+    <div class="footer-text"> © 2026 Sandoo House</div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script> setTimeout(function () {
+        $(".alert").fadeOut("slow");
+    }, 3000);
+
+    function togglePassword() {
+        const password = document.getElementById("password");
+        const icon = document.getElementById("toggleIcon");
+        if (password.type === "password") {
+            password.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            password.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+    } </script>
+</body>
+</html>

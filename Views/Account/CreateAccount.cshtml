@@ -1,0 +1,140 @@
+﻿@model Sandoohouse.Models.ModelViewer.AdminModelViewer.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="page-inner">
+    <div class="page-header">
+        <h3 class="fw-bold mb-3">Create Account</h3>
+        <ul class="breadcrumbs mb-3">
+            <li class="nav-home">
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Account" asp-action="ListAccount">Account</a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">Create Account</li>
+        </ul>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card shadow-lg bg-dark-subtle">
+                <div class="card-body">
+
+                    <form asp-controller="Account" asp-action="CreateAccount" method="post" enctype="multipart/form-data">
+
+                        <!-- Profile Image -->
+                        <div class="text-center mb-3">
+                            <img id="previewImage"
+                                 src="~/l60Hf.png"
+                                 class="rounded-circle"
+                                 alt="Profile Image"
+                                 style="width:100px;height:100px;object-fit:cover;" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Profile Image</label>
+                            <input asp-for="ProfileImageUrl" type="file" class="form-control" onchange="previewFile(event)" />
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input asp-for="FirstName" class="form-control"/>
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input asp-for="LastName" class="form-control"/>
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control"/>
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone</label>
+                                <input asp-for="PhoneNumber" class="form-control"/>
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Password</label>
+                                <div class="input-group">
+                                    <input asp-for="Password" type="password" id="password" class="form-control"/>
+                                    <span class="input-group-text" style="cursor:pointer;"
+                                          onclick="togglePassword('password','toggleIcon')">
+                                        <i class="bi bi-eye" id="toggleIcon"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Confirm Password</label>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control"/>
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    Create Account
+                                </button>
+                            </div>
+
+                            <div class="col-md-6">
+                                <a asp-controller="Account" asp-action="ListAccount"
+                                   class="btn btn-danger w-100">
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function previewFile(event) {
+    const reader = new FileReader();
+    reader.onload = () => document.getElementById("previewImage").src = reader.result;
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+function togglePassword(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+
+    if (input.type === "password") {
+        input.type = "text";
+        icon.classList.replace("bi-eye", "bi-eye-slash");
+    } else {
+        input.type = "password";
+        icon.classList.replace("bi-eye-slash", "bi-eye");
+    }
+}
+</script>

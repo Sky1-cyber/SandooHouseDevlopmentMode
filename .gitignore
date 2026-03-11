@@ -1,0 +1,31 @@
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# Package directories
+packages/
+*.nupkg
+
+# Publish output
+publish/
+
+# Node / frontend (if any)
+node_modules/
+dist/
+
+# Ignore secrets or environment variables
+*.env

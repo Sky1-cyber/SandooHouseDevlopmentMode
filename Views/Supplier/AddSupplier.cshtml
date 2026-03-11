@@ -1,0 +1,55 @@
+﻿@{
+  ViewData["Title"] = "Add Supplier";
+}
+<div class="page-inner">
+  <div class="page-header">
+    <h3 class="fw-bold mb-3">Supplier</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-home">
+        <a asp-controller="Home" asp-action="Index">
+          <i class="icon-home"></i>
+        </a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a asp-controller="Supplier" asp-action="Index">Supplier</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a asp-controller="Supplier" asp-action="AddSupplier">Supplier Form</a>
+      </li>
+    </ul>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Form Data Supplier</div>
+          <div class="card-body">
+            <div class="row">
+              <form>
+                <div class="form-group">
+                  <label for="exampleInputEmail1">Email address</label>
+                  <input type="email" class="form-control form-control border-1 border-dark" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Password</label>
+                  <input type="password" class="form-control border-1 border-dark" id="exampleInputPassword1" placeholder="Password">
+                </div>
+                <div class="card-action">
+                  <button class="btn btn-success">Submit</button>
+                  <a asp-controller="Supplier" asp-action="Index" class="btn btn-danger">Cancel</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,207 @@
+﻿@model IEnumerable<Sandoohouse.Models.Category>
+@using System.Globalization
+@{
+    ViewData["Title"] = "Category List";
+}
+
+<div class="page-inner">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h3 class="fw-bold mb-3">Category Management</h3>
+        <ul class="breadcrumbs mb-3">
+            <li class="nav-home">
+                <a asp-controller="Home" asp-action="Index"><i class="icon-home"></i></a>
+            </li>
+            <li class="separator"><i class="icon-arrow-right"></i></li>
+            <li class="nav-item"><a asp-controller="Category" asp-action="Index">Category List</a></li>
+        </ul>
+        <div class="ms-md-auto py-2 py-md-0">
+            <a asp-controller="Category" asp-action="CreateCategory" class="btn btn-primary btn-round">
+                <i class="fas fa-plus me-2"></i>Add Category
+            </a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12">
+
+                <div class="card shadow-lg rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center p-4">
+                        <div>
+                            <h4 class="fw-bold mb-1">Category List</h4>
+                            <small class="text-muted">Manage product categories</small>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table id="categoryTable" class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4">Category</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th class="text-center pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var category in Model)
+                                    {
+                                        <tr>
+                                            <!-- Category Info -->
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="rounded overflow-hidden bg-white border shadow-sm me-3"
+                                                         style="width: 45px; height: 45px;">
+                                                        <img src="@Url.Content(!string.IsNullOrEmpty(category.CategoryImageUrl) ? $"~/Category/{category.CategoryImageUrl}" : "~/l60Hf.png")"
+                                                             alt="@category.CategoryName"
+                                                             class="w-100 h-100"
+                                                             style="object-fit: cover;" />
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold">@category.CategoryName</div>
+                                                        <small class="text-muted">ID: #@category.Id</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Description -->
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(category.Description))
+                                                {
+                                                    <span class="text-muted">@category.Description</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted fst-italic">No description</span>
+                                                }
+                                            </td>
+
+                                            <!-- Status -->
+                                            <td>
+                                                @if (category.Status)
+                                                {
+                                                    <span class="badge rounded-pill px-3 py-2" 
+                                                          style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
+                                                        <i class="fas fa-check-circle me-1"></i> Active
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge rounded-pill px-3 py-2" 
+                                                          style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d;">
+                                                        <i class="fas fa-ban me-1"></i> Inactive
+                                                    </span>
+                                                }
+                                            </td>
+
+                                            <!-- Created -->
+                                            <td>
+                                                <div class="fw-semibold">@category.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
+                                                <small class="text-muted">@((int)(DateTime.UtcNow - category.CreatedAt).TotalDays) days ago</small>
+                                            </td>
+
+                                            <!-- Actions -->
+                                            <td class="text-center pe-4">
+                                                <div class="d-flex gap-2 justify-content-center">
+                                                    <a asp-controller="Category"
+                                                       asp-action="EditCategory"
+                                                       asp-route-id="@category.Id"
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       title="Edit category">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            title="Delete category"
+                                                            onclick="confirmDelete('@category.Id', '@category.CategoryName')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 p-3 d-flex justify-content-between align-items-center">
+                        <div class="text-muted">
+                            <small><i class="fas fa-folder me-1"></i>Total categories: @Model.Count()</small>
+                        </div>
+                        <div class="text-muted">
+                            <small>
+                                <i class="fas fa-check-circle text-success me-1"></i>Active: @Model.Count(c => c.Status) | 
+                                <i class="fas fa-ban text-secondary me-1"></i>Inactive: @Model.Count(c => !c.Status)
+                            </small>
+                        </div>
+                    </div>
+                </div> <!-- End Card -->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="categoryNameDisplay"></strong>?</p>
+                <p class="text-danger small"><i class="fas fa-info-circle me-1"></i>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form id="deleteForm" method="post" asp-controller="Category" asp-action="DeleteCategory">
+                    <input type="hidden" name="id" id="categoryIdToDelete" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- jQuery & DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- Scripts -->
+<script>
+    $(document).ready(function () {
+        $('#categoryTable').DataTable({
+            pageLength: 5,
+            lengthChange: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            language: {
+                search: "<i class='fas fa-search'></i> Search",
+                searchPlaceholder: "Search categories...",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ categories",
+                infoEmpty: "Showing 0 to 0 of 0 categories",
+                infoFiltered: "(filtered from _MAX_ total categories)"
+            }
+        });
+    });
+
+    function confirmDelete(categoryId, categoryName) {
+        document.getElementById('categoryNameDisplay').textContent = categoryName;
+        document.getElementById('categoryIdToDelete').value = categoryId;
+
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+</script>

@@ -111,8 +111,14 @@
           <!-- Supplier -->
           <li class="nav-item @Html.IsActive("Supplier", "Index")">
             <a asp-controller="Supplier" asp-action="Index">
-              <i class="fas fa-box"></i>
+              <i class="fas fa-user"></i>
               <p>Supplier</p>
+            </a>
+          </li>
+          <li class="nav-item @Html.IsActive("Category", "Index")">
+            <a asp-controller="Category" asp-action="Index">
+              <i class="fas fa-box"></i>
+              <p>Category</p>
             </a>
           </li>
           

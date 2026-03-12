@@ -2,7 +2,7 @@
 
 public class FileUploadHelper
 {
-    public static async Task<string?> UploadImage(IFormFile file, string folderName)
+    public static async Task<string?> UploadImage(IFormFile? file, string folderName)
     {
         if (file == null || file.Length == 0)
             return null;

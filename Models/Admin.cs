@@ -38,4 +38,6 @@ public class Admin
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; }
+    
+    public virtual ICollection<Category>? Categories { get; set; }
 }

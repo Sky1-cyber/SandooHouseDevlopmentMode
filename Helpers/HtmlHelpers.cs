@@ -4,7 +4,7 @@ namespace Sandoohouse.Helpers;
 
 public static class HtmlHelpers
 {
-    public static string IsActive(this IHtmlHelper htmlHelper, string controller, string action = null)
+    public static string IsActive(this IHtmlHelper htmlHelper, string controller, string? action = null)
     {
         var routeData = htmlHelper.ViewContext.RouteData;
 

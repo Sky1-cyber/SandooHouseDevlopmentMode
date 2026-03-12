@@ -1,290 +1,265 @@
 ﻿@model IEnumerable<Admin>
 @using Sandoohouse.Models.Enum
 @using System.Globalization
-
 @{
     ViewData["Title"] = "Account List";
 }
-<style>
-    .card {
-        transition: 0.2s;
-    }
 
-    .card:hover {
-        transform: translateY(-2px);
-    }
-
-    .table td, .table th {
-        vertical-align: middle;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #f8fafc;
-    }
-
-    .badge {
-        font-weight: 500;
-        font-size: 13px;
-    }
-
-    .btn-light {
-        background: #fff;
-    }
-
-    .btn-light:hover {
-        background: #f1f5f9;
-    }
-</style>
 <div class="page-inner">
     <div class="page-header d-flex justify-content-between align-items-center">
-        <h3 class="fw-bold mb-3">Account Table</h3>
+        <h3 class="fw-bold mb-3">Account Management</h3>
         <ul class="breadcrumbs mb-3">
             <li class="nav-home">
                 <a asp-controller="Home" asp-action="Index"><i class="icon-home"></i></a>
             </li>
             <li class="separator"><i class="icon-arrow-right"></i></li>
-            <li class="nav-item"><a asp-controller="Account" asp-action="ListAccount">Account Table</a></li>
+            <li class="nav-item"><a asp-controller="Account" asp-action="ListAccount">Account List</a></li>
         </ul>
         <div class="ms-md-auto py-2 py-md-0">
-            <a asp-controller="Account" asp-action="CreateAccount" class="btn btn-primary btn-round">Add Account</a>
+            <a asp-controller="Account" asp-action="CreateAccount" class="btn btn-primary btn-round">
+                <i class="fas fa-plus me-2"></i>Add Account
+            </a>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow border-0 rounded-4">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-12">
 
-                <!-- Header -->
-                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="fw-bold mb-0">Admin Management</h4>
-                        <small class="text-muted">Manage system administrators</small>
+                <!-- Accounts Card -->
+                <div class="card shadow-lg rounded-4 overflow-hidden">
+
+                    <!-- Card Header -->
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center p-4">
+                        <div>
+                            <h4 class="fw-bold mb-1">Admin Management</h4>
+                            <small class="text-muted">Manage system administrators</small>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Body -->
-                <div class="card-body bg-dark-subtle pt-0">
-
-                    <div class="table-responsive">
-
-                        <table id="adminTable" class="table align-middle table-hover">
-
-                            <thead class="table-light">
-                            <tr>
-                                <th>Admin</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-
-                            @foreach (var admin in Model)
-                            {
-                                <tr>
-
-                                    <!-- Profile -->
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
-                                                 alt="@admin.ProfileImageFile"
-                                                 class="rounded-circle shadow-sm me-3"
-                                                 style="width:45px;height:45px;object-fit:cover; position: relative;" />
-
-                                            <div>
-                                                <div class="fw-semibold">
-                                                    @admin.FirstName @admin.LastName
-                                                    @if (admin.IsOnline)
-                                                    {
-                                                        <span class="badge bg-success ms-2" style="font-size:0.7rem;">Online</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-secondary ms-2" style="font-size:0.7rem;">Offline</span>
-                                                    }
+                    <!-- Table Section -->
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table id="adminTable" class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4">Admin</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th class="text-center pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var admin in Model)
+                                    {
+                                        <tr>
+                                            <!-- Profile -->
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="rounded overflow-hidden bg-white border shadow-sm me-3"
+                                                         style="width: 45px; height: 45px;">
+                                                        <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
+                                                             alt="@admin.FirstName @admin.LastName"
+                                                             class="w-100 h-100"
+                                                             style="object-fit: cover;" />
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold">
+                                                            @admin.FirstName @admin.LastName
+                                                            @if (admin.IsOnline)
+                                                            {
+                                                                <span class="badge ms-2" style="background-color: rgba(40, 167, 69, 0.1); color: #28a745; font-size:0.7rem;">
+                                                                    <i class="fas fa-circle me-1" style="font-size: 6px;"></i>Online
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge ms-2" style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d; font-size:0.7rem;">
+                                                                    <i class="fas fa-circle me-1" style="font-size: 6px;"></i>Offline
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                        <small class="text-muted">ID: #@admin.Id</small>
+                                                    </div>
                                                 </div>
+                                            </td>
 
-                                                <small class="text-muted">
-                                                    ID: #@admin.Id
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </td>
+                                            <!-- Email -->
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-envelope text-primary me-2" style="font-size: 14px;"></i>
+                                                    <span class="text-muted">@admin.Email</span>
+                                                </div>
+                                            </td>
 
-                                    <!-- Email -->
-                                    <td>
-                                        <span class="text-muted">@admin.Email</span>
-                                    </td>
+                                            <!-- Phone -->
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(admin.PhoneNumber))
+                                                {
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-phone text-primary me-2" style="font-size: 14px;"></i>
+                                                        <span class="text-muted">@admin.PhoneNumber</span>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted fst-italic">Not provided</span>
+                                                }
+                                            </td>
 
-                                    <!-- Phone -->
-                                    <td>
-                                        @(string.IsNullOrEmpty(admin.PhoneNumber) ? "N/A" : admin.PhoneNumber)
-                                    </td>
+                                            <!-- Status -->
+                                            <td>
+                                                @if (admin.Status == Status.Active)
+                                                {
+                                                    <span class="badge rounded-pill px-3 py-2" 
+                                                          style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
+                                                        <i class="fas fa-check-circle me-1"></i> Active
+                                                    </span>
+                                                }
+                                                else if (admin.Status == Status.Inactive)
+                                                {
+                                                    <span class="badge rounded-pill px-3 py-2" 
+                                                          style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d;">
+                                                        <i class="fas fa-user-clock me-1"></i> Inactive
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge rounded-pill px-3 py-2" 
+                                                          style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                                                        <i class="fas fa-ban me-1"></i> Suspended
+                                                    </span>
+                                                }
+                                            </td>
 
-                                    <!-- Status -->
-                                    <td>
-                                        @if (admin.Status == Status.Active)
-                                        {
-                                            <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">
-                                            <i class="fas fa-check-circle me-1"></i> Active
-                                        </span>
-                                        }
-                                        else if (admin.Status == Status.Inactive)
-                                        {
-                                            <span
-                                                class="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-2">
-                                            <i class="fas fa-user-clock me-1"></i> Inactive
-                                        </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge rounded-pill bg-danger-subtle text-danger px-3 py-2">
-                                            <i class="fas fa-ban me-1"></i> Suspended
-                                        </span>
-                                        }
-                                    </td>
+                                            <!-- Created -->
+                                            <td>
+                                                <div class="fw-semibold">@admin.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
+                                                <small class="text-muted">@((int)(DateTime.UtcNow - admin.CreatedAt).TotalDays) days ago</small>
+                                            </td>
 
-                                    <!-- Created -->
-                                    <td>
-                                        <span class="text-muted">
-                                            @admin.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-
-                                        <!-- Desktop Buttons -->
-                                        <div class="d-none d-md-inline-block">
-
-                                            <a asp-controller="Account"
-                                               asp-action="EditAccount"
-                                               asp-route-id="@admin.Id"
-                                               class="btn btn-sm btn-light border me-1"
-                                               title="Edit">
-                                                <i class="fas fa-edit text-primary"></i>
-                                            </a>
-
-                                            <form method="post"
-                                                  asp-action="Delete"
-                                                  asp-route-id="@admin.Id"
-                                                  class="d-inline"
-                                                  onsubmit="return confirmDelete(this);">
-
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-light border"
-                                                        title="Delete">
-                                                    <i class="fas fa-trash text-danger"></i>
-                                                </button>
-
-                                            </form>
-
-                                        </div>
-
-                                        <!-- Mobile Dropdown -->
-                                        <div class="dropdown d-md-none">
-
-                                            <button class="btn btn-sm btn-light border"
-                                                    type="button"
-                                                    data-bs-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-h"></i>
-                                            </button>
-
-                                            <ul class="dropdown-menu dropdown-menu-end shadow">
-
-                                                <li>
-                                                    <a class="dropdown-item"
-                                                       asp-controller="Account"
+                                            <!-- Actions -->
+                                            <td class="text-center pe-4">
+                                                <!-- Desktop & Mobile Unified Actions -->
+                                                <div class="d-flex gap-2 justify-content-center">
+                                                    <a asp-controller="Account"
                                                        asp-action="EditAccount"
-                                                       asp-route-id="@admin.Id">
-
-                                                        <i class="fas fa-edit text-primary me-2"></i>
-                                                        Edit
+                                                       asp-route-id="@admin.Id"
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       title="Edit admin">
+                                                        <i class="fas fa-edit"></i>
                                                     </a>
-                                                </li>
 
-                                                <li>
-                                                    <form method="post"
-                                                          asp-action="Delete"
-                                                          asp-route-id="@admin.Id"
-                                                          onsubmit="return confirmDelete(this);">
-
-                                                        <button type="submit" class="dropdown-item text-danger">
-
-                                                            <i class="fas fa-trash me-2"></i>
-                                                            Delete
-
-                                                        </button>
-
-                                                    </form>
-                                                </li>
-
-                                            </ul>
-
-                                        </div>
-
-                                    </td>
-                                </tr>
-                            }
-
-                            </tbody>
-
-                        </table>
-
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            title="Delete admin"
+                                                            onclick="confirmDelete('@admin.Id', '@admin.FirstName @admin.LastName')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                </div>
+                    <!-- Footer with Summary -->
+                    <div class="card-footer bg-white border-0 p-3 d-flex justify-content-between align-items-center">
+                        <div class="text-muted">
+                            <small><i class="fas fa-users me-1"></i>Total administrators: @Model.Count()</small>
+                        </div>
+                        <div class="text-muted">
+                            <small>
+                                <i class="fas fa-check-circle text-success me-1"></i>Active: @Model.Count(a => a.Status == Status.Active) | 
+                                <i class="fas fa-user-clock text-secondary me-1"></i>Inactive: @Model.Count(a => a.Status == Status.Inactive) | 
+                                <i class="fas fa-ban text-danger me-1"></i>Suspended: @Model.Count(a => a.Status == Status.Suspended)
+                            </small>
+                        </div>
+                    </div>
+
+                </div> <!-- End Accounts Card -->
 
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete this admin? This action cannot be undone.
+                <p>Are you sure you want to delete <strong id="adminNameDisplay"></strong>?</p>
+                <p class="text-danger small"><i class="fas fa-info-circle me-1"></i>This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form id="deleteForm" method="post" asp-controller="Account" asp-action="Delete">
+                    <input type="hidden" name="id" id="adminIdToDelete" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<!-- DataTables -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css"/>
-<script src="~/assets/js/plugin/datatables/datatables.min.js"></script>
-<script>
-    let formToSubmit;
-
-    // Show delete modal
-    function confirmDelete(form) {
-        formToSubmit = form;
-        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        modal.show();
-        return false;
+<!-- Styles -->
+<style>
+    .table td, .table th {
+        vertical-align: middle;
     }
-
-    // Confirm delete
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-        if (formToSubmit) {
-            formToSubmit.submit();
-        }
-    });
-
-    // DataTable
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    
+    .badge {
+        font-weight: 500;
+        font-size: 13px;
+    }
+    
+    .btn-outline-primary, .btn-outline-danger, .btn-outline-info {
+        border-width: 1px;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-outline-info:hover {
+        background-color: #0dcaf0;
+        color: white;
+    }
+    
+    .card-footer {
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+</style>
+<!-- jQuery & DataTables -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
     $(document).ready(function () {
         $('#adminTable').DataTable({
             pageLength: 10,
@@ -292,9 +267,26 @@
             searching: true,
             ordering: true,
             info: true,
-            columnDefs: [
-                {orderable: false, targets: [0, 6]}
-            ]
+            language: {
+                search: "<i class='fas fa-search'></i> Search",
+                searchPlaceholder: "Search administrators...",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ administrators",
+                infoEmpty: "Showing 0 to 0 of 0 administrators",
+                infoFiltered: "(filtered from _MAX_ total administrators)"
+            }
         });
     });
+
+    // Delete confirmation function
+    function confirmDelete(adminId, adminName) {
+        // Set the admin name in the modal
+        document.getElementById('adminNameDisplay').textContent = adminName;
+        // Set the admin ID in the hidden input
+        document.getElementById('adminIdToDelete').value = adminId;
+        
+        // Show the modal
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
 </script>

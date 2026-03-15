@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Helpers;
@@ -11,20 +12,22 @@ namespace Sandoohouse.Controllers;
 public class CategoryController : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext;
+
     public CategoryController(ApplicationDbContext applicationDbContext)
     {
         _applicationDbContext = applicationDbContext;
     }
-    
+
     // GET to get list of category
     public async Task<IActionResult> Index()
     {
         var categories = await _applicationDbContext.Categories
+            .Include(c => c.Brand) 
             .OrderBy(c => c.Id)
             .ToListAsync();
         return View(categories);
     }
-    
+
     // GET From to create category
     [HttpGet]
     public IActionResult CreateCategory()
@@ -43,10 +46,7 @@ public class CategoryController : Controller
         string? fileName = null;
 
         // Only handle uploaded file, not string
-        if (model.ImageFile != null)
-        {
-            fileName = await FileUploadHelper.UploadImage(model.ImageFile, "Category");
-        }
+        if (model.ImageFile != null) fileName = await FileUploadHelper.UploadImage(model.ImageFile, "Category");
 
         var adminId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -72,6 +72,14 @@ public class CategoryController : Controller
             .FirstOrDefaultAsync(c => c.Id == id);
         if (category == null)
             return NotFound();
+
+        var brands = await _applicationDbContext.Brands
+            .Where(b => b.Status)
+            .OrderBy(b => b.BrandName)
+            .ToListAsync();
+
+        ViewBag.Brands = new SelectList(brands, "Id", "BrandName");
+
         var model = new CategoryViewerModel
         {
             Id = category.Id,
@@ -79,6 +87,7 @@ public class CategoryController : Controller
             Description = category.Description,
             Status = category.Status,
             CategoryImageUrl = category.CategoryImageUrl,
+            BrandId = category.BrandId,
             CreatedAt = category.CreatedAt,
             UpdatedAt = category.UpdatedAt,
             CreatedByName = await _applicationDbContext.Admins
@@ -89,12 +98,21 @@ public class CategoryController : Controller
 
         return View(model);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> EditCategory(CategoryViewerModel model)
     {
         if (!ModelState.IsValid)
+        {
+            // Repopulate brands if model validation fails
+            var brands = await _applicationDbContext.Brands
+                .Where(b => b.Status)
+                .OrderBy(b => b.BrandName)
+                .ToListAsync();
+            ViewBag.Brands = new SelectList(brands, "Id", "BrandName", model.BrandId);
+
             return View(model);
+        }
 
         // Find the existing category
         var category = await _applicationDbContext.Categories
@@ -103,16 +121,13 @@ public class CategoryController : Controller
         if (category == null)
             return NotFound();
 
-        string? fileName = category.CategoryImageUrl;
+        var fileName = category.CategoryImageUrl;
 
         // Handle image removal
         if (model.RemoveImage == "true" && !string.IsNullOrEmpty(category.CategoryImageUrl))
         {
             var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Category", category.CategoryImageUrl);
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
             fileName = null;
         }
 
@@ -124,11 +139,9 @@ public class CategoryController : Controller
             // Delete old image if exists
             if (!string.IsNullOrEmpty(category.CategoryImageUrl))
             {
-                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Category", category.CategoryImageUrl);
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
+                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Category",
+                    category.CategoryImageUrl);
+                if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
             }
         }
 
@@ -137,6 +150,7 @@ public class CategoryController : Controller
         category.Description = model.Description;
         category.Status = model.Status;
         category.CategoryImageUrl = fileName;
+        category.BrandId = model.BrandId; // <-- Update Brand
         category.UpdatedAt = DateTime.UtcNow;
 
         _applicationDbContext.Categories.Update(category);
@@ -155,17 +169,20 @@ public class CategoryController : Controller
             .FindAsync(id);
         if (category == null)
             return NotFound();
+        var menus = await _applicationDbContext.Menus
+            .Where(m => m.CategoryId == id)
+            .ToListAsync();
+
+        foreach (var menu in menus) menu.CategoryId = null;
         if (!string.IsNullOrEmpty(category.CategoryImageUrl))
         {
             var filePath = Path.Combine(Directory.GetCurrentDirectory(),
                 "wwwroot/Category",
                 category.CategoryImageUrl);
 
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
+            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
         }
+
         _applicationDbContext.Categories.Remove(category);
         await _applicationDbContext.SaveChangesAsync();
         return RedirectToAction("Index", "Category");

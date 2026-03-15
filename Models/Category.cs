@@ -30,7 +30,11 @@ public class Category
     [ForeignKey("Admin")]
     [Display(Name = "Created By")]
     public int CreatedById { get; set; }
-
+    
+    [ForeignKey("Brand")]
+    [Display(Name = "Brand")]
+    public int? BrandId { get; set; }
+    
     [Required]
     [Display(Name = "Created At")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -40,4 +44,6 @@ public class Category
 
     // Optional navigation property to Admin (user) table
     public virtual Admin? Admin { get; set; }
+    public virtual Brand? Brand { get; set; }
+    public virtual ICollection<Menu>? Menus { get; set; }
 }

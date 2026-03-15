@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sandoohouse.ApplicationProgram;
@@ -11,9 +12,11 @@ using Sandoohouse.ApplicationProgram;
 namespace Sandoohouse.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260313072656_CreateRelation")]
+    partial class CreateRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,20 +258,23 @@ namespace Sandoohouse.Migrations
 
             modelBuilder.Entity("Sandoohouse.Models.OrderItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("BrandId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("MenuItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BrandId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MenuItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PosOrderId")
-                        .HasColumnType("integer");
+                    b.Property<long>("PosOrderId")
+                        .HasColumnType("bigint");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)");
@@ -281,13 +287,9 @@ namespace Sandoohouse.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BrandId");
+                    b.HasIndex("OrderId");
 
-                    b.HasIndex("MenuItemId");
-
-                    b.HasIndex("PosOrderId");
-
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("Sandoohouse.Models.Supplier", b =>
@@ -394,27 +396,9 @@ namespace Sandoohouse.Migrations
 
             modelBuilder.Entity("Sandoohouse.Models.OrderItem", b =>
                 {
-                    b.HasOne("Sandoohouse.Models.Brand", "Brand")
-                        .WithMany()
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sandoohouse.Models.Menu", "Menu")
-                        .WithMany()
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Sandoohouse.Models.Order", "Order")
                         .WithMany("OrderItems")
-                        .HasForeignKey("PosOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Brand");
-
-                    b.Navigation("Menu");
+                        .HasForeignKey("OrderId");
 
                     b.Navigation("Order");
                 });

@@ -22,6 +22,89 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-primary bubble-shadow-small">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">Employ User</p>
+                                <h4 class="card-title">@ViewBag.TotalAdminsCount</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div class="icon-big text-center icon-info bubble-shadow-small">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">Supplier</p>
+                                <h4 class="card-title">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div
+                                class="icon-big text-center icon-success bubble-shadow-small"
+                            >
+                                <i class="fas fa-luggage-cart"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">Income</p>
+                                <h4 class="card-title">@String.Format("{0:N0}", ViewBag.TotalIncome) ៛</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="card card-stats card-round">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-icon">
+                            <div
+                                class="icon-big text-center icon-secondary bubble-shadow-small"
+                            >
+                                <i class="far fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="col col-stats ms-3 ms-sm-0">
+                            <div class="numbers">
+                                <p class="card-category">Order</p>
+                                <h4 class="card-title">576</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container py-4">
         <div class="row justify-content-center">
             <div class="col-12">
@@ -42,126 +125,126 @@
                         <div class="table-responsive">
                             <table id="adminTable" class="table table-hover align-middle mb-0">
                                 <thead class="bg-light">
-                                    <tr>
-                                        <th class="ps-4">Admin</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th class="text-center pe-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="ps-4">Admin</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th class="text-center pe-4">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var admin in Model)
-                                    {
-                                        <tr>
-                                            <!-- Profile -->
-                                            <td class="ps-4">
+                                @foreach (var admin in Model)
+                                {
+                                    <tr>
+                                        <!-- Profile -->
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded overflow-hidden bg-white border shadow-sm me-3"
+                                                     style="width: 45px; height: 45px;">
+                                                    <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
+                                                         alt="@admin.FirstName @admin.LastName"
+                                                         class="w-100 h-100"
+                                                         style="object-fit: cover;"/>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold">
+                                                        @admin.FirstName @admin.LastName
+                                                        @if (admin.IsOnline)
+                                                        {
+                                                            <span class="badge ms-2" style="background-color: rgba(40, 167, 69, 0.1); color: #28a745; font-size:0.7rem;">
+                                                                <i class="fas fa-circle me-1" style="font-size: 6px;"></i>Online
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge ms-2" style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d; font-size:0.7rem;">
+                                                                <i class="fas fa-circle me-1" style="font-size: 6px;"></i>Offline
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    <small class="text-muted">ID: #@admin.Id</small>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Email -->
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-envelope text-primary me-2" style="font-size: 14px;"></i>
+                                                <span class="text-muted">@admin.Email</span>
+                                            </div>
+                                        </td>
+
+                                        <!-- Phone -->
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(admin.PhoneNumber))
+                                            {
                                                 <div class="d-flex align-items-center">
-                                                    <div class="rounded overflow-hidden bg-white border shadow-sm me-3"
-                                                         style="width: 45px; height: 45px;">
-                                                        <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
-                                                             alt="@admin.FirstName @admin.LastName"
-                                                             class="w-100 h-100"
-                                                             style="object-fit: cover;" />
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-semibold">
-                                                            @admin.FirstName @admin.LastName
-                                                            @if (admin.IsOnline)
-                                                            {
-                                                                <span class="badge ms-2" style="background-color: rgba(40, 167, 69, 0.1); color: #28a745; font-size:0.7rem;">
-                                                                    <i class="fas fa-circle me-1" style="font-size: 6px;"></i>Online
-                                                                </span>
-                                                            }
-                                                            else
-                                                            {
-                                                                <span class="badge ms-2" style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d; font-size:0.7rem;">
-                                                                    <i class="fas fa-circle me-1" style="font-size: 6px;"></i>Offline
-                                                                </span>
-                                                            }
-                                                        </div>
-                                                        <small class="text-muted">ID: #@admin.Id</small>
-                                                    </div>
+                                                    <i class="fas fa-phone text-primary me-2" style="font-size: 14px;"></i>
+                                                    <span class="text-muted">@admin.PhoneNumber</span>
                                                 </div>
-                                            </td>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">Not provided</span>
+                                            }
+                                        </td>
 
-                                            <!-- Email -->
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <i class="fas fa-envelope text-primary me-2" style="font-size: 14px;"></i>
-                                                    <span class="text-muted">@admin.Email</span>
-                                                </div>
-                                            </td>
+                                        <!-- Status -->
+                                        <td>
+                                            @if (admin.Status == Status.Active)
+                                            {
+                                                <span class="badge rounded-pill px-3 py-2"
+                                                      style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
+                                                    <i class="fas fa-check-circle me-1"></i> Active
+                                                </span>
+                                            }
+                                            else if (admin.Status == Status.Inactive)
+                                            {
+                                                <span class="badge rounded-pill px-3 py-2"
+                                                      style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d;">
+                                                    <i class="fas fa-user-clock me-1"></i> Inactive
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge rounded-pill px-3 py-2"
+                                                      style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                                                    <i class="fas fa-ban me-1"></i> Suspended
+                                                </span>
+                                            }
+                                        </td>
 
-                                            <!-- Phone -->
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(admin.PhoneNumber))
-                                                {
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="fas fa-phone text-primary me-2" style="font-size: 14px;"></i>
-                                                        <span class="text-muted">@admin.PhoneNumber</span>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted fst-italic">Not provided</span>
-                                                }
-                                            </td>
+                                        <!-- Created -->
+                                        <td>
+                                            <div class="fw-semibold">@admin.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
+                                            <small class="text-muted">@((int)(DateTime.UtcNow - admin.CreatedAt).TotalDays) days ago</small>
+                                        </td>
 
-                                            <!-- Status -->
-                                            <td>
-                                                @if (admin.Status == Status.Active)
-                                                {
-                                                    <span class="badge rounded-pill px-3 py-2" 
-                                                          style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
-                                                        <i class="fas fa-check-circle me-1"></i> Active
-                                                    </span>
-                                                }
-                                                else if (admin.Status == Status.Inactive)
-                                                {
-                                                    <span class="badge rounded-pill px-3 py-2" 
-                                                          style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d;">
-                                                        <i class="fas fa-user-clock me-1"></i> Inactive
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge rounded-pill px-3 py-2" 
-                                                          style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
-                                                        <i class="fas fa-ban me-1"></i> Suspended
-                                                    </span>
-                                                }
-                                            </td>
+                                        <!-- Actions -->
+                                        <td class="text-center pe-4">
+                                            <!-- Desktop & Mobile Unified Actions -->
+                                            <div class="d-flex gap-2 justify-content-center">
+                                                <a asp-controller="Account"
+                                                   asp-action="EditAccount"
+                                                   asp-route-id="@admin.Id"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Edit admin">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
 
-                                            <!-- Created -->
-                                            <td>
-                                                <div class="fw-semibold">@admin.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
-                                                <small class="text-muted">@((int)(DateTime.UtcNow - admin.CreatedAt).TotalDays) days ago</small>
-                                            </td>
-
-                                            <!-- Actions -->
-                                            <td class="text-center pe-4">
-                                                <!-- Desktop & Mobile Unified Actions -->
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <a asp-controller="Account"
-                                                       asp-action="EditAccount"
-                                                       asp-route-id="@admin.Id"
-                                                       class="btn btn-sm btn-outline-primary"
-                                                       title="Edit admin">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-
-                                                    <button type="button"
-                                                            class="btn btn-sm btn-outline-danger"
-                                                            title="Delete admin"
-                                                            onclick="confirmDelete('@admin.Id', '@admin.FirstName @admin.LastName')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        title="Delete admin"
+                                                        onclick="confirmDelete('@admin.Id', '@admin.FirstName @admin.LastName')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
                                 </tbody>
                             </table>
                         </div>
@@ -174,8 +257,8 @@
                         </div>
                         <div class="text-muted">
                             <small>
-                                <i class="fas fa-check-circle text-success me-1"></i>Active: @Model.Count(a => a.Status == Status.Active) | 
-                                <i class="fas fa-user-clock text-secondary me-1"></i>Inactive: @Model.Count(a => a.Status == Status.Inactive) | 
+                                <i class="fas fa-check-circle text-success me-1"></i>Active: @Model.Count(a => a.Status == Status.Active) |
+                                <i class="fas fa-user-clock text-secondary me-1"></i>Inactive: @Model.Count(a => a.Status == Status.Inactive) |
                                 <i class="fas fa-ban text-danger me-1"></i>Suspended: @Model.Count(a => a.Status == Status.Suspended)
                             </small>
                         </div>

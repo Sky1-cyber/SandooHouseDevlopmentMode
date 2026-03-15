@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sandoohouse.ApplicationProgram;
@@ -11,9 +12,11 @@ using Sandoohouse.ApplicationProgram;
 namespace Sandoohouse.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260312152021_CreateMenuSet")]
+    partial class CreateMenuSet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,42 +78,6 @@ namespace Sandoohouse.Migrations
                     b.ToTable("Admins");
                 });
 
-            modelBuilder.Entity("Sandoohouse.Models.Brand", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BrandName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LogoBrandUrl")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BrandName")
-                        .IsUnique();
-
-                    b.ToTable("Brands");
-                });
-
             modelBuilder.Entity("Sandoohouse.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -118,9 +85,6 @@ namespace Sandoohouse.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BrandId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("CategoryImageUrl")
                         .HasMaxLength(500)
@@ -148,8 +112,6 @@ namespace Sandoohouse.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryImageUrl")
                         .IsUnique();
@@ -206,88 +168,6 @@ namespace Sandoohouse.Migrations
                         .IsUnique();
 
                     b.ToTable("Menus");
-                });
-
-            modelBuilder.Entity("Sandoohouse.Models.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("CashReceived")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<decimal>("ChangeAmount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("DiscountAmount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("OrderNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<int>("OrderStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("Sandoohouse.Models.OrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BrandId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MenuItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PosOrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BrandId");
-
-                    b.HasIndex("MenuItemId");
-
-                    b.HasIndex("PosOrderId");
-
-                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Sandoohouse.Models.Supplier", b =>
@@ -361,11 +241,6 @@ namespace Sandoohouse.Migrations
 
             modelBuilder.Entity("Sandoohouse.Models.Category", b =>
                 {
-                    b.HasOne("Sandoohouse.Models.Brand", "Brand")
-                        .WithMany("Categories")
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("Sandoohouse.Models.Admin", "Admin")
                         .WithMany("Categories")
                         .HasForeignKey("CreatedById")
@@ -373,8 +248,6 @@ namespace Sandoohouse.Migrations
                         .IsRequired();
 
                     b.Navigation("Admin");
-
-                    b.Navigation("Brand");
                 });
 
             modelBuilder.Entity("Sandoohouse.Models.Menu", b =>
@@ -392,33 +265,6 @@ namespace Sandoohouse.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Sandoohouse.Models.OrderItem", b =>
-                {
-                    b.HasOne("Sandoohouse.Models.Brand", "Brand")
-                        .WithMany()
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sandoohouse.Models.Menu", "Menu")
-                        .WithMany()
-                        .HasForeignKey("MenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sandoohouse.Models.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("PosOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Brand");
-
-                    b.Navigation("Menu");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("Sandoohouse.Models.Admin", b =>
                 {
                     b.Navigation("Categories");
@@ -426,19 +272,9 @@ namespace Sandoohouse.Migrations
                     b.Navigation("Menus");
                 });
 
-            modelBuilder.Entity("Sandoohouse.Models.Brand", b =>
-                {
-                    b.Navigation("Categories");
-                });
-
             modelBuilder.Entity("Sandoohouse.Models.Category", b =>
                 {
                     b.Navigation("Menus");
-                });
-
-            modelBuilder.Entity("Sandoohouse.Models.Order", b =>
-                {
-                    b.Navigation("OrderItems");
                 });
 #pragma warning restore 612, 618
         }

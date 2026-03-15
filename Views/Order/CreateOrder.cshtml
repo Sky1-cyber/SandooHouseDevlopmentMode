@@ -1,0 +1,872 @@
+﻿@using System.Security.Claims
+@{
+ViewData["Title"] = "POS System";
+Layout = null;
+var firstName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" href="~/assets/img/kaiadmin/SandooHouse.ico" type="image/x-icon"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link rel="stylesheet" href="~/css/POsStyle.css" />
+</head>
+<body>
+<div class="pos-shell">
+
+    <!-- ── TOP BAR ── -->
+    <header class="topbar">
+        <img src="~/assets/img/kaiadmin/SandooHouse.ico" alt="Logo" class="topbar-logo"
+             onerror="this.src='https://via.placeholder.com/100x32?text=POS'">
+        <div class="topbar-divider"></div>
+        <div class="topbar-info">
+            <span class="topbar-date"><i class="fas fa-calendar-alt" style="margin-right:4px;color:var(--brand)"></i>@DateTime.Now.ToString("dd MMM yyyy")</span>
+            <span class="topbar-time" id="liveClock">@DateTime.Now.ToString("hh:mm tt")</span>
+        </div>
+
+        <div class="topbar-spacer"></div>
+
+        <div class="topbar-hide-sm" style="display:flex;align-items:center;gap:8px;">
+            <span class="exrate-chip"><i class="fas fa-exchange-alt" style="margin-right:5px;"></i>1$ = 4,100៛</span>
+            <div class="curr-toggle">
+                <button class="curr-btn active" data-currency="usd">USD</button>
+                <button class="curr-btn" data-currency="khr">KHR</button>
+            </div>
+        </div>
+
+        <div class="user-chip">
+            <i class="fas fa-user-circle"></i>
+            <span>@firstName @lastName</span>
+        </div>
+    </header>
+
+    <!-- ── MAIN BODY ── -->
+    <div class="pos-body">
+
+        <!-- ── PRODUCTS PANEL ── -->
+        <div class="panel-products">
+
+            <!-- Brand tabs -->
+            <div class="filter-bar">
+                <div class="filter-label"><i class="fas fa-tag" style="margin-right:4px;color:var(--brand)"></i>ម៉ាក</div>
+                <div class="scroll-tabs" id="brandTabs">
+                    <button class="tab-pill brand-active" data-brand="all">ទាំងអស់</button>
+                    @if (ViewBag.Brands != null)
+                    {
+                    foreach (var brand in ViewBag.Brands)
+                    {
+                    <button class="tab-pill" data-brand="@brand.BrandName" data-brand-id="@brand.Id">@brand.BrandName</button>
+                    }
+                    }
+                </div>
+            </div>
+
+            <!-- Category tabs -->
+            <div class="filter-bar" style="border-bottom:none;padding-top:6px;">
+                <div class="filter-label"><i class="fas fa-list" style="margin-right:4px;color:var(--accent)"></i>ប្រភេទ</div>
+                <div class="scroll-tabs" id="categoryTabs">
+                    <button class="tab-pill active" data-category="all">ទាំងអស់</button>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-wrap">
+                <div class="search-inner">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="productSearch" placeholder="ស្វែងរកមុខទំនិញ..." autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+
+            <!-- Grid -->
+            <div class="products-grid" id="productsGrid">
+                <div class="state-placeholder">
+                    <i class="fas fa-circle-notch fa-spin" style="color:var(--brand)"></i>
+                    <p>កំពុងផ្ទុក...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── CART PANEL (desktop) ── -->
+        <div class="panel-cart" id="cartPanel">
+            <!-- Cart head -->
+            <div class="cart-head">
+                <span class="cart-title"><i class="fas fa-shopping-cart"></i>ការកម្មង់</span>
+                <span class="cart-badge" id="cartCount">0 មុខ</span>
+            </div>
+
+            <!-- Cart items -->
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">
+                    <i class="fas fa-utensils"></i>
+                    <p>ថ្ងៃសួស្ដី! ជ្រើសអាហារ</p>
+                    <small>ចុចលើផលិតផលដើម្បីបន្ថែម</small>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="cart-summary">
+                <div class="sum-row">
+                    <span>សរុបរង</span>
+                    <span>
+                        <span id="subtotal">$0.00</span>
+                        <div class="sum-khr" id="subtotalKhr">0 ៛</div>
+                    </span>
+                </div>
+
+                <!-- Discount -->
+                <div class="disc-box">
+                    <div class="disc-box-head">
+                        <span><i class="fas fa-tags" style="margin-right:5px;"></i>បញ្ចុះតម្លៃ</span>
+                        <span class="disc-type-badge" id="discountTypeBadge">ដុល្លារ</span>
+                    </div>
+                    <div class="disc-inputs">
+                        <input type="number" id="discountAmount" placeholder="0" min="0" step="0.01" value="0">
+                        <select id="discountTypeSelect">
+                            <option value="fixed">USD</option>
+                            <option value="percentage">%</option>
+                        </select>
+                    </div>
+                    <div id="discountDisplay" style="display:none;margin-top:6px;">
+                        <div class="sum-row" style="font-size:12px;color:#8B6914;margin-bottom:0;">
+                            <span>ចំនួនបញ្ចុះ</span>
+                            <span>
+                                <span id="discountValue">-$0.00</span>
+                                <div class="sum-khr" id="discountKhr">0 ៛</div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sum-row total">
+                    <span><i class="fas fa-calculator" style="margin-right:6px;font-size:14px;"></i>សរុបទាំងអស់</span>
+                    <span>
+                        <span id="total" class="total-usd">$0.00</span>
+                        <div class="sum-khr" id="totalKhr">0 ៛</div>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Payment section -->
+            <div class="pay-section">
+                <!-- Method -->
+                <div class="pay-methods">
+                    <div class="pay-method active" data-method="cash">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>សាច់ប្រាក់</span>
+                    </div>
+                    <div class="pay-method" data-method="card">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Card</span>
+                    </div>
+                    <div class="pay-method" data-method="qr">
+                        <i class="fas fa-qrcode"></i>
+                        <span>KHQR</span>
+                    </div>
+                </div>
+
+                <!-- Currency for payment -->
+                <div class="pay-currency-row">
+                    <button class="pay-curr-btn active" data-pay-currency="usd">បង់ USD</button>
+                    <button class="pay-curr-btn" data-pay-currency="khr">បង់ រៀល</button>
+                </div>
+
+                <!-- Cash input -->
+                <div class="cash-section" id="cashPaymentSection">
+                    <div class="cash-input-row">
+                        <input type="number" id="cashReceived" placeholder="ទទួលប្រាក់" min="0" step="0.01" value="0">
+                        <button class="exact-btn" data-amount="exact">ចំនួនពិតប្រាកដ</button>
+                    </div>
+                    <div class="quick-row" id="quickAmounts">
+                        <button class="quick-btn usd-amt" data-amount="5">$5</button>
+                        <button class="quick-btn usd-amt" data-amount="10">$10</button>
+                        <button class="quick-btn usd-amt" data-amount="20">$20</button>
+                        <button class="quick-btn usd-amt" data-amount="50">$50</button>
+                        <button class="quick-btn usd-amt" data-amount="100">$100</button>
+                        <button class="quick-btn khr-amt" data-amount="5000" style="display:none;">5k ៛</button>
+                        <button class="quick-btn khr-amt" data-amount="10000" style="display:none;">10k ៛</button>
+                        <button class="quick-btn khr-amt" data-amount="20000" style="display:none;">20k ៛</button>
+                        <button class="quick-btn khr-amt" data-amount="50000" style="display:none;">50k ៛</button>
+                        <button class="quick-btn khr-amt" data-amount="100000" style="display:none;">100k ៛</button>
+                    </div>
+                </div>
+
+                <!-- Change -->
+                <div class="change-box" id="changeDisplay">
+                    <i class="fas fa-hand-holding-usd" style="margin-right:5px;"></i>
+                    ប្រាក់សល់: <strong id="changeAmount">$0.00</strong>
+                    <div class="change-khr" id="changeAmountKhr">0 ៛</div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="action-row">
+                    <button class="act-btn act-hold" id="holdOrderBtn">
+                        <i class="fas fa-pause-circle"></i> ផ្អាក <span class="shortcut-tag">F4</span>
+                    </button>
+                    <button class="act-btn act-cancel" id="cancelOrderBtn">
+                        <i class="fas fa-times-circle"></i> បោះបង់
+                    </button>
+                    <button class="act-btn act-pay" id="payBtn" disabled>
+                        <i class="fas fa-check-circle"></i>
+                        បញ្ចប់ការទូទាត់
+                        <span class="shortcut-tag">F8</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent orders -->
+            <div class="recent-bar">
+                <div class="recent-label"><i class="fas fa-history" style="margin-right:5px;"></i>ប្រតិបត្តិការថ្មីៗ</div>
+                <div class="recent-scroll" id="recentOrders"></div>
+            </div>
+        </div>
+    </div><!-- end pos-body -->
+</div><!-- end pos-shell -->
+
+<!-- ── MOBILE FAB ── -->
+<button class="cart-fab" id="cartFab">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-fab-badge" id="fabBadge">0</span>
+</button>
+
+<!-- ── MOBILE CART SHEET ── -->
+<div class="cart-sheet" id="cartSheet">
+    <div class="sheet-backdrop" id="sheetBackdrop"></div>
+    <div class="sheet-body">
+        <div class="sheet-handle"></div>
+        <!-- reuse same cart panel content via JS clone -->
+        <div id="mobileCartContent" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;min-height:0;"></div>
+    </div>
+</div>
+
+<!-- ── INVOICE MODAL ── -->
+<div class="modal-overlay" id="invoiceModal">
+    <div class="invoice-box">
+        <div class="inv-head">
+            <h2><i class="fas fa-receipt" style="margin-right:8px;"></i>ផ្ទុះបាយសេនឌូ</h2>
+            <div class="inv-num" id="invoiceNumber">#ORD-0000</div>
+        </div>
+        <div class="inv-body">
+            <div class="inv-meta">
+                <span><i class="fas fa-calendar"></i><span id="invoiceDate"></span></span>
+                <span><i class="fas fa-clock"></i><span id="invoiceTime"></span></span>
+            </div>
+            <div class="inv-meta" style="border-bottom:none;margin-bottom:10px;">
+                <span><i class="fas fa-user"></i><span>@firstName @lastName</span></span>
+                <span><i class="fas fa-credit-card"></i><span id="invoicePaymentMethod">សាច់ប្រាក់</span></span>
+            </div>
+
+            <div class="inv-items-head">
+                <span>មុខ</span><span>ចំនួន x តម្លៃ</span><span>សរុប</span>
+            </div>
+            <div id="invoiceItems"></div>
+            <div class="inv-summary" id="invoiceSummary"></div>
+            <div class="inv-pay-box" id="invoicePaymentDetails"></div>
+        </div>
+
+        <div class="inv-footer">
+            <div class="thanks">🙏 សូមអរគុណសម្រាប់ការទិញ!</div>
+            <div>ទំនិញដែលបានទិញ មិនអាចដូរបានទេ</div>
+        </div>
+
+        <div class="inv-actions">
+            <button class="inv-btn print" id="printInvoiceBtn"><i class="fas fa-print"></i> បោះពុម្ព</button>
+            <button class="inv-btn close-btn" id="closeInvoiceBtn"><i class="fas fa-times"></i> បិទ</button>
+        </div>
+    </div>
+</div>
+
+<!-- Keyboard hint (desktop only) -->
+<div class="kbd-hint">
+    <i class="fas fa-keyboard" style="margin-right:6px;"></i>
+    F2: ថ្មី &nbsp;|&nbsp; F4: ផ្អាក &nbsp;|&nbsp; F8: បង់ &nbsp;|&nbsp; ESC: បោះបង់
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const EXCHANGE_RATE = 4100;
+
+        // Live clock
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours() % 12 || 12;
+            const m = String(now.getMinutes()).padStart(2,'0');
+            const ap = now.getHours() >= 12 ? 'PM' : 'AM';
+            $('#liveClock').text(`${h}:${m} ${ap}`);
+        }
+        setInterval(updateClock, 1000);
+
+        // Products from server
+        const products = [
+            @if (ViewBag.Menus != null)
+            {
+            var index = 0;
+            string[] colors = { "#FF6B35","#E85520","#2D3561","#00B894","#FDCB6E","#6C5CE7","#0984E3","#E17055","#00CEC9","#A29BFE" };
+            foreach (var menu in ViewBag.Menus)
+            {
+            var color = colors[index % colors.Length];
+            string categoryName = menu.Category?.CategoryName ?? "Uncategorized";
+            string brandName = menu.Category?.Brand?.BrandName ?? "Uncategorized";
+            <text>
+            ,{
+                id: @menu.Id,
+                name: '@Html.Raw(menu.MenuName.Replace("'", "\\'"))',
+                priceUsd: @menu.Price.ToString("F2"),
+                category: '@Html.Raw(categoryName.Replace("'", "\\'"))',
+                categoryId: @(menu.CategoryId ?? 0),
+                brand: '@Html.Raw(brandName.Replace("'", "\\'"))',
+                brandId: @(menu.Category?.BrandId ?? 0),
+                icon: '@(menu.ImageMenuUrl ?? "")',
+                color: '@color'
+            },
+            </text>
+            index++;
+            }
+            }
+        ];
+
+        // Build category maps
+        const categoriesByBrand = {};
+        const allCategories = [];
+        products.forEach(p => {
+            if (!categoriesByBrand[p.brand]) categoriesByBrand[p.brand] = new Set();
+            categoriesByBrand[p.brand].add(p.category);
+            if (!allCategories.includes(p.category)) allCategories.push(p.category);
+        });
+
+        // State
+        let cart = [], currentPaymentMethod = 'cash', displayCurrency = 'usd', paymentCurrency = 'usd';
+        let discountAmount = 0, discountType = 'fixed';
+        let orderCounter = 4580, lastOrder = null;
+        let currentBrand = 'all', currentCategory = 'all';
+
+        // Helpers
+        const toKhr = usd => Math.round(usd * EXCHANGE_RATE);
+        const fmtKhr = n => n.toLocaleString() + ' ៛';
+        const fmtUsd = n => '$' + parseFloat(n).toFixed(2);
+
+        function calcDiscount(sub) {
+            if (!discountAmount || discountAmount <= 0) return 0;
+            return discountType === 'fixed'
+                ? Math.min(discountAmount, sub)
+                : Math.min(sub * discountAmount / 100, sub);
+        }
+
+        // ─── CATEGORY TABS ───
+        function updateCategoryTabs(brand) {
+            const cats = brand === 'all' ? allCategories : Array.from(categoriesByBrand[brand] || []);
+            let html = '<button class="tab-pill active" data-category="all">ទាំងអស់</button>';
+            cats.forEach(c => { html += `<button class="tab-pill" data-category="${c}">${c}</button>`; });
+            $('#categoryTabs').html(html);
+            currentCategory = 'all';
+        }
+
+        // ─── PRODUCT GRID ───
+        function loadProducts() {
+            if (!products.length) {
+                $('#productsGrid').html('<div class="state-placeholder"><i class="fas fa-box-open"></i><p>មិនមានផលិតផល</p></div>');
+                return;
+            }
+            const q = $('#productSearch').val().toLowerCase();
+            const filtered = products.filter(p =>
+                (currentBrand === 'all' || p.brand === currentBrand) &&
+                (currentCategory === 'all' || p.category === currentCategory) &&
+                p.name.toLowerCase().includes(q)
+            );
+
+            if (!filtered.length) {
+                $('#productsGrid').html('<div class="state-placeholder"><i class="fas fa-search"></i><p>រកមិនឃើញ</p><small>ប្ដូរតម្រង</small></div>');
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(p => {
+                const imgPath = p.icon ? (p.icon.startsWith('/') ? p.icon : '/Menu/' + p.icon) : '';
+                const imgHtml = imgPath
+                    ? `<img src="${imgPath}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
+                    : '<i class="fas fa-utensils"></i>';
+                html += `
+<div class="product-card"
+     style="--product-color:${p.color}"
+     data-id="${p.id}"
+     data-name="${p.name.replace(/'/g,"&apos;")}"
+     data-price="${p.priceUsd}"
+     data-brand-id="${p.brandId||0}"
+     data-icon="${imgPath}"
+     data-color="${p.color}">
+    <div class="prod-img" style="background:linear-gradient(135deg,${p.color},#2D3561)">${imgHtml}</div>
+    <div class="prod-name">${p.name}</div>
+    <div class="prod-price">${fmtUsd(p.priceUsd)}</div>
+    <div class="prod-price-khr">${fmtKhr(toKhr(parseFloat(p.priceUsd)))}</div>
+    <button class="prod-add-btn"><i class="fas fa-plus"></i></button>
+</div>`;
+            });
+
+            $('#productsGrid').fadeOut(100, function(){ $(this).html(html).fadeIn(150); });
+        }
+
+        updateCategoryTabs('all');
+        loadProducts();
+
+        // ─── FILTER EVENTS ───
+        $('#brandTabs').on('click', '.tab-pill', function(){
+            $('#brandTabs .tab-pill').removeClass('brand-active');
+            $(this).addClass('brand-active');
+            currentBrand = $(this).data('brand') || 'all';
+            updateCategoryTabs(currentBrand);
+            loadProducts();
+        });
+
+        $(document).on('click', '#categoryTabs .tab-pill', function(){
+            $('#categoryTabs .tab-pill').removeClass('active');
+            $(this).addClass('active');
+            currentCategory = $(this).data('category') || 'all';
+            loadProducts();
+        });
+
+        let searchTimeout;
+        $('#productSearch').on('input', function(){
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(loadProducts, 280);
+        });
+
+        $('#productSearch').on('keydown', function(e){
+            if (e.key === 'Escape') { $(this).val(''); loadProducts(); }
+        });
+
+        // ─── CART ───
+        $(document).on('click', '.product-card', function(e){
+            if ($(e.target).is('button') || $(e.target).is('i')) return; // let button handle it
+            addToCart(this);
+        });
+
+        $(document).on('click', '.prod-add-btn', function(e){
+            e.stopPropagation();
+            addToCart($(this).closest('.product-card')[0]);
+        });
+
+        function addToCart(el) {
+            const $el = $(el);
+            $el.addClass('pulse');
+            setTimeout(() => $el.removeClass('pulse'), 300);
+
+            const item = {
+                id: $el.data('id'),
+                name: $el.data('name'),
+                price: parseFloat($el.data('price')),
+                brandId: $el.data('brand-id') || 0,
+                icon: $el.data('icon') || '',
+                color: $el.data('color') || 'var(--brand)'
+            };
+
+            const existing = cart.find(i => i.id === item.id);
+            if (existing) { existing.quantity++; notify(`+1 ${item.name}`, 'info'); }
+            else { cart.push({...item, quantity:1}); notify(`បន្ថែម ${item.name}`, 'success'); }
+
+            renderCart();
+        }
+
+        function renderCart() {
+            const containers = ['#cartItems'];
+            const mobileEl = document.querySelector('#mobileCartContent #cartItems');
+            if (mobileEl) containers.push('#mobileCartContent #cartItems');
+
+            const isEmpty = cart.length === 0;
+            let html = '';
+
+            if (isEmpty) {
+                html = `<div class="empty-cart"><i class="fas fa-utensils"></i><p>ថ្ងៃសួស្ដី! ជ្រើសអាហារ</p><small>ចុចលើផលិតផលដើម្បីបន្ថែម</small></div>`;
+            } else {
+                cart.forEach((item, idx) => {
+                    const tot = item.price * item.quantity;
+                    const imgPath = item.icon ? (item.icon.startsWith('/') ? item.icon : '/Menu/' + item.icon) : '';
+                    const imgHtml = imgPath
+                        ? `<img src="${imgPath}" alt="${item.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
+                        : '<i class="fas fa-utensils"></i>';
+                    html += `
+<div class="cart-item" data-index="${idx}">
+    <div class="ci-thumb" style="background:linear-gradient(135deg,${item.color},#2D3561)">${imgHtml}</div>
+    <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${fmtUsd(item.price)}</div>
+    </div>
+    <div class="ci-qty">
+        <button class="ci-qty-btn decrease-qty"><i class="fas fa-minus"></i></button>
+        <span class="ci-qty-num">${item.quantity}</span>
+        <button class="ci-qty-btn increase-qty"><i class="fas fa-plus"></i></button>
+    </div>
+    <div class="ci-total">${displayCurrency === 'usd' ? fmtUsd(tot) : fmtKhr(toKhr(tot))}</div>
+    <div class="ci-remove"><i class="fas fa-trash-alt"></i></div>
+</div>`;
+                });
+            }
+
+            $('#cartItems').html(html);
+            updateSummary();
+            updateFab();
+        }
+
+        $(document).on('click', '.increase-qty', function(){
+            const idx = $(this).closest('.cart-item').data('index');
+            cart[idx].quantity++;
+            renderCart();
+        });
+
+        $(document).on('click', '.decrease-qty', function(){
+            const idx = $(this).closest('.cart-item').data('index');
+            if (cart[idx].quantity > 1) { cart[idx].quantity--; }
+            else { const n = cart[idx].name; cart.splice(idx,1); notify(`លុប ${n}`, 'warning'); }
+            renderCart();
+        });
+
+        $(document).on('click', '.ci-remove', function(){
+            const idx = $(this).closest('.cart-item').data('index');
+            const n = cart[idx].name;
+            cart.splice(idx,1);
+            notify(`លុប ${n}`, 'warning');
+            renderCart();
+        });
+
+        function updateSummary() {
+            const sub = cart.reduce((s,i) => s + i.price * i.quantity, 0);
+            const disc = calcDiscount(sub);
+            const total = sub - disc;
+
+            $('#subtotal').text(fmtUsd(sub));
+            $('#subtotalKhr').text(fmtKhr(toKhr(sub)));
+            $('#total').text(fmtUsd(total));
+            $('#totalKhr').text(fmtKhr(toKhr(total)));
+
+            if (disc > 0) {
+                $('#discountDisplay').show();
+                $('#discountValue').text('-' + fmtUsd(disc));
+                $('#discountKhr').text(fmtKhr(toKhr(disc)));
+            } else {
+                $('#discountDisplay').hide();
+            }
+
+            const cnt = cart.reduce((s,i) => s + i.quantity, 0);
+            $('#cartCount').text(cnt + ' មុខ');
+            $('#fabBadge').text(cnt);
+
+            updatePayState();
+        }
+
+        function updatePayState() {
+            const sub = cart.reduce((s,i) => s + i.price * i.quantity, 0);
+            const disc = calcDiscount(sub);
+            const totalUsd = sub - disc;
+            const totalKhr = toKhr(totalUsd);
+            const cash = parseFloat($('#cashReceived').val()) || 0;
+
+            if (cart.length === 0) { $('#payBtn').prop('disabled', true); $('#changeDisplay').removeClass('show'); return; }
+
+            if (currentPaymentMethod === 'cash') {
+                const needed = paymentCurrency === 'usd' ? totalUsd : totalKhr;
+                $('#payBtn').prop('disabled', cash < needed);
+                if (cash >= needed && cash > 0) {
+                    let changeUsd, changeKhr;
+                    if (paymentCurrency === 'usd') {
+                        changeUsd = cash - totalUsd; changeKhr = toKhr(changeUsd);
+                    } else {
+                        changeKhr = cash - totalKhr; changeUsd = changeKhr / EXCHANGE_RATE;
+                    }
+                    $('#changeAmount').text(fmtUsd(changeUsd));
+                    $('#changeAmountKhr').text(fmtKhr(changeKhr));
+                    $('#changeDisplay').addClass('show');
+                } else {
+                    $('#changeDisplay').removeClass('show');
+                }
+            } else {
+                $('#payBtn').prop('disabled', false);
+                $('#changeDisplay').removeClass('show');
+            }
+        }
+
+        // Currency toggle header
+        $(document).on('click', '.curr-btn', function(){
+            $('.curr-btn').removeClass('active');
+            $(this).addClass('active');
+            displayCurrency = $(this).data('currency');
+            renderCart();
+        });
+
+        // Payment currency
+        $(document).on('click', '[data-pay-currency]', function(){
+            $('[data-pay-currency]').removeClass('active');
+            $(this).addClass('active');
+            paymentCurrency = $(this).data('pay-currency');
+            if (paymentCurrency === 'usd') {
+                $('.usd-amt').show(); $('.khr-amt').hide();
+                $('#cashReceived').attr('placeholder','ទទួលប្រាក់ (USD)').val('');
+            } else {
+                $('.usd-amt').hide(); $('.khr-amt').show();
+                $('#cashReceived').attr('placeholder','ទទួលប្រាក់ (រៀល)').val('');
+            }
+            updatePayState();
+        });
+
+        // Payment method
+        $(document).on('click', '.pay-method', function(){
+            $(this).closest('.pay-methods').find('.pay-method').removeClass('active');
+            $(this).addClass('active');
+            currentPaymentMethod = $(this).data('method');
+            currentPaymentMethod === 'cash' ? $('#cashPaymentSection').slideDown(180) : $('#cashPaymentSection').slideUp(180);
+            $('#changeDisplay').removeClass('show');
+            updatePayState();
+        });
+
+        $('#cashReceived').on('input', updatePayState);
+
+        // Quick amounts
+        $(document).on('click', '.exact-btn, .quick-btn', function(){
+            const amt = $(this).data('amount');
+            if (amt === 'exact') {
+                const sub = cart.reduce((s,i) => s + i.price * i.quantity, 0);
+                const total = sub - calcDiscount(sub);
+                $('#cashReceived').val(paymentCurrency === 'usd' ? total.toFixed(2) : toKhr(total));
+            } else {
+                $('#cashReceived').val(amt);
+            }
+            updatePayState();
+        });
+
+        // Discount
+        $('#discountAmount').on('input', function(){
+            discountAmount = Math.max(parseFloat($(this).val()) || 0, 0);
+            updateSummary();
+        });
+
+        $('#discountTypeSelect').on('change', function(){
+            discountType = $(this).val();
+            $('#discountTypeBadge').text(discountType === 'fixed' ? 'ដុល្លារ' : 'ភាគរយ');
+            updateSummary();
+        });
+
+        // Cancel
+        $('#cancelOrderBtn').click(function(){
+            if (!cart.length) return;
+            if (confirm('បោះបង់ការកម្មង់?')) { resetCart(); notify('បោះបង់ការកម្មង់', 'warning'); }
+        });
+
+        // Hold
+        $('#holdOrderBtn').click(function(){
+            if (!cart.length) { notify('គ្មានទំនិញ', 'warning'); return; }
+            const sub = cart.reduce((s,i) => s + i.price * i.quantity, 0);
+            const disc = calcDiscount(sub);
+            const total = sub - disc;
+            const held = JSON.parse(localStorage.getItem('heldOrders')||'[]');
+            held.push({ id:'HOLD'+Date.now(), items:cart, discount:{amount:discountAmount,type:discountType,value:disc}, total });
+            localStorage.setItem('heldOrders', JSON.stringify(held));
+            resetCart();
+            notify('ផ្អាកការកម្មង់', 'success');
+        });
+
+        // Pay
+        $('#payBtn').click(async function(){
+            const $btn = $(this).prop('disabled',true).html('<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...');
+            try {
+                const sub = cart.reduce((s,i) => s + i.price * i.quantity, 0);
+                const disc = calcDiscount(sub);
+                const totalUsd = sub - disc;
+                const totalKhr = toKhr(totalUsd);
+                const cash = parseFloat($('#cashReceived').val()) || totalUsd;
+
+                let changeUsd = 0, changeKhr = 0;
+                if (currentPaymentMethod === 'cash') {
+                    if (paymentCurrency === 'usd') { changeUsd = cash - totalUsd; changeKhr = toKhr(changeUsd); }
+                    else { changeKhr = cash - totalKhr; changeUsd = changeKhr / EXCHANGE_RATE; }
+                }
+
+                const items = cart.map(i => ({ menuItemId:i.id, brandId:i.brandId||0, quantity:i.quantity, price:i.price, subtotal:i.price*i.quantity }));
+                const cashUsd = paymentCurrency === 'usd' ? cash : cash / EXCHANGE_RATE;
+
+                const res = await fetch('/Order/CreateOrder', {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ items, cashReceived:cashUsd, discountAmount:disc })
+                });
+
+                if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Server ${res.status}`); }
+                const result = await res.json();
+
+                orderCounter++;
+                const orderNum = result.orderNumber || 'ORD' + orderCounter;
+                const pmLabel = currentPaymentMethod === 'cash' ? 'សាច់ប្រាក់' : currentPaymentMethod === 'card' ? 'Card' : 'KHQR';
+
+                lastOrder = {
+                    number: orderNum, date: new Date(),
+                    items: [...cart], subtotal: sub, discount: disc,
+                    discountType, discountAmount, total: totalUsd, totalKhr,
+                    paymentMethod: pmLabel, paymentCurrency: paymentCurrency === 'usd' ? 'ដុល្លារ' : 'រៀល',
+                    cashReceived: cash, changeUsd, changeKhr,
+                    cashier: '@firstName @lastName'
+                };
+
+                showInvoice(lastOrder);
+                addRecentChip(orderNum, totalUsd);
+                resetCart();
+                notify('ការទូទាត់បានជោគជ័យ! ✓', 'success');
+            } catch(err) {
+                notify('មានបញ្ហា: ' + err.message, 'error');
+            } finally {
+                $btn.prop('disabled', false).html('<i class="fas fa-check-circle"></i> បញ្ចប់ការទូទាត់ <span class="shortcut-tag">F8</span>');
+                updatePayState();
+            }
+        });
+
+        function resetCart() {
+            cart = []; discountAmount = 0;
+            $('#discountAmount').val('0');
+            $('#discountDisplay').hide();
+            $('#cashReceived').val('0');
+            $('#changeDisplay').removeClass('show');
+            renderCart();
+        }
+
+        function updateFab() {
+            const cnt = cart.reduce((s,i) => s + i.quantity, 0);
+            $('#fabBadge').text(cnt);
+            if (cnt > 0) $('#cartFab').css('animation','pulseAnim 0.3s ease');
+            setTimeout(() => $('#cartFab').css('animation',''), 300);
+        }
+
+        // ─── INVOICE ───
+        function showInvoice(order) {
+            const now = new Date();
+            $('#invoiceDate').text(now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}));
+            $('#invoiceTime').text(now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}));
+            $('#invoiceNumber').text('#'+order.number);
+            $('#invoicePaymentMethod').text(order.paymentMethod);
+
+            let itemsHtml = '';
+            order.items.forEach(item => {
+                const tot = item.price * item.quantity;
+                itemsHtml += `<div class="inv-item">
+                <span class="inv-item-name">${item.name}</span>
+                <span class="inv-item-qty">${item.quantity} × ${fmtUsd(item.price)}</span>
+                <span class="inv-item-total">${fmtUsd(tot)}</span>
+            </div>`;
+            });
+            $('#invoiceItems').html(itemsHtml);
+
+            let sumHtml = `<div class="inv-sum-row"><span>សរុបរង</span><span>${fmtUsd(order.subtotal)}</span></div>`;
+            if (order.discount > 0) {
+                sumHtml += `<div class="inv-sum-row discount"><span>បញ្ចុះ ${order.discountType==='percentage'?'('+order.discountAmount+'%)':''}</span><span>-${fmtUsd(order.discount)}</span></div>`;
+            }
+            sumHtml += `<div class="inv-sum-row total"><span>សរុប</span><span>${fmtUsd(order.total)}</span></div>
+            <div style="text-align:right;font-size:11px;color:var(--text-light);margin-top:4px;">${fmtKhr(order.totalKhr)}</div>`;
+            $('#invoiceSummary').html(sumHtml);
+
+            let payHtml = '';
+            if (order.paymentMethod === 'សាច់ប្រាក់') {
+                const cashDisp = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.cashReceived) : fmtKhr(order.cashReceived);
+                const changeDisp = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.changeUsd) : fmtKhr(order.changeKhr);
+                payHtml = `<div class="inv-sum-row"><span>ទទួល (${order.paymentCurrency})</span><span>${cashDisp}</span></div>
+                <div class="inv-sum-row"><span>អាប់</span><span>${changeDisp}</span></div>`;
+            } else {
+                payHtml = `<div class="inv-sum-row"><span>វិធីបង់ </span><span>${order.paymentMethod}</span></div>`;
+            }
+            $('#invoicePaymentDetails').html(payHtml);
+
+            $('#invoiceModal').addClass('show');
+        }
+
+        $('#printInvoiceBtn').click(function(){
+            if (!lastOrder) return;
+            const pw = window.open('','_blank');
+            let itemsHtml = '';
+            lastOrder.items.forEach(i => {
+                itemsHtml += `<tr><td>${i.name}</td><td style="text-align:center;">${i.quantity}</td><td style="text-align:right;">${fmtUsd(i.price)}</td><td style="text-align:right;">${fmtUsd(i.price*i.quantity)}</td></tr>`;
+            });
+            pw.document.write(`<!DOCTYPE html><html><head><title>Invoice #${lastOrder.number}</title>
+<style>body{font-family:Arial,sans-serif;margin:0;padding:16px;font-size:13px;}
+h2{color:#FF6B35;margin:0 0 4px;}
+table{width:100%;border-collapse:collapse;margin:10px 0;}
+th{background:#f0f0f0;padding:6px 4px;text-align:left;}
+td{padding:5px 4px;border-bottom:1px solid #eee;}
+.tot{font-weight:bold;font-size:15px;}.divider{border-top:1px dashed #999;margin:8px 0;}</style></head>
+<body><div style="text-align:center;margin-bottom:16px;">
+<h2>ផ្ទុះបាយសេនឌូ</h2><p style="margin:2px 0;font-size:11px;">ទូរស័ព្ទ: 012 345 678 | ភ្នំពេញ</p>
+<div class="divider"></div><strong>#${lastOrder.number}</strong><br>
+<span style="font-size:11px;">${new Date().toLocaleString()} | ${lastOrder.cashier}</span></div>
+<table><thead><tr><th>មុខ</th><th>ចំ</th><th>តម្លៃ</th><th>សរុប</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+<div class="divider"></div>
+<div style="display:flex;justify-content:space-between;"><span>សរុបរង</span><span>${fmtUsd(lastOrder.subtotal)}</span></div>
+${lastOrder.discount>0?`<div style="display:flex;justify-content:space-between;color:#F59E0B;"><span>បញ្ចុះ</span><span>-${fmtUsd(lastOrder.discount)}</span></div>`:''}
+<div class="divider"></div>
+<div style="display:flex;justify-content:space-between;" class="tot"><span>សរុបទាំងអស់</span><span>${fmtUsd(lastOrder.total)}</span></div>
+<div style="text-align:right;font-size:11px;color:#888;">${fmtKhr(lastOrder.totalKhr)}</div>
+${lastOrder.paymentMethod==='សាច់ប្រាក់'?`<div style="display:flex;justify-content:space-between;margin-top:6px;"><span>ទទួល</span><span>${lastOrder.paymentCurrency==='ដុល្លារ'?fmtUsd(lastOrder.cashReceived):fmtKhr(lastOrder.cashReceived)}</span></div>
+<div style="display:flex;justify-content:space-between;"><span>អាប់</span><span>${lastOrder.paymentCurrency==='ដុល្លារ'?fmtUsd(lastOrder.changeUsd):fmtKhr(lastOrder.changeKhr)}</span></div>`:''}
+<div style="text-align:center;margin-top:20px;font-size:12px;">
+<p>🙏 សូមអរគុណ!</p><p>ទំនិញមិនអាចដូរ</p></div>
+</body></html>`);
+            pw.document.close();
+            pw.focus();
+            setTimeout(() => pw.print(), 300);
+        });
+
+        $('#closeInvoiceBtn').click(function(){ $('#invoiceModal').removeClass('show'); });
+        $(document).on('click', '.modal-overlay', function(e){ if ($(e.target).hasClass('modal-overlay')) $('#invoiceModal').removeClass('show'); });
+
+        // ─── RECENT ORDERS ───
+        function addRecentChip(num, amt) {
+            const html = `<div class="recent-chip" data-order="${num}">
+            <span class="rord-num">#${num}</span>
+            <span>${fmtUsd(amt)}</span>
+            <span class="rord-status">✓</span>
+        </div>`;
+            $('#recentOrders').prepend(html);
+            if ($('#recentOrders .recent-chip').length > 6) $('#recentOrders .recent-chip:last').remove();
+        }
+
+        $(document).on('click', '.recent-chip', function(){ if (lastOrder) showInvoice(lastOrder); });
+
+        // Sample recent orders
+        addRecentChip('4582', 45.97);
+        addRecentChip('4581', 23.50);
+        addRecentChip('4580', 67.48);
+
+        // ─── MOBILE SHEET ───
+        $('#cartFab').click(function(){
+            // Clone cart panel inner content into sheet
+            const $sheet = $('#mobileCartContent');
+            $sheet.html($('#cartPanel').html());
+            // Sync state display
+            updateSummary();
+            $('#cartSheet').addClass('open');
+        });
+
+        $('#sheetBackdrop').click(function(){ $('#cartSheet').removeClass('open'); });
+
+        // ─── NOTIFICATIONS ───
+        function notify(msg, type='info') {
+            $('.toast').remove();
+            const icons = { success:'fa-check-circle', warning:'fa-exclamation-triangle', error:'fa-times-circle', info:'fa-info-circle' };
+            const $t = $(`<div class="toast t-${type}"><i class="fas ${icons[type]||icons.info}"></i><span>${msg}</span></div>`);
+            $('body').append($t);
+            setTimeout(() => $t.addClass('show'), 10);
+            setTimeout(() => { $t.removeClass('show'); setTimeout(() => $t.remove(), 300); }, 2800);
+        }
+
+        // ─── KEYBOARD ───
+        $(document).on('keydown', function(e){
+            if (e.key === 'F2') { e.preventDefault(); if (cart.length && confirm('ចាប់ផ្តើមថ្មី?')) { resetCart(); notify('ចាប់ផ្តើមការកម្មង់ថ្មី','info'); } }
+            if (e.key === 'F4') { e.preventDefault(); $('#holdOrderBtn').click(); }
+            if (e.key === 'F8') { e.preventDefault(); if (!$('#payBtn').prop('disabled')) $('#payBtn').click(); }
+            if (e.key === 'Escape') { e.preventDefault(); if ($('#invoiceModal').hasClass('show')) { $('#invoiceModal').removeClass('show'); } else { $('#cancelOrderBtn').click(); } }
+            if (e.key === '/' && !$(e.target).is('input,textarea,select')) { e.preventDefault(); $('#productSearch').focus(); }
+        });
+
+        console.log('✅ POS Ready');
+    });
+</script>
+</body>
+</html>

@@ -1,19 +1,28 @@
 ﻿@model IEnumerable<Sandoohouse.Models.Category>
-@using System.Globalization
 @{
-    ViewData["Title"] = "Category List";
+ViewData["Title"] = "Category List";
 }
 
 <div class="page-inner">
     <div class="page-header d-flex justify-content-between align-items-center">
         <h3 class="fw-bold mb-3">Category Management</h3>
+
         <ul class="breadcrumbs mb-3">
             <li class="nav-home">
-                <a asp-controller="Home" asp-action="Index"><i class="icon-home"></i></a>
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
             </li>
-            <li class="separator"><i class="icon-arrow-right"></i></li>
-            <li class="nav-item"><a asp-controller="Category" asp-action="Index">Category List</a></li>
+
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+
+            <li class="nav-item">
+                <a asp-controller="Category" asp-action="Index">Category List</a>
+            </li>
         </ul>
+
         <div class="ms-md-auto py-2 py-md-0">
             <a asp-controller="Category" asp-action="CreateCategory" class="btn btn-primary btn-round">
                 <i class="fas fa-plus me-2"></i>Add Category
@@ -26,10 +35,60 @@
             <div class="col-12">
 
                 <div class="card shadow-lg rounded-4 overflow-hidden">
-                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center p-4">
-                        <div>
-                            <h4 class="fw-bold mb-1">Category List</h4>
-                            <small class="text-muted">Manage product categories</small>
+
+                    <div class="card-header bg-white border-0 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h4 class="fw-bold mb-1">Category List</h4>
+                                <small class="text-muted">Manage product categories</small>
+                            </div>
+                        </div>
+
+                        <!-- Search and Filter Section -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="search-box">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="fas fa-search text-muted"></i>
+                                        </span>
+                                        <input type="text"
+                                               class="form-control border-start-0 ps-0"
+                                               id="searchInput"
+                                               placeholder="Search by category name..."
+                                               style="border-left: none;" />
+                                        <button class="btn btn-primary" type="button" id="searchBtn">
+                                            Search
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" id="clearSearch" style="display:none;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="d-flex gap-2">
+                                    <!-- Sort Dropdown -->
+                                    <select class="form-select" id="sortFilter">
+                                        <option value="default">Sort By</option>
+                                        <option value="name_asc">Name (A-Z)</option>
+                                        <option value="name_desc">Name (Z-A)</option>
+                                        <option value="status_asc">Status (Active First)</option>
+                                        <option value="status_desc">Status (Inactive First)</option>
+                                        <option value="created_asc">Oldest First</option>
+                                        <option value="created_desc">Newest First</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 text-end">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-secondary" id="resetFilters">
+                                        <i class="fas fa-redo-alt me-1"></i>Reset
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -37,109 +96,143 @@
                         <div class="table-responsive">
                             <table id="categoryTable" class="table table-hover align-middle mb-0">
                                 <thead class="bg-light">
-                                    <tr>
-                                        <th class="ps-4">Category</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th class="text-center pe-4">Actions</th>
-                                    </tr>
+                                <tr>
+                                    <th class="ps-4">Category</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Brand</th>
+                                    <th>Created</th>
+                                    <th class="text-center pe-4">Actions</th>
+                                </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach (var category in Model)
-                                    {
-                                        <tr>
-                                            <!-- Category Info -->
-                                            <td class="ps-4">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="rounded overflow-hidden bg-white border shadow-sm me-3"
-                                                         style="width: 45px; height: 45px;">
-                                                        <img src="@Url.Content(!string.IsNullOrEmpty(category.CategoryImageUrl) ? $"~/Category/{category.CategoryImageUrl}" : "~/l60Hf.png")"
-                                                             alt="@category.CategoryName"
-                                                             class="w-100 h-100"
-                                                             style="object-fit: cover;" />
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-semibold">@category.CategoryName</div>
-                                                        <small class="text-muted">ID: #@category.Id</small>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                <tbody id="tableBody">
+                                @foreach (var category in Model)
+                                {
+                                <tr data-name="@category.CategoryName"
+                                    data-status="@category.Status"
+                                    data-created="@category.CreatedAt.ToString("yyyy-MM-dd")">
+                                    <!-- Category Info -->
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded overflow-hidden bg-white border shadow-sm me-3"
+                                                 style="width:45px;height:45px">
+                                                <img src="@Url.Content(!string.IsNullOrEmpty(category.CategoryImageUrl) ? $"~/Category/{category.CategoryImageUrl}" : "~/l60Hf.png")"
+                                                     class="w-100 h-100"
+                                                     alt="@category.CategoryName"
+                                                     style="object-fit:cover;">
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold category-name">@category.CategoryName</div>
+                                                <small class="text-muted">ID: #@category.Id</small>
+                                            </div>
+                                        </div>
+                                    </td>
 
-                                            <!-- Description -->
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(category.Description))
-                                                {
-                                                    <span class="text-muted">@category.Description</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted fst-italic">No description</span>
-                                                }
-                                            </td>
+                                    <!-- Description -->
+                                    <td>
+                                            <span class="text-muted">
+                                                @(!string.IsNullOrEmpty(category.Description)
+                                                ? (category.Description.Length > 50 ? category.Description.Substring(0, 50) + "..." : category.Description)
+                                                : "No description")
+                                            </span>
+                                    </td>
 
-                                            <!-- Status -->
-                                            <td>
-                                                @if (category.Status)
-                                                {
-                                                    <span class="badge rounded-pill px-3 py-2" 
-                                                          style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
-                                                        <i class="fas fa-check-circle me-1"></i> Active
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge rounded-pill px-3 py-2" 
-                                                          style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d;">
-                                                        <i class="fas fa-ban me-1"></i> Inactive
-                                                    </span>
-                                                }
-                                            </td>
+                                    <!-- Status -->
+                                    <td>
+                                        @if (category.Status)
+                                        {
+                                            <span class="badge rounded-pill px-3 py-2 status-badge active"
+                                                  style="background-color:rgba(40,167,69,0.1);color:#28a745">
+                                                <i class="fas fa-check-circle me-1"></i>Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill px-3 py-2 status-badge inactive"
+                                                  style="background-color:rgba(108,117,125,0.1);color:#6c757d">
+                                                <i class="fas fa-ban me-1"></i>Inactive
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(category.Brand?.LogoBrandUrl))
+                                            {
+                                                <img src="~/BrandImage/@category.Brand.LogoBrandUrl" 
+                                                     alt="@category.Brand.BrandName" 
+                                                     class="rounded-circle me-2" 
+                                                     style="width:30px; height:30px; object-fit:cover;" />
+                                            }
+                                            <span>@(category.Brand?.BrandName ?? "No Brand")</span>
+                                        </div>
+                                    </td>
 
-                                            <!-- Created -->
-                                            <td>
-                                                <div class="fw-semibold">@category.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
-                                                <small class="text-muted">@((int)(DateTime.UtcNow - category.CreatedAt).TotalDays) days ago</small>
-                                            </td>
+                                    <!-- Created -->
+                                    <td>
+                                        <div class="fw-semibold">@category.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                        <small class="text-muted">@((int)(DateTime.UtcNow - category.CreatedAt).TotalDays) days ago</small>
+                                    </td>
 
-                                            <!-- Actions -->
-                                            <td class="text-center pe-4">
-                                                <div class="d-flex gap-2 justify-content-center">
-                                                    <a asp-controller="Category"
-                                                       asp-action="EditCategory"
-                                                       asp-route-id="@category.Id"
-                                                       class="btn btn-sm btn-outline-primary"
-                                                       title="Edit category">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-
-                                                    <button type="button"
-                                                            class="btn btn-sm btn-outline-danger"
-                                                            title="Delete category"
-                                                            onclick="confirmDelete('@category.Id', '@category.CategoryName')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
+                                    <!-- Actions -->
+                                    <td class="text-center pe-4">
+                                        <div class="d-flex gap-2 justify-content-center">
+                                            <a asp-controller="Category"
+                                               asp-action="EditCategory"
+                                               asp-route-id="@category.Id"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Edit category">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="Delete category"
+                                                    onclick="confirmDelete('@category.Id', '@category.CategoryName')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                }
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="card-footer bg-white border-0 p-3 d-flex justify-content-between align-items-center">
-                        <div class="text-muted">
-                            <small><i class="fas fa-folder me-1"></i>Total categories: @Model.Count()</small>
-                        </div>
-                        <div class="text-muted">
-                            <small>
-                                <i class="fas fa-check-circle text-success me-1"></i>Active: @Model.Count(c => c.Status) | 
-                                <i class="fas fa-ban text-secondary me-1"></i>Inactive: @Model.Count(c => !c.Status)
-                            </small>
+                    <!-- Pagination Controls -->
+                    <div class="card-footer bg-white border-0 p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted" id="showingInfo"></small>
+                                <select class="form-select form-select-sm d-inline-block w-auto ms-2" id="pageSizeSelect">
+                                    <option value="5">5 per page</option>
+                                    <option value="10" selected>10 per page</option>
+                                    <option value="20">20 per page</option>
+                                    <option value="50">50 per page</option>
+                                    <option value="all">All</option>
+                                </select>
+                            </div>
+
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-sm mb-0" id="pagination">
+                                    <!-- Pagination will be dynamically inserted here -->
+                                </ul>
+                            </nav>
                         </div>
                     </div>
-                </div> <!-- End Card -->
+
+                    <div class="card-footer bg-white border-0 p-3 d-flex justify-content-between">
+                        <small class="text-muted" id="totalCategories">
+                            Total categories : @Model.Count()
+                        </small>
+                        <small>
+                            <i class="fas fa-check-circle text-success me-1"></i> Active : @Model.Count(c => c.Status)
+                        </small>
+                        <small>
+                            <i class="fas fa-ban text-secondary me-1"></i> Inactive : @Model.Count(c => !c.Status)
+                        </small>
+                    </div>
+
+                </div>
 
             </div>
         </div>
@@ -174,34 +267,337 @@
         </div>
     </div>
 </div>
-<!-- jQuery & DataTables -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<!-- Scripts -->
+
+@section Scripts {
 <script>
-    $(document).ready(function () {
-        $('#categoryTable').DataTable({
-            pageLength: 5,
-            lengthChange: true,
-            searching: true,
-            ordering: true,
-            info: true,
-            language: {
-                search: "<i class='fas fa-search'></i> Search",
-                searchPlaceholder: "Search categories...",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ categories",
-                infoEmpty: "Showing 0 to 0 of 0 categories",
-                infoFiltered: "(filtered from _MAX_ total categories)"
+    $(document).ready(function() {
+        // Store all rows data
+        let allRows = [];
+        let filteredRows = [];
+        let currentPage = 1;
+        let pageSize = 10;
+
+        // Initialize allRows array with row data
+        $('#tableBody tr').each(function() {
+            const $row = $(this);
+            allRows.push({
+                element: $row,
+                name: $row.data('name'),
+                status: $row.data('status'),
+                created: new Date($row.data('created')),
+                html: $row[0].outerHTML
+            });
+        });
+
+        filteredRows = [...allRows];
+
+        // Initialize display
+        updateDisplay();
+        updateStats();
+
+        // Search functionality
+        function performSearch() {
+            const searchTerm = $('#searchInput').val().toLowerCase().trim();
+
+            if (searchTerm === '') {
+                filteredRows = [...allRows];
+                $('#clearSearch').hide();
+            } else {
+                filteredRows = allRows.filter(row =>
+                    row.name.toLowerCase().includes(searchTerm)
+                );
+                $('#clearSearch').show();
+            }
+
+            currentPage = 1;
+            applySort();
+        }
+
+        // Sorting
+        function applySort() {
+            const sortValue = $('#sortFilter').val();
+
+            if (sortValue !== 'default') {
+                switch(sortValue) {
+                    case 'name_asc':
+                        filteredRows.sort((a, b) => a.name.localeCompare(b.name));
+                        break;
+                    case 'name_desc':
+                        filteredRows.sort((a, b) => b.name.localeCompare(a.name));
+                        break;
+                    case 'status_asc':
+                        filteredRows.sort((a, b) => (a.status === b.status) ? 0 : a.status ? -1 : 1);
+                        break;
+                    case 'status_desc':
+                        filteredRows.sort((a, b) => (a.status === b.status) ? 0 : a.status ? 1 : -1);
+                        break;
+                    case 'created_asc':
+                        filteredRows.sort((a, b) => a.created - b.created);
+                        break;
+                    case 'created_desc':
+                        filteredRows.sort((a, b) => b.created - a.created);
+                        break;
+                }
+            }
+
+            updateDisplay();
+        }
+
+        // Update table display with pagination
+        function updateDisplay() {
+            const totalFiltered = filteredRows.length;
+            const totalPages = pageSize === 'all' ? 1 : Math.ceil(totalFiltered / pageSize);
+
+            // Clear table body
+            $('#tableBody').empty();
+
+            if (totalFiltered === 0) {
+                $('#tableBody').html(`
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <h5 class="mt-3 text-muted">No categories found</h5>
+                                <p class="text-muted">Try adjusting your search to find what you're looking for.</p>
+                            </td>
+                        </tr>
+                    `);
+                $('#pagination').empty();
+                $('#showingInfo').text('Showing 0 - 0 of 0 items');
+                return;
+            }
+
+            // Calculate start and end indices
+            const start = pageSize === 'all' ? 0 : (currentPage - 1) * pageSize;
+            const end = pageSize === 'all' ? totalFiltered : Math.min(start + pageSize, totalFiltered);
+
+            // Display rows for current page
+            for (let i = start; i < end; i++) {
+                $('#tableBody').append(filteredRows[i].element);
+            }
+
+            // Update showing info
+            $('#showingInfo').text(`Showing ${start + 1} - ${end} of ${totalFiltered} items`);
+
+            // Update pagination
+            updatePagination(totalPages);
+            updateStats();
+        }
+
+        // Update pagination controls
+        function updatePagination(totalPages) {
+            if (pageSize === 'all' || totalPages <= 1) {
+                $('#pagination').empty();
+                return;
+            }
+
+            let paginationHtml = '';
+
+            // Previous button
+            paginationHtml += `
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage - 1}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                `;
+
+            // Page numbers
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                paginationHtml += `
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="1">1</a>
+                        </li>
+                    `;
+                if (startPage > 2) {
+                    paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHtml += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                        </li>
+                    `;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+                paginationHtml += `
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a>
+                        </li>
+                    `;
+            }
+
+            // Next button
+            paginationHtml += `
+                    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage + 1}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                `;
+
+            $('#pagination').html(paginationHtml);
+        }
+
+        // Update statistics
+        function updateStats() {
+            const activeCount = filteredRows.filter(row => row.status).length;
+            const inactiveCount = filteredRows.length - activeCount;
+            $('#totalCategories').text(`Total categories : ${filteredRows.length}`);
+            // Update footer stats if needed
+        }
+
+        // Event Handlers
+        $('#searchBtn').click(function() {
+            performSearch();
+        });
+
+        $('#searchInput').keyup(function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
             }
         });
+
+        // Debounced search
+        let searchTimeout;
+        $('#searchInput').on('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if ($(this).val().length >= 2 || $(this).val().length === 0) {
+                    performSearch();
+                }
+            }, 500);
+        });
+
+        $('#clearSearch').click(function() {
+            $('#searchInput').val('');
+            performSearch();
+            $(this).hide();
+        });
+
+        $('#sortFilter').change(function() {
+            filteredRows = [...allRows];
+            const searchTerm = $('#searchInput').val().toLowerCase().trim();
+
+            if (searchTerm !== '') {
+                filteredRows = filteredRows.filter(row =>
+                    row.name.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            applySort();
+        });
+
+        $('#resetFilters').click(function() {
+            $('#searchInput').val('');
+            $('#sortFilter').val('default');
+            $('#clearSearch').hide();
+
+            filteredRows = [...allRows];
+            currentPage = 1;
+            updateDisplay();
+        });
+
+        $('#pageSizeSelect').change(function() {
+            pageSize = $(this).val() === 'all' ? 'all' : parseInt($(this).val());
+            currentPage = 1;
+            updateDisplay();
+        });
+
+        // Pagination click handler
+        $(document).on('click', '#pagination a.page-link', function(e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            if (page && page !== currentPage) {
+                currentPage = page;
+                updateDisplay();
+            }
+        });
+
+        // Initial display
+        updateDisplay();
     });
 
+    // Delete confirmation function
     function confirmDelete(categoryId, categoryName) {
+        // Set the category name in the modal
         document.getElementById('categoryNameDisplay').textContent = categoryName;
+        // Set the category ID in the hidden input
         document.getElementById('categoryIdToDelete').value = categoryId;
 
+        // Show the modal
         var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
         deleteModal.show();
     }
 </script>
+}
+
+<style>
+    /* Custom styles for better UX */
+    .search-box .input-group-text {
+        background: transparent;
+    }
+
+    .search-box .form-control:focus {
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+
+    .search-box .btn-outline-secondary {
+        border-color: #dee2e6;
+    }
+
+    .search-box .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+
+    .pagination .page-link {
+        border-radius: 50%;
+        margin: 0 2px;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .badge.bg-primary-subtle {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+
+    .table > :not(caption) > * > * {
+        padding: 1rem 0.5rem;
+    }
+
+    #pageSizeSelect {
+        padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    /* Hover effect for table rows */
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,123,255,0.05);
+        transition: background-color 0.2s ease;
+    }
+
+    /* Button hover effects */
+    .btn-outline-primary:hover, .btn-outline-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>

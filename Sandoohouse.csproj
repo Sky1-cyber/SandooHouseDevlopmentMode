@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <_ContentIncludedByDefault Remove="wwwroot\js\site.js" />
+        <_ContentIncludedByDefault Remove="wwwroot\updates\Admin\747bdf11-a4e3-44d5-9b46-183c182ab513.jpg" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,6 +27,8 @@
         </PackageReference>
 
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+
+        <PackageReference Include="QuestPDF" Version="2026.2.3" />
     </ItemGroup>
 
     <ItemGroup>

@@ -110,6 +110,13 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> ListAccount()
     {
+        int totalAdminsCount = _applicationDbContext.Admins.Count();
+        ViewBag.TotalAdminsCount = totalAdminsCount;
+        
+        decimal totalIncomeReal = _applicationDbContext.Orders.Sum(o => o.TotalAmount) * 4100;
+        decimal totalIncomeDollar = _applicationDbContext.Orders.Sum(o => o.TotalAmount);
+        ViewBag.TotalIncome = totalIncomeReal;
+        ViewBag.TotalIncomeDollar = totalIncomeDollar;
         var admins = await _applicationDbContext.Admins
             .OrderBy(x => x.FirstName)
             .ToListAsync();

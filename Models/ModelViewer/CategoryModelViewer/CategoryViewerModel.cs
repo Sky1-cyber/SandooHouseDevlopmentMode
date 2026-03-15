@@ -22,7 +22,9 @@ public class CategoryViewerModel
 
     [Display(Name = "Created By")]
     public string? CreatedByName { get; set; }
-
+    
+    public int? BrandId { get; set; }
+    
     [Display(Name = "Created At")]
     public DateTime CreatedAt { get; set; }
 

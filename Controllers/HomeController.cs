@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Models;
 using Sandoohouse.Models.Enum;
@@ -21,12 +22,13 @@ public class HomeController : Controller
     }
     
     [Authorize]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        int totalAdminsCount = _applicationDbContext.Admins.Count();
-        
-        ViewBag.TotalAdminsCount = totalAdminsCount;
-        return View();
+        var orders = await _applicationDbContext.Orders
+            .Include(o => o.OrderItems)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+        return View(orders);
     }
     
     public IActionResult Login()

@@ -7,9 +7,12 @@
   var email = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
   var phone = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.MobilePhone)?.Value;
   var profileImage = User.Claims.FirstOrDefault(c => c.Type == "ProfileImageFile")?.Value;
-  var profileImagePath = !string.IsNullOrEmpty(profileImage) 
-    ? Url.Content($"~/Admin/{profileImage}") 
+  var profileImagePath = !string.IsNullOrEmpty(profileImage)
+    ? Url.Content($"~/Admin/{profileImage}")
     : Url.Content("~/l60Hf.png");
+  
+  var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+  var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -27,34 +30,36 @@
     href="~/assets/img/kaiadmin/SandooHouse.ico"
     type="image/x-icon"
   />
-
+  <link rel="preload" href="~/assets/fonts/fontawesome/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="~/assets/fonts/fontawesome/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" href="~/assets/fonts/fontawesome/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="anonymous">
   <!-- Fonts and icons -->
   <script src="~/assets/js/plugin/webfont/webfont.min.js"></script>
   <script>
-      WebFont.load({
-        google: { families: ["Public Sans:300,400,500,600,700"] },
-        custom: {
-          families: [
-            "Font Awesome 5 Solid",
-            "Font Awesome 5 Regular",
-            "Font Awesome 5 Brands",
-            "simple-line-icons",
-          ],
-          urls: ["@(Url.Content("~/assets/css/fonts.min.css"))"],
-        },
-        active: function () {
-          sessionStorage.fonts = true;
-        },
-      });
-    </script>
+    WebFont.load({
+      google: {families: ["Public Sans:300,400,500,600,700"]},
+      custom: {
+        families: [
+          "Font Awesome 5 Solid",
+          "Font Awesome 5 Regular",
+          "Font Awesome 5 Brands",
+          "simple-line-icons",
+        ],
+        urls: ["@(Url.Content("~/assets/css/fonts.min.css"))"],
+      },
+      active: function () {
+        sessionStorage.fonts = true;
+      },
+    });
+  </script>
 
   <!-- CSS Files -->
-  <link rel="stylesheet" href="~/assets/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="~/assets/css/plugins.min.css" />
-  <link rel="stylesheet" href="~/assets/css/kaiadmin.min.css" />
+  <link rel="stylesheet" href="~/assets/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="~/assets/css/plugins.min.css"/>
+  <link rel="stylesheet" href="~/assets/css/kaiadmin.min.css"/>
 
   <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link rel="stylesheet" href="~/assets/css/demo.css" />
+  <link rel="stylesheet" href="~/assets/css/demo.css"/>
 </head>
 <body>
 <div class="wrapper">
@@ -91,7 +96,7 @@
               <p>Dashboard</p>
             </a>
           </li>
-          
+
           <!-- Dashboard -->
           <li class="nav-item @Html.IsActive("Account", "ListAccount")">
             <a asp-controller="Account" asp-action="ListAccount">
@@ -99,15 +104,6 @@
               <p>Admin</p>
             </a>
           </li>
-          
-          <!-- Section Title -->
-          <li class="nav-section">
-            <span class="sidebar-mini-icon">
-              <i class="fa fa-ellipsis-h"></i>
-            </span>
-            <h4 class="text-section">Components</h4>
-          </li>
-
           <!-- Supplier -->
           <li class="nav-item @Html.IsActive("Supplier", "Index")">
             <a asp-controller="Supplier" asp-action="Index">
@@ -115,13 +111,48 @@
               <p>Supplier</p>
             </a>
           </li>
-          <li class="nav-item @Html.IsActive("Category", "Index")">
-            <a asp-controller="Category" asp-action="Index">
-              <i class="fas fa-box"></i>
-              <p>Category</p>
-            </a>
+          <!-- Section Title -->
+          <li class="nav-section">
+            <span class="sidebar-mini-icon">
+              <i class="fa fa-ellipsis-h"></i>
+            </span>
+            <h4 class="text-section">Components</h4>
           </li>
-          
+          <li class="nav-item @(currentController == "Brand" || currentController == "Category" || currentController == "Menu" ? "active" : "")">
+    
+            <a data-bs-toggle="collapse" href="#brandMenu">
+              <i class="fas fa-layer-group"></i>
+              <p>Catalog</p>
+              <span class="caret"></span>
+            </a>
+
+            <div class="collapse @(currentController == "Brand" || currentController == "Category" || currentController == "Menu" ? "show" : "")" id="brandMenu">
+              <ul class="nav nav-collapse">
+
+                <!-- Brand -->
+                <li class="@(currentController == "Brand" ? "active" : "")">
+                  <a asp-controller="Brand" asp-action="Index">
+                    <span class="sub-item">Brand Table</span>
+                  </a>
+                </li>
+
+                <!-- Category -->
+                <li class="@(currentController == "Category" ? "active" : "")">
+                  <a asp-controller="Category" asp-action="Index">
+                    <span class="sub-item">Category Table</span>
+                  </a>
+                </li>
+
+                <!-- Menu -->
+                <li class="@(currentController == "Menu" ? "active" : "")">
+                  <a asp-controller="Menu" asp-action="Index">
+                    <span class="sub-item">Menu Table</span>
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
@@ -484,13 +515,15 @@
                       <div class="u-text">
                         <h4>@firstName @lastName</h4>
                         <p class="text-muted">@email</p>
-                        <a asp-controller="Account" asp-action="Index" asp-route-id="@userId" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                        <a asp-controller="Account" asp-action="Index" asp-route-id="@userId"
+                           class="btn btn-xs btn-secondary btn-sm">View Profile</a>
                       </div>
                     </div>
                   </li>
                   <li>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" asp-controller="Account" asp-action="Index" asp-route-id="@userId">My Profile</a>
+                    <a class="dropdown-item" asp-controller="Account" asp-action="Index" asp-route-id="@userId">My
+                      Profile</a>
                     <a class="dropdown-item" href="#">My Balance</a>
                     <a class="dropdown-item" href="#">Inbox</a>
                     <div class="dropdown-divider"></div>
@@ -519,7 +552,7 @@
           <ul class="nav">
             <li class="nav-item">
               <a class="nav-link" href="http://www.themekita.com">
-                ThemeKita
+                Alpha Tech
               </a>
             </li>
             <li class="nav-item">
@@ -531,12 +564,12 @@
           </ul>
         </nav>
         <div class="copyright">
-          2024, made with <i class="fa fa-heart heart text-danger"></i> by
-          <a href="http://www.themekita.com">ThemeKita</a>
+          2026, made with <i class="fa fa-heart heart text-danger"></i> by
+          <a href="">Sreang Tongheng</a>
         </div>
         <div>
           Distributed by
-          <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.
+          <a target="_blank" href="https://themewagon.com/">Alpha</a>.
         </div>
       </div>
     </footer>

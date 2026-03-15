@@ -1,47 +1,41 @@
 ﻿@using Sandoohouse.Models.Enum
 @model IEnumerable<Sandoohouse.Models.Order>
+
 @{
-  ViewData["Title"] = "Dashboard";
-  var now          = DateTime.Now;
-  int curYear      = now.Year;
-  int curMonth     = now.Month;
-  string curMonthName = new DateTime(curYear, curMonth, 1).ToString("MMMM yyyy");
-  int daysInMonth  = DateTime.DaysInMonth(curYear, curMonth);
+    ViewData["Title"] = "Order List";
 
-  // Current-month orders only (for charts)
-  var monthOrders  = Model.Where(o => o.OrderDate.Year == curYear && o.OrderDate.Month == curMonth).ToList();
+    var now          = DateTime.Now;
+    int curYear      = now.Year;
+    int curMonth     = now.Month;
+    string curMonthName = new DateTime(curYear, curMonth, 1).ToString("MMMM yyyy");
+    int daysInMonth  = DateTime.DaysInMonth(curYear, curMonth);
 
-  // Daily buckets
-  var dailyRevenue = new decimal[daysInMonth + 1];
-  var dailyCount   = new int[daysInMonth + 1];
-  foreach (var o in monthOrders)
-  {
-      var d = o.OrderDate.Day;
-      if (d >= 1 && d <= daysInMonth) { dailyRevenue[d] += o.TotalAmount; dailyCount[d]++; }
-  }
+    // Current-month orders only (for charts)
+    var monthOrders  = Model.Where(o => o.OrderDate.Year == curYear && o.OrderDate.Month == curMonth).ToList();
 
-  // Status breakdown (current month)
-  int mPaid     = monthOrders.Count(o => o.OrderStatus == OrderStatus.Paid);
-  int mPending  = monthOrders.Count(o => o.OrderStatus == OrderStatus.Pending);
-  int mCanceled = monthOrders.Count(o => o.OrderStatus == OrderStatus.Canceled);
-  decimal mRevenue  = monthOrders.Sum(o => o.TotalAmount);
-  decimal mDiscount = monthOrders.Sum(o => o.DiscountAmount);
+    // Daily buckets
+    var dailyRevenue = new decimal[daysInMonth + 1];
+    var dailyCount   = new int[daysInMonth + 1];
+    foreach (var o in monthOrders)
+    {
+        var d = o.OrderDate.Day;
+        if (d >= 1 && d <= daysInMonth) { dailyRevenue[d] += o.TotalAmount; dailyCount[d]++; }
+    }
+
+    // Status breakdown (current month)
+    int mPaid     = monthOrders.Count(o => o.OrderStatus == OrderStatus.Paid);
+    int mPending  = monthOrders.Count(o => o.OrderStatus == OrderStatus.Pending);
+    int mCanceled = monthOrders.Count(o => o.OrderStatus == OrderStatus.Canceled);
+    decimal mRevenue  = monthOrders.Sum(o => o.TotalAmount);
+    decimal mDiscount = monthOrders.Sum(o => o.DiscountAmount);
 }
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
 <div class="page-inner">
-    <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-        <div>
-            <h3 class="fw-bold mb-3">Dashboard</h3>
-            <h6 class="op-7 mb-2">Admin Dashboard | Sandoo Chicken</h6>
-        </div>
-        <div class="ms-md-auto py-2 py-md-0">
-            <a asp-controller="Account" asp-action="CreateAccount" class="btn btn-info btn-round me-2">Add Account</a>
-            <a asp-controller="Supplier" asp-action="AddSupplier" class="btn btn-primary btn-round">Add Supplier</a>
-        </div>
-    </div>
     
     <!-- ── STAT CARDS ── -->
     <div class="stats-grid">
@@ -86,7 +80,7 @@
             <div class="stat-bar"></div>
         </div>
     </div>
-    
+
     <!-- ══ CHARTS ROW — current month ══ -->
     <div class="charts-row">
 
@@ -210,101 +204,101 @@
         <div class="table-responsive">
             <table class="orders-table" id="ordersTable">
                 <thead>
-                <tr>
-                    <th class="col-order">Order</th>
-                    <th class="col-date">Date</th>
-                    <th class="col-items">Items</th>
-                    <th class="col-total">Discount</th>
-                    <th class="col-total">Total</th>
-                    <th class="col-status">Status</th>
-                    <th class="col-payment">Payment</th>
-                    <th class="col-actions">Actions</th>
-                </tr>
+                    <tr>
+                        <th class="col-order">Order</th>
+                        <th class="col-date">Date</th>
+                        <th class="col-items">Items</th>
+                        <th class="col-total">Discount</th>
+                        <th class="col-total">Total</th>
+                        <th class="col-status">Status</th>
+                        <th class="col-payment">Payment</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach (var order in Model)
-                {
-                    <tr class="order-row"
-                        data-order-num="@order.OrderNumber"
-                        data-date="@order.OrderDate.ToString("MMM dd, yyyy")"
-                        data-items="@(order.OrderItems?.Count ?? 0)"
-                        data-total="$@order.TotalAmount.ToString("N2")"
-                        data-status="@order.OrderStatus"
-                        data-cash="$@order.CashReceived.ToString("N2")"
-                        data-change="$@order.ChangeAmount.ToString("N2")">
-                        <td class="col-order">
-                            <div class="order-ref">
-                                <div class="order-avatar"><i class="fas fa-receipt"></i></div>
-                                <div class="order-ref-text">
-                                    <span class="order-num">@order.OrderNumber</span>
-                                    <span class="order-id">ID #@order.Id</span>
+                    @foreach (var order in Model)
+                    {
+                        <tr class="order-row"
+                            data-order-num="@order.OrderNumber"
+                            data-date="@order.OrderDate.ToString("MMM dd, yyyy")"
+                            data-items="@(order.OrderItems?.Count ?? 0)"
+                            data-total="$@order.TotalAmount.ToString("N2")"
+                            data-status="@order.OrderStatus"
+                            data-cash="$@order.CashReceived.ToString("N2")"
+                            data-change="$@order.ChangeAmount.ToString("N2")">
+                            <td class="col-order">
+                                <div class="order-ref">
+                                    <div class="order-avatar"><i class="fas fa-receipt"></i></div>
+                                    <div class="order-ref-text">
+                                        <span class="order-num">@order.OrderNumber</span>
+                                        <span class="order-id">ID #@order.Id</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="col-date">
-                            <span class="date-main">@order.OrderDate.ToString("MMM dd, yyyy")</span>
-                            <span class="date-time">@order.OrderDate.ToString("hh:mm tt")</span>
-                        </td>
-                        <td class="col-items">
-                            <span class="items-pill">
-                                <i class="fas fa-box" style="font-size:10px;margin-right:4px;"></i>
-                                @(order.OrderItems?.Count ?? 0) items
-                            </span>
-                        </td>
-                        <td class="col-items text-center">
-                            <span class="badge bg-warning text-dark px-3 py-1 fw-semibold d-flex align-items-center justify-content-center gap-1">
-                                <i class="fas fa-tag"></i> <!-- discount icon -->
-                                @order.DiscountAmount $
-                            </span>
-                        </td>
-                        <td class="col-total">
-                            <span class="amount-val">$@order.TotalAmount.ToString("N2")</span>
-                        </td>
-                        <td class="col-status">
-                            @{
-                                var (statusCls, statusIcon) = order.OrderStatus switch
-                                {
-                                    OrderStatus.Paid     => ("status-paid",    "fa-solid fa-circle-check"),
-                                    OrderStatus.Pending  => ("status-pending", "fa-solid fa-clock"),
-                                    OrderStatus.Canceled => ("status-cancel",  "fa-solid fa-circle-xmark"),
-                                    _                    => ("status-default", "fa-solid fa-circle")
-                                };
-                            }
-                            <span class="status-badge @statusCls">
-                                <i class="@statusIcon"></i> @order.OrderStatus
-                            </span>
-                        </td>
-                        <td class="col-payment">
-                            <div class="pay-info">
-                                <span class="pay-row">
-                                    <span class="pay-lbl">Cash</span>
-                                    <span class="pay-amt">$@order.CashReceived.ToString("N2")</span>
+                            </td>
+                            <td class="col-date">
+                                <span class="date-main">@order.OrderDate.ToString("MMM dd, yyyy")</span>
+                                <span class="date-time">@order.OrderDate.ToString("hh:mm tt")</span>
+                            </td>
+                            <td class="col-items">
+                                <span class="items-pill">
+                                    <i class="fas fa-box" style="font-size:10px;margin-right:4px;"></i>
+                                    @(order.OrderItems?.Count ?? 0) items
                                 </span>
-                                <span class="pay-row muted">
-                                    <span class="pay-lbl">Change</span>
-                                    <span class="pay-amt">$@order.ChangeAmount.ToString("N2")</span>
+                            </td>
+                            <td class="col-items text-center">
+                                <span class="badge bg-warning text-dark px-3 py-1 fw-semibold d-flex align-items-center justify-content-center gap-1">
+                                    <i class="fas fa-tag"></i> <!-- discount icon -->
+                                    @order.DiscountAmount $
                                 </span>
-                            </div>
-                        </td>
-                        <td class="col-actions">
-                            <div class="action-btns">
-                                <button class="act-btn act-view" onclick="viewOrder(@order.Id)" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="act-btn act-edit" onclick="editOrder(@order.Id)" title="Edit">
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                                <button class="act-btn act-del"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteModal"
-                                        onclick="setDeleteData(@order.Id, '@order.OrderNumber')"
-                                        title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                }
+                            </td>
+                            <td class="col-total">
+                                <span class="amount-val">$@order.TotalAmount.ToString("N2")</span>
+                            </td>
+                            <td class="col-status">
+                                @{
+                                    var (statusCls, statusIcon) = order.OrderStatus switch
+                                    {
+                                        OrderStatus.Paid     => ("status-paid",    "fa-solid fa-circle-check"),
+                                        OrderStatus.Pending  => ("status-pending", "fa-solid fa-clock"),
+                                        OrderStatus.Canceled => ("status-cancel",  "fa-solid fa-circle-xmark"),
+                                        _                    => ("status-default", "fa-solid fa-circle")
+                                    };
+                                }
+                                <span class="status-badge @statusCls">
+                                    <i class="@statusIcon"></i> @order.OrderStatus
+                                </span>
+                            </td>
+                            <td class="col-payment">
+                                <div class="pay-info">
+                                    <span class="pay-row">
+                                        <span class="pay-lbl">Cash</span>
+                                        <span class="pay-amt">$@order.CashReceived.ToString("N2")</span>
+                                    </span>
+                                    <span class="pay-row muted">
+                                        <span class="pay-lbl">Change</span>
+                                        <span class="pay-amt">$@order.ChangeAmount.ToString("N2")</span>
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="col-actions">
+                                <div class="action-btns">
+                                    <button class="act-btn act-view" onclick="viewOrder(@order.Id)" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="act-btn act-edit" onclick="editOrder(@order.Id)" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button class="act-btn act-del"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal"
+                                            onclick="setDeleteData(@order.Id, '@order.OrderNumber')"
+                                            title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
@@ -316,6 +310,34 @@
         </div>
     </div>
 </div>
+
+<!-- ── DELETE MODAL ── -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content del-modal">
+            <div class="del-modal-head">
+                <div class="del-icon-ring">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <h5>Delete Order</h5>
+                <p>Are you sure you want to delete <strong id="adminNameDisplay"></strong>?<br>
+                    <span class="del-warn">This action cannot be undone.</span></p>
+            </div>
+            <div class="del-modal-foot">
+                <button type="button" class="del-btn-cancel" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <form id="deleteForm" method="post" asp-controller="Order" asp-action="DeleteOrder">
+                    <input type="hidden" name="id" id="adminIdToDelete"/>
+                    <button type="submit" class="del-btn-confirm">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 :root {
     --purple-a:#667eea; --purple-b:#764ba2;
@@ -507,6 +529,16 @@
     .donut-wrap { flex-direction:column; }
 }
 </style>
+
+<!-- PDF overlay spinner -->
+<div class="pdf-overlay" id="pdfOverlay">
+    <div class="pdf-spinner-box">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <p>Generating PDF…</p>
+        <small>Please wait a moment</small>
+    </div>
+</div>
+
 @section Scripts {
 <script>
 // ══════════════════════════════════════════════

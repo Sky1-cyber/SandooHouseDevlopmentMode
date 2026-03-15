@@ -1,0 +1,518 @@
+﻿@model Sandoohouse.Models.ModelViewer.BrandModelViewer.BrandViewerModel
+
+@{
+    ViewData["Title"] = "Edit Brand";
+}
+
+<!-- Add Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<div class="page-inner">
+    <div class="page-header">
+        <h3 class="fw-bold mb-3">Edit Brand</h3>
+        <ul class="breadcrumbs mb-3">
+            <li class="nav-home">
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a asp-controller="Brand" asp-action="Index">Brand</a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">Edit Brand</li>
+        </ul>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <!-- Main Form Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <!-- Card Header with Gradient -->
+                <div class="card-header bg-gradient-primary text-white border-0 py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-opacity-25 p-3 me-3">
+                            <i class="bi bi-pencil-square fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold">Edit Brand: @Model.BrandName</h4>
+                            <p class="mb-0 small opacity-75">Update brand information</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-5">
+                    <form asp-action="EditBrand" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <!-- Hidden ID field -->
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="row">
+                            <!-- Left Column: Form Fields -->
+                            <div class="col-lg-7">
+                                <div class="row g-4">
+                                    <!-- Brand Name -->
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-semibold text-muted">
+                                            Brand Name <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-2">
+                                                <i class="bi bi-tag text-primary"></i>
+                                            </span>
+                                            <input asp-for="BrandName"
+                                                   class="form-control form-control-lg border-2 @(ViewData.ModelState["BrandName"]?.Errors.Any() == true ? "is-invalid" : "")"
+                                                   placeholder="e.g., Nike, Adidas, Apple" />
+                                        </div>
+                                        <span asp-validation-for="BrandName" class="text-danger small"></span>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-semibold text-muted">
+                                            Description
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-2">
+                                                <i class="bi bi-card-text text-primary"></i>
+                                            </span>
+                                            <textarea asp-for="Description"
+                                                      class="form-control form-control-lg border-2"
+                                                      rows="4"
+                                                      placeholder="Enter brand description..."></textarea>
+                                        </div>
+                                        <span asp-validation-for="Description" class="text-danger small"></span>
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle me-1"></i>Brief description of the brand (optional)
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Toggle -->
+                                    <div class="col-12 mt-4">
+                                        <div class="bg-light rounded-3 p-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="fw-bold mb-1">
+                                                        <i class="bi bi-toggle-on text-primary me-2"></i>Brand Status
+                                                    </h6>
+                                                    <p class="text-muted small mb-0">Enable to make this brand visible and available</p>
+                                                </div>
+                                                <div class="form-check form-switch ms-3">
+                                                    <input asp-for="Status" class="form-check-input" type="checkbox" style="width: 3rem; height: 1.5rem;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Timestamps Information -->
+                                    <div class="col-12 mt-3">
+                                        <div class="alert alert-info bg-opacity-10 border-0 rounded-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="bi bi-clock-history me-2 fs-5"></i>
+                                                <span class="fw-semibold">Timestamps</span>
+                                            </div>
+                                            <div class="row g-2 small">
+                                                <div class="col-6">
+                                                    <span class="text-muted">Created:</span>
+                                                    <span class="fw-semibold ms-1">@Model.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <span class="text-muted">Last Updated:</span>
+                                                    <span class="fw-semibold ms-1">
+                                                        @(Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt") ?? "Never")
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Logo Upload -->
+                            <div class="col-lg-5">
+                                <div class="sticky-top" style="top: 2rem;">
+                                    <div class="card border-0 bg-light rounded-4 p-4">
+                                        <div class="text-center">
+                                            <label class="form-label fw-semibold text-muted mb-3">
+                                                <i class="bi bi-image text-primary me-2"></i>Brand Logo
+                                            </label>
+
+                                            <!-- Logo Upload Area -->
+                                            <div class="position-relative d-inline-block w-100">
+                                                <div class="brand-logo-wrapper rounded-4 border-4 border-primary shadow-lg mx-auto"
+                                                     style="width: 250px; height: 250px; overflow: hidden; cursor: pointer;"
+                                                     onclick="document.getElementById('logoInput').click();">
+                                                    <img id="previewImage"
+                                                         src="@(string.IsNullOrEmpty(Model.LogoBrandUrl) ? "~/no-image.png.jpg" : Url.Content($"~/BrandImage/{Model.LogoBrandUrl}"))"
+                                                         class="w-100 h-100"
+                                                         alt="Brand Logo"
+                                                         style="object-fit: cover;" />
+                                                    <div class="brand-logo-overlay">
+                                                        <i class="bi bi-camera-fill text-white fs-1"></i>
+                                                        <span class="d-block text-white mt-2 small">Click to change</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Current Logo Info (if exists) -->
+                                            @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
+                                            {
+                                                <div class="mt-3 p-2 bg-white rounded-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                        <div class="text-start small">
+                                                            <span class="d-block text-muted">Current logo:</span>
+                                                            <span class="fw-semibold">@Model.LogoBrandUrl</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            <!-- Logo Input -->
+                                            <input asp-for="LogoFile"
+                                                   id="logoInput"
+                                                   type="file"
+                                                   class="d-none"
+                                                   accept="image/*"
+                                                   onchange="previewFile(event)" />
+
+                                            <!-- Upload Buttons -->
+                                            <div class="mt-4">
+                                                <label for="logoInput" class="btn btn-outline-primary rounded-pill w-100">
+                                                    <i class="bi bi-cloud-upload me-2"></i>Change Logo
+                                                </label>
+                                                @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
+                                                {
+                                                    <button type="button" class="btn btn-outline-danger rounded-pill w-100 mt-2" onclick="removeLogo()">
+                                                        <i class="bi bi-trash me-2"></i>Remove Logo
+                                                    </button>
+                                                }
+                                                <p class="text-muted small mt-3 mb-0">
+                                                    <i class="bi bi-info-circle me-1"></i>JPG, PNG, GIF up to 2MB
+                                                </p>
+                                                <p class="text-muted small mb-0">
+                                                    <i class="bi bi-arrows-angle-expand me-1"></i>Recommended 500x500px
+                                                </p>
+                                            </div>
+
+                                            <!-- File Name Display -->
+                                            <div id="fileNameDisplay" class="mt-2 text-muted small" style="display: none;">
+                                                <i class="bi bi-file-image me-1"></i>
+                                                <span id="selectedFileName"></span>
+                                            </div>
+
+                                            <!-- Hidden field to track logo removal -->
+                                            <input type="hidden" asp-for="LogoBrandUrl" id="currentLogoUrl" />
+                                            <input type="hidden" name="RemoveLogo" id="removeLogoFlag" value="false" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-5 g-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill shadow-sm hover-scale">
+                                    <i class="bi bi-check-circle me-2"></i>Update Brand
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a asp-controller="Brand" asp-action="Index"
+                                   class="btn btn-outline-danger w-100 py-3 rounded-pill">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Styles - Matching Create View */
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card-body {
+        border: 1px solid #e9ecef;
+        background: #ffffff;
+    }
+
+    .brand-logo-wrapper {
+        border: 4px solid #0d6efd;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .brand-logo-wrapper:hover {
+        transform: scale(1.02);
+        border-color: #0b5ed7;
+    }
+
+    .brand-logo-wrapper:hover .brand-logo-overlay {
+        opacity: 1;
+    }
+
+    .brand-logo-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 1rem;
+    }
+
+    .input-group {
+        border: 1px solid #dee2e6;
+        border-radius: 0.6rem;
+    }
+
+    .input-group:focus-within {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
+    }
+
+    .hover-scale:hover {
+        transform: scale(1.02);
+        transition: 0.2s;
+    }
+
+    .hover-scale:hover {
+        transform: translateY(-2px);
+    }
+
+    .border-2 {
+        border-width: 2px !important;
+    }
+
+    .border-4 {
+        border-width: 4px !important;
+    }
+
+    .form-control-lg, .input-group-text {
+        border-radius: 0.5rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6fd6 0%, #6a4292 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-outline-primary {
+        border: 2px solid #667eea;
+        color: #667eea;
+    }
+
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: transparent;
+        color: white;
+    }
+
+    .btn-outline-danger {
+        border: 2px solid #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    .rounded-pill {
+        border-radius: 50rem !important;
+    }
+
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .form-check-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    /* Sticky column */
+    .sticky-top {
+        position: sticky;
+        top: 2rem;
+        z-index: 1;
+    }
+
+    /* Animation for preview image */
+    #previewImage {
+        transition: all 0.3s ease;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .sticky-top {
+            position: static;
+        }
+        
+        .card-body {
+            padding: 2rem !important;
+        }
+    }
+
+    /* Validation styling */
+    .field-validation-error {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .input-group.has-validation .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .input-group.has-validation .form-control.is-invalid:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    /* Alert styling */
+    .alert-info {
+        background-color: rgba(102, 126, 234, 0.1);
+        border-left: 4px solid #667eea;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function previewFile(event) {
+            const reader = new FileReader();
+            const file = event.target.files[0];
+
+            if (file) {
+                // Validate file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File size must be less than 2MB');
+                    event.target.value = '';
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file');
+                    event.target.value = '';
+                    return;
+                }
+
+                reader.onload = function() {
+                    const preview = document.getElementById("previewImage");
+                    preview.src = reader.result;
+                    preview.style.animation = "fadeIn 0.5s";
+                    
+                    // Show file name
+                    document.getElementById("selectedFileName").textContent = file.name;
+                    document.getElementById("fileNameDisplay").style.display = "block";
+                    
+                    // Reset remove flag when new file is selected
+                    document.getElementById('removeLogoFlag').value = 'false';
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeLogo() {
+            if (confirm('Are you sure you want to remove the logo?')) {
+                // Set the remove flag to true
+                document.getElementById('removeLogoFlag').value = 'true';
+                
+                // Clear the file input
+                document.getElementById('logoInput').value = '';
+                
+                // Reset preview to default image
+                document.getElementById('previewImage').src = '/no-image.png.jpg';
+                
+                // Hide file name display
+                document.getElementById('fileNameDisplay').style.display = 'none';
+            }
+        }
+
+        // Form validation
+        (function() {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+
+        // Auto-resize textarea
+        const textarea = document.querySelector('textarea');
+        if (textarea) {
+            // Set initial height
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+            
+            // Add input event for dynamic resizing
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+
+        // Warn user if they try to leave without saving
+        let formModified = false;
+        
+        // Mark form as modified when inputs change
+        document.querySelectorAll('input, textarea, select').forEach(element => {
+            element.addEventListener('change', () => formModified = true);
+            element.addEventListener('keyup', () => formModified = true);
+        });
+
+        // Handle remove logo button click
+        document.querySelectorAll('.btn-outline-danger').forEach(btn => {
+            if (btn.textContent.includes('Remove Logo')) {
+                btn.addEventListener('click', () => formModified = true);
+            }
+        });
+
+        // Remove warning when form is submitted
+        document.querySelector('form').addEventListener('submit', function() {
+            formModified = false;
+        });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+}

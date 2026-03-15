@@ -60,7 +60,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
-
     if (!db.Admins.Any(a => a.Email == "admin@example.com"))
     {
         var defaultAdmin = new Admin
@@ -71,8 +70,8 @@ using (var scope = app.Services.CreateScope())
             PhoneNumber = "0000000000",
             Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
             Status = Status.Active,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            IsOnline = false,
+            CreatedAt = DateTime.UtcNow
         };
 
         db.Admins.Add(defaultAdmin);
@@ -83,6 +82,7 @@ using (var scope = app.Services.CreateScope())
 // --- Middleware ---
 if (!app.Environment.IsDevelopment())
 {
+    app.UseHttpsRedirection();
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }

@@ -16,7 +16,7 @@ public class RegisterViewModel
     [EmailAddress(ErrorMessage = "Invalid email address")]
     public string? Email { get; set; }
 
-    public bool IsOnline { get; set; } = false;
+    public bool IsOnline { get; set; }
     [Required(ErrorMessage = "Phone number is required")]
     [Phone(ErrorMessage = "Invalid phone number")]
     public string? PhoneNumber { get; set; }

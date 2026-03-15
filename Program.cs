@@ -70,7 +70,6 @@ using (var scope = app.Services.CreateScope())
             PhoneNumber = "0000000000",
             Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
             Status = Status.Active,
-            IsOnline = false,
             CreatedAt = DateTime.UtcNow
         };
 

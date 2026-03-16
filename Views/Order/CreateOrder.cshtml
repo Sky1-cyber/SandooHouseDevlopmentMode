@@ -1902,12 +1902,20 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 const pmLabel = currentPaymentMethod === 'cash' ? 'សាច់ប្រាក់' : currentPaymentMethod === 'card' ? 'Card' : 'KHQR';
 
                 lastOrder = {
-                    number: orderNum, date: new Date(),
-                    items: [...cart], subtotal: sub, discount: disc,
-                    discountType: discountType, discountAmount: discountAmount, 
-                    total: totalUsd, totalKhr: totalKhr,
-                    paymentMethod: pmLabel, paymentCurrency: paymentCurrency === 'usd' ? 'ដុល្លារ' : 'រៀល',
-                    cashReceived: cash, changeUsd: changeUsd, changeKhr: changeKhr,
+                    number: orderNum,
+                    date: new Date(),
+                    items: [...cart],
+                    subtotal: sub,
+                    discount: disc,
+                    discountType: discountType,
+                    discountAmount: discountAmount,
+                    total: totalUsd,
+                    totalKhr: totalKhr,
+                    paymentMethod: pmLabel,
+                    paymentCurrency: paymentCurrency === 'usd' ? 'ដុល្លារ' : 'រៀល',
+                    cashReceived: cash,
+                    changeUsd: changeUsd,
+                    changeKhr: changeKhr,
                     cashier: '@firstName @lastName'
                 };
 
@@ -1980,9 +1988,12 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             $('#invoiceModal').addClass('show');
         }
 
-        // ─── PRINT INVOICE ───
+        // ─── PRINT INVOICE (CLOSE MODAL AND PRINT WITHOUT REDIRECT) ───
         $('#printInvoiceBtn').click(function(){
             if (!lastOrder) return;
+
+            // Close the modal first
+            $('#invoiceModal').removeClass('show');
 
             const order = lastOrder;
             const now = new Date();
@@ -2056,7 +2067,16 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 `;
             }
 
-            // Complete HTML template
+            // Create an iframe for printing (hidden)
+            const printFrame = document.createElement('iframe');
+            printFrame.style.position = 'absolute';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = 'none';
+            printFrame.style.visibility = 'hidden';
+            document.body.appendChild(printFrame);
+
+            // Write content to iframe
             const printContent = `
                 <!DOCTYPE html>
                 <html>
@@ -2202,27 +2222,28 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                             </div>
                         </div>
                     </div>
-
-                    <script>
-                        // Auto print when loaded
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                                // Optional: close after printing
-                                window.onafterprint = function() {
-                                    window.close();
-                                };
-                            }, 100);
-                        };
-                    <\/script>
                 </body>
                 </html>
             `;
 
-            // Open new window and print
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
+            // Write to iframe and print
+            const frameDoc = printFrame.contentWindow.document;
+            frameDoc.open();
+            frameDoc.write(printContent);
+            frameDoc.close();
+
+            // Print when content is loaded
+            printFrame.onload = function() {
+                setTimeout(function() {
+                    printFrame.contentWindow.focus();
+                    printFrame.contentWindow.print();
+
+                    // Remove iframe after printing
+                    printFrame.contentWindow.onafterprint = function() {
+                        document.body.removeChild(printFrame);
+                    };
+                }, 100);
+            };
         });
 
         $('#closeInvoiceBtn').click(function(){ $('#invoiceModal').removeClass('show'); });

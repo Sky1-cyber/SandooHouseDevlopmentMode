@@ -1540,6 +1540,7 @@
                 height: 50px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -1613,11 +1614,13 @@
                 </div>
             </div>
 
-            <!-- Grid -->
-            <div class="products-grid" id="productsGrid">
-                <div class="state-placeholder">
-                    <i class="fas fa-circle-notch fa-spin" style="color:var(--brand)"></i>
-                    <p>កំពុងផ្ទុក...</p>
+            <!-- Grid with scroll -->
+            <div class="products-grid-container">
+                <div class="products-grid" id="productsGrid">
+                    <div class="state-placeholder">
+                        <i class="fas fa-circle-notch fa-spin" style="color:var(--brand)"></i>
+                        <p>កំពុងផ្ទុក...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1630,12 +1633,14 @@
                 <span class="cart-badge" id="cartCount">0 មុខ</span>
             </div>
 
-            <!-- Cart items -->
-            <div class="cart-items" id="cartItems">
-                <div class="empty-cart">
-                    <i class="fas fa-utensils"></i>
-                    <p>ថ្ងៃសួស្ដី! ជ្រើសអាហារ</p>
-                    <small>ចុចលើផលិតផលដើម្បីបន្ថែម</small>
+            <!-- Cart items with scroll -->
+            <div class="cart-items-container">
+                <div class="cart-items" id="cartItems">
+                    <div class="empty-cart">
+                        <i class="fas fa-utensils"></i>
+                        <p>ថ្ងៃសួស្ដី! ជ្រើសអាហារ</p>
+                        <small>ចុចលើផលិតផលដើម្បីបន្ថែម</small>
+                    </div>
                 </div>
             </div>
 
@@ -1749,7 +1754,7 @@
                 </div>
             </div>
 
-            <!-- Recent orders -->
+            <!-- Recent orders with scroll -->
             <div class="recent-bar">
                 <div class="recent-label"><i class="fas fa-history" style="margin-right:5px;"></i>ប្រតិបត្តិការថ្មីៗ
                 </div>
@@ -1818,6 +1823,258 @@
     <i class="fas fa-keyboard" style="margin-right:6px;"></i>
     F2: ថ្មី &nbsp;|&nbsp; F4: ផ្អាក &nbsp;|&nbsp; F8: បង់ &nbsp;|&nbsp; ESC: បោះបង់
 </div>
+
+<style>
+    /* Scrollable menu styles */
+    .products-grid-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 4px 8px 8px 8px;
+        min-height: 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--brand) #e0e0e0;
+    }
+    
+    .products-grid-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .products-grid-container::-webkit-scrollbar-track {
+        background: #e0e0e0;
+        border-radius: 10px;
+    }
+    
+    .products-grid-container::-webkit-scrollbar-thumb {
+        background: var(--brand);
+        border-radius: 10px;
+    }
+    
+    .cart-items-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+        min-height: 0;
+        scrollbar-width: thin;
+    }
+    
+    .cart-items-container::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .cart-items-container::-webkit-scrollbar-thumb {
+        background: var(--brand);
+        border-radius: 10px;
+    }
+    
+    /* Product card styles */
+    .product-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(255,107,53,0.15);
+        border-color: var(--brand);
+    }
+    
+    .prod-img {
+        height: 120px;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 40px;
+        position: relative;
+    }
+    
+    .prod-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .prod-name {
+        padding: 10px 10px 4px 10px;
+        font-weight: 600;
+        font-size: 15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #2D3561;
+    }
+    
+    .prod-price {
+        padding: 0 10px;
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--brand);
+    }
+    
+    .prod-price-khr {
+        padding: 0 10px 10px 10px;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .prod-add-btn {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--brand);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(255,107,53,0.3);
+        transition: all 0.2s ease;
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    
+    .product-card:hover .prod-add-btn {
+        opacity: 1;
+        transform: scale(1);
+    }
+    
+    .prod-add-btn:hover {
+        background: #e64a2e;
+        transform: scale(1.1) !important;
+    }
+    
+    /* Cart item styles */
+    .cart-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        border: 1px solid #f0f0f0;
+        transition: all 0.2s ease;
+    }
+    
+    .cart-item:hover {
+        border-color: var(--brand);
+        box-shadow: 0 4px 12px rgba(255,107,53,0.1);
+    }
+    
+    .ci-thumb {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+    
+    .ci-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+    
+    .ci-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .ci-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #2D3561;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 4px;
+    }
+    
+    .ci-price {
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .ci-qty {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 8px;
+    }
+    
+    .ci-qty-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        background: white;
+        color: #2D3561;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .ci-qty-btn:hover {
+        background: var(--brand);
+        color: white;
+        border-color: var(--brand);
+    }
+    
+    .ci-qty-num {
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+    }
+    
+    .ci-total {
+        font-weight: 700;
+        color: var(--brand);
+        margin: 0 8px;
+        min-width: 65px;
+        text-align: right;
+    }
+    
+    .ci-remove {
+        color: #999;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 6px;
+    }
+    
+    .ci-remove:hover {
+        color: #f44336;
+        transform: scale(1.1);
+    }
+    
+    /* Brand tab active state */
+    .tab-pill.brand-active {
+        background: var(--brand);
+        color: white;
+        border-color: var(--brand);
+    }
+</style>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
@@ -1922,7 +2179,7 @@
 
             let html = '';
             filtered.forEach(p => {
-                const imgPath = p.icon ? (p.icon.startsWith('/') ? p.icon : '~/Menu/' + p.icon) : '';
+                const imgPath = p.icon ? (p.icon.startsWith('/') ? p.icon : '/Menu/' + p.icon) : '';
                 const imgHtml = imgPath
                     ? `<img src="${imgPath}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                     : '<i class="fas fa-utensils"></i>';
@@ -2030,7 +2287,7 @@
             } else {
                 cart.forEach((item, idx) => {
                     const tot = item.price * item.quantity;
-                    const imgPath = item.icon ? (item.icon.startsWith('/') ? item.icon : '~/Menu/' + item.icon) : '';
+                    const imgPath = item.icon ? (item.icon.startsWith('/') ? item.icon : '/Menu/' + item.icon) : '';
                     const imgHtml = imgPath
                         ? `<img src="${imgPath}" alt="${item.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                         : '<i class="fas fa-utensils"></i>';

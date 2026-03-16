@@ -148,7 +148,7 @@ public class OrderController : Controller
 
             await _applicationDbContext.SaveChangesAsync();
 
-            return RedirectToAction("Index",  "Order");
+            return RedirectToAction("Index",  "Home");
         }
         catch (Exception ex)
         {

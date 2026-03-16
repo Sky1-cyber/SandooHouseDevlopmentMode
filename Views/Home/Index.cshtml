@@ -316,6 +316,33 @@
         </div>
     </div>
 </div>
+
+<!-- ── DELETE MODAL ── -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content del-modal">
+            <div class="del-modal-head">
+                <div class="del-icon-ring">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <h5>Delete Order</h5>
+                <p>Are you sure you want to delete <strong id="adminNameDisplay"></strong>?<br>
+                    <span class="del-warn">This action cannot be undone.</span></p>
+            </div>
+            <div class="del-modal-foot">
+                <button type="button" class="del-btn-cancel" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <form id="deleteForm" method="post" asp-controller="Order" asp-action="DeleteOrder">
+                    <input type="hidden" name="id" id="adminIdToDelete"/>
+                    <button type="submit" class="del-btn-confirm">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <style>
 :root {
     --purple-a:#667eea; --purple-b:#764ba2;

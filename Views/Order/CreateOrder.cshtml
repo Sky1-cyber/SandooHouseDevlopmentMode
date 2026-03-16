@@ -1922,7 +1922,7 @@
 
             let html = '';
             filtered.forEach(p => {
-                const imgPath = p.icon ? (p.icon.startsWith('/') ? p.icon : '/Menu/' + p.icon) : '';
+                const imgPath = p.icon ? (p.icon.startsWith('/') ? p.icon : '~/Menu/' + p.icon) : '';
                 const imgHtml = imgPath
                     ? `<img src="${imgPath}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                     : '<i class="fas fa-utensils"></i>';
@@ -2030,7 +2030,7 @@
             } else {
                 cart.forEach((item, idx) => {
                     const tot = item.price * item.quantity;
-                    const imgPath = item.icon ? (item.icon.startsWith('/') ? item.icon : '/Menu/' + item.icon) : '';
+                    const imgPath = item.icon ? (item.icon.startsWith('/') ? item.icon : '~/Menu/' + item.icon) : '';
                     const imgHtml = imgPath
                         ? `<img src="${imgPath}" alt="${item.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                         : '<i class="fas fa-utensils"></i>';

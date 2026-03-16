@@ -65,7 +65,6 @@ public class HomeController : Controller
 
         // ✅ Update online status
         admin.Status = Status.Active;
-        admin.IsOnline = true;
 
         _applicationDbContext.Admins.Update(admin); // Optional: explicitly mark as updated
         await _applicationDbContext.SaveChangesAsync(); // <-- THIS IS WHAT WAS MISSING
@@ -77,8 +76,8 @@ public class HomeController : Controller
             new Claim(ClaimTypes.Name, admin.FirstName ?? ""),
             new Claim("LastName", admin.LastName ?? ""),
             new Claim(ClaimTypes.MobilePhone, admin.PhoneNumber ?? ""),
-            new Claim("ProfileImageFile", admin.ProfileImageFile ?? ""),
-            new Claim("IsOnline", admin.IsOnline.ToString()) 
+            new Claim("ProfileImageFile", admin.ProfileImageFile ?? "")
+            
         };
 
         var claimIdentity = new ClaimsIdentity(claims, "MyCookieAuthenticationScheme");

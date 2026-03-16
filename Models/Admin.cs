@@ -31,8 +31,6 @@ public class Admin
     [Required]
     [MaxLength(255)]
     public required string Password { get; set; }
-
-    public bool IsOnline { get; set; }
     
     public Status Status { get; set; } = Status.Active;
 

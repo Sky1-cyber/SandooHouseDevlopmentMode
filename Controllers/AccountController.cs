@@ -38,7 +38,6 @@ public class AccountController : Controller
         if (admin != null)
         {
             admin.Status = Status.Inactive;
-            admin.IsOnline = false;
             await _applicationDbContext.SaveChangesAsync();
         }
         await HttpContext.SignOutAsync("MyCookieAuthenticationScheme");
@@ -92,7 +91,6 @@ public class AccountController : Controller
                 Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
                 ProfileImageFile = fileName,
                 Status = Status.Active,
-                IsOnline =  false,
                 CreatedAt = DateTime.UtcNow
             };
 

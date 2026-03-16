@@ -17,6 +17,7 @@
         href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link rel="stylesheet" href="~/css/POsStyle.css"/>
     <style>
 :root {
     --brand: #FF6B35;
@@ -1340,13 +1341,19 @@ html, body {
     color: white;
     font-size: 28px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
 .prod-img img {
     width: 100%;
     height: 100%;
-    border-radius: 35px;
     object-fit: cover;
+    display: block;
+}
+
+.prod-img i {
+    font-size: 28px;
+    color: white;
 }
 
 .prod-name {
@@ -1450,13 +1457,19 @@ html, body {
     justify-content: center;
     color: white;
     font-size: 16px;
+    overflow: hidden;
 }
 
 .ci-thumb img {
     width: 100%;
     height: 100%;
-    border-radius: 20px;
     object-fit: cover;
+    display: block;
+}
+
+.ci-thumb i {
+    font-size: 16px;
+    color: white;
 }
 
 .ci-info {
@@ -1575,6 +1588,18 @@ html, body {
     background: #FF6B35;
     border-color: #FF6B35;
     color: white;
+}
+
+/* Image error fallback */
+.img-error-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--product-color, #FF6B35), #2D3561);
+    color: white;
+    font-size: 28px;
 }
 .cart-fab:active {
     transform: scale(0.92);
@@ -2138,6 +2163,14 @@ html, body {
                     var color = colors[index % colors.Length];
                     string categoryName = menu.Category?.CategoryName ?? "Uncategorized";
                     string brandName = menu.Category?.Brand?.BrandName ?? "Uncategorized";
+                    
+                    // Fix image path - handle different URL formats
+                    string imageUrl = menu.ImageMenuUrl ?? "";
+                    if (!string.IsNullOrEmpty(imageUrl) && !imageUrl.StartsWith("http") && !imageUrl.StartsWith("/"))
+                    {
+                        imageUrl = "/Menu/" + imageUrl;
+                    }
+                    
                     <text>
                         ,{
                         id: @menu.Id,
@@ -2147,7 +2180,7 @@ html, body {
                         categoryId: @(menu.CategoryId ?? 0),
                         brand: '@Html.Raw(brandName.Replace("'", "\\'"))',
                         brandId: @(menu.Category?.BrandId ?? 0),
-                        icon: '@(menu.ImageMenuUrl ?? "")',
+                        icon: '@Html.Raw(imageUrl)',
                         color: '@color'
                     },
                     </text>
@@ -2214,10 +2247,17 @@ html, body {
 
             let html = '';
             filtered.forEach(p => {
-                const imgPath = p.icon ? (p.icon.startsWith('/') ? p.icon : '/Menu/' + p.icon) : '';
-                const imgHtml = imgPath
-                    ? `<img src="${imgPath}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
-                    : '<i class="fas fa-utensils"></i>';
+                // Handle image path
+                let imgPath = p.icon || '';
+                
+                // Create image HTML with better error handling
+                let imgHtml = '';
+                if (imgPath) {
+                    imgHtml = `<img src="${imgPath}" alt="${p.name}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`;
+                } else {
+                    imgHtml = '<i class="fas fa-utensils"></i>';
+                }
+                
                 html += `
 <div class="product-card"
      style="--product-color:${p.color}"
@@ -2322,10 +2362,18 @@ html, body {
             } else {
                 cart.forEach((item, idx) => {
                     const tot = item.price * item.quantity;
-                    const imgPath = item.icon ? (item.icon.startsWith('/') ? item.icon : '/Menu/' + item.icon) : '';
-                    const imgHtml = imgPath
-                        ? `<img src="${imgPath}" alt="${item.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
-                        : '<i class="fas fa-utensils"></i>';
+                    
+                    // Handle image path for cart
+                    let imgPath = item.icon || '';
+                    
+                    // Create image HTML with better error handling for cart
+                    let imgHtml = '';
+                    if (imgPath) {
+                        imgHtml = `<img src="${imgPath}" alt="${item.name}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`;
+                    } else {
+                        imgHtml = '<i class="fas fa-utensils"></i>';
+                    }
+                    
                     html += `
 <div class="cart-item" data-index="${idx}" style="--product-color:${item.color}">
     <div class="ci-thumb" style="background:linear-gradient(135deg,${item.color},#2D3561)">${imgHtml}</div>

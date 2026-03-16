@@ -16,6 +16,7 @@ public class SupplierController : Controller
     
     // GET Supplier List
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> Index()
     {
         var suppliers = await _applicationDbContext.Suppliers
@@ -24,6 +25,8 @@ public class SupplierController : Controller
         return View(suppliers);
     }
     
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public IActionResult AddSupplier()
     {
         return View();

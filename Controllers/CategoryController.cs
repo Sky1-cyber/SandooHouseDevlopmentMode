@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ public class CategoryController : Controller
     }
 
     // GET to get list of category
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> Index()
     {
         var categories = await _applicationDbContext.Categories
@@ -30,6 +33,7 @@ public class CategoryController : Controller
 
     // GET From to create category
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public IActionResult CreateCategory()
     {
         var model = new CategoryViewerModel();
@@ -38,6 +42,7 @@ public class CategoryController : Controller
 
     // POST To posting data of Category to database
     [HttpPost]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> CreateCategory(CategoryViewerModel model)
     {
         if (!ModelState.IsValid)
@@ -66,6 +71,7 @@ public class CategoryController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditCategory(int id)
     {
         var category = await _applicationDbContext.Categories
@@ -100,6 +106,7 @@ public class CategoryController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditCategory(CategoryViewerModel model)
     {
         if (!ModelState.IsValid)
@@ -161,6 +168,7 @@ public class CategoryController : Controller
 
     //POST to delete category from database
     [HttpPost]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> DeleteCategory(int? id)
     {
         if (id == null)

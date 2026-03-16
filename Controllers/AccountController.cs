@@ -11,7 +11,7 @@ using Sandoohouse.Models.ModelViewer.AdminModelViewer;
 
 namespace Sandoohouse.Controllers;
 
-[Authorize]
+[Authorize(Roles = "SuperAdmin,Owner,Manager")]
 public class AccountController : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext;
@@ -58,12 +58,14 @@ public class AccountController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public IActionResult CreateAccount()
     {
         return View();
     }
 
     [HttpPost]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> CreateAccount(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
@@ -106,6 +108,7 @@ public class AccountController : Controller
     
     // GET List of Admin in DB
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> ListAccount()
     {
         int totalAdminsCount = _applicationDbContext.Admins.Count();
@@ -122,6 +125,7 @@ public class AccountController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> Delete(int id)
     {
         var admin = await _applicationDbContext.Admins.FindAsync(id);
@@ -151,6 +155,7 @@ public class AccountController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditAccount(int id)
     {
         var admin = await _applicationDbContext.Admins
@@ -161,6 +166,7 @@ public class AccountController : Controller
     }
     
     [HttpPost]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditAccount(int id, IFormFile? ProfileImageUrl, Admin model)
     {
         var admin = await _applicationDbContext.Admins.FindAsync(id);
@@ -171,6 +177,7 @@ public class AccountController : Controller
         admin.FirstName = model.FirstName;
         admin.LastName = model.LastName;
         admin.Email = model.Email;
+        admin.Role = model.Role;
         admin.Status = model.Status;
         admin.PhoneNumber = model.PhoneNumber;
 

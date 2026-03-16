@@ -21,7 +21,8 @@ public class HomeController : Controller
         _webHostEnvironment = webHostEnvironment;
     }
     
-    [Authorize]
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> Index()
     {
         var orders = await _applicationDbContext.Orders
@@ -76,7 +77,8 @@ public class HomeController : Controller
             new Claim(ClaimTypes.Name, admin.FirstName ?? ""),
             new Claim("LastName", admin.LastName ?? ""),
             new Claim(ClaimTypes.MobilePhone, admin.PhoneNumber ?? ""),
-            new Claim("ProfileImageFile", admin.ProfileImageFile ?? "")
+            new Claim("ProfileImageFile", admin.ProfileImageFile ?? ""),
+            new Claim(ClaimTypes.Role, admin.Role.ToString()) 
             
         };
 
@@ -93,7 +95,11 @@ public class HomeController : Controller
             new ClaimsPrincipal(claimIdentity),
             authProperties);
 
-        return RedirectToAction("Index", "Home");
+        return admin.Role switch
+        {
+            Role.Cashier => RedirectToAction("CreateOrder", "Order"),
+            _ => RedirectToAction("Index", "Home")
+        };
     }
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

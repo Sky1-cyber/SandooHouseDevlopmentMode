@@ -31,6 +31,8 @@ public class Admin
     [Required]
     [MaxLength(255)]
     public required string Password { get; set; }
+
+    public Role Role { get; set; } = Role.Manager;
     
     public Status Status { get; set; } = Status.Active;
 

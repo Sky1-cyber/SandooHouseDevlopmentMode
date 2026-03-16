@@ -229,7 +229,25 @@ ViewData["Title"] = "Edit Account";
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-muted">
+                                Role Level
+                            </label>
 
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-2">
+                                    <i class="bi bi-bar-chart-steps text-primary"></i>
+                                </span>
+
+                                <select asp-for="Role" class="form-select form-control-lg border-2">
+                                    <option value="0">Level 0 - Super Admin</option>
+                                    <option value="1">Level 1 - Admin</option>
+                                    <option value="2">Level 2 - Manager</option>
+                                    <option value="3">Level 3 - Staff</option>
+                                    <option value="4">Level 4 - Viewer</option>
+                                </select>
+                            </div>
+                        </div>
                         <!-- Action Buttons -->
                         <div class="row mt-5 g-3">
                             <div class="col-md-6">

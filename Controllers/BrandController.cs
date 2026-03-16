@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Helpers;
@@ -16,6 +17,7 @@ public class BrandController : Controller
     }
     
     // GET
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -26,6 +28,7 @@ public class BrandController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public IActionResult CreateBrand()
     {
         return View();
@@ -33,6 +36,7 @@ public class BrandController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> CreateBrand(BrandViewerModel brandViewerModel)
     {
         if (!ModelState.IsValid)
@@ -57,6 +61,7 @@ public class BrandController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditBrand(int? id)
     {
         if (id == null)
@@ -78,6 +83,7 @@ public class BrandController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditBrand(BrandViewerModel model)
     {
         if (!ModelState.IsValid)
@@ -126,6 +132,7 @@ public class BrandController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> DeleteBrand(int? id)
     {
         if (id == null)

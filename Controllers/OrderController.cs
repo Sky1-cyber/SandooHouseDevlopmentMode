@@ -17,7 +17,9 @@ public class OrderController : Controller
     {
         _applicationDbContext = applicationDbContext;
     }
-
+    
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager,Cashier")]
     public async Task<IActionResult> Index()
     {
         var orders = await _applicationDbContext.Orders
@@ -28,6 +30,7 @@ public class OrderController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager,Cashier")]
     public async Task<IActionResult> CreateOrder()
     {
         ViewBag.Brands = await _applicationDbContext.Brands
@@ -49,6 +52,7 @@ public class OrderController : Controller
 
     [HttpPost]
     [IgnoreAntiforgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager,Cashier")]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
     {
         try
@@ -124,6 +128,7 @@ public class OrderController : Controller
 
     [HttpPost]
     [IgnoreAntiforgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> DeleteOrder(int id)
     {
         try

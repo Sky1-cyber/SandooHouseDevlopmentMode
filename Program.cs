@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // --- Build connection string dynamically ---
 string connectionString;
 
+//var env = builder.Environment; // optional if you want
+
 var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
 var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
 var dbName = Environment.GetEnvironmentVariable("DB_NAME");
@@ -21,14 +23,16 @@ if (!string.IsNullOrEmpty(dbHost) &&
     !string.IsNullOrEmpty(dbUser) &&
     !string.IsNullOrEmpty(dbPass))
 {
+    // Production / Render
     connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass};SSL Mode=Require;Trust Server Certificate=true;";
 }
 else
 {
-    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
+    // Local development
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
 }
 
-// --- Services ---
+// --- Add services ---
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -41,7 +45,7 @@ builder.Services.AddAuthentication("MyCookieAuthenticationScheme")
         options.AccessDeniedPath = "/Error/AccessDenied";
     });
 
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddDistributedMemoryCache(); // required for session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(1);
@@ -51,48 +55,33 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// ✅ Render PORT fix
-var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-app.Urls.Add($"http://*:{port}");
-
-// --- Database Migration + Safe Seeding ---
+// --- Default Admin Seeding ---
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-    try
+    db.Database.Migrate();
+    if (!db.Admins.Any(a => a.Email == "admin@example.com"))
     {
-        db.Database.Migrate();
-
-        if (db.Database.CanConnect())
+        var defaultAdmin = new Admin
         {
-            if (!db.Admins.Any(a => a.Email == "admin@example.com"))
-            {
-                var defaultAdmin = new Admin
-                {
-                    FirstName = "Default",
-                    LastName = "Admin",
-                    Email = "admin@example.com",
-                    PhoneNumber = "0000000000",
-                    Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
-                    Status = Status.Active,
-                    CreatedAt = DateTime.UtcNow
-                };
+            FirstName = "Default",
+            LastName = "Admin",
+            Email = "admin@example.com",
+            PhoneNumber = "0000000000",
+            Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+            Status = Status.Active,
+            CreatedAt = DateTime.UtcNow
+        };
 
-                db.Admins.Add(defaultAdmin);
-                db.SaveChanges();
-            }
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Database migration error: " + ex.Message);
+        db.Admins.Add(defaultAdmin);
+        db.SaveChanges();
     }
 }
 
 // --- Middleware ---
 if (!app.Environment.IsDevelopment())
 {
+    app.UseHttpsRedirection();
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }

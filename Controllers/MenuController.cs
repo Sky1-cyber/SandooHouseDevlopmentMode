@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Helpers;
@@ -16,6 +17,8 @@ public class MenuController : Controller
     }
     
     // GET
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> Index()
     {
         var menus = await _applicationDbContext.Menus
@@ -37,6 +40,7 @@ public class MenuController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> CreateMenu()
     {
         var categories = await _applicationDbContext.Categories
@@ -48,6 +52,7 @@ public class MenuController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> CreateMenu(MenuViewerModel model)
     {
         if (!ModelState.IsValid)
@@ -98,6 +103,7 @@ public class MenuController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditMenu(int? id)
     {
         if (id == null)
@@ -131,6 +137,7 @@ public class MenuController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditMenu(MenuViewerModel model)
     {
         if (!ModelState.IsValid)
@@ -186,6 +193,7 @@ public class MenuController : Controller
     }
     
     [HttpPost]
+    [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> DeleteMenu(int? id)
     {
         if (id == null)

@@ -141,16 +141,30 @@
                                         <!-- Profile -->
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center">
-                                                <div class="rounded overflow-hidden bg-white border shadow-sm me-3"
-                                                     style="width: 45px; height: 45px;">
+        
+                                                <!-- Profile Image -->
+                                                <div class="avatar avatar-md rounded-circle overflow-hidden border shadow-sm me-3">
                                                     <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
                                                          alt="@admin.FirstName @admin.LastName"
-                                                         class="w-100 h-100"
-                                                         style="object-fit: cover;"/>
+                                                         class="img-fluid"
+                                                         style="width:50px;height:50px;object-fit:cover;">
                                                 </div>
-                                                <div>
-                                                    <small class="text-muted">ID: #@admin.Id</small>
+
+                                                <!-- Admin Info -->
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-semibold text-dark">
+                                                        @admin.FirstName @admin.LastName
+                                                    </span>
+
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-id-badge me-1"></i> ID: #@admin.Id
+                                                    </small>
+
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-user-shield me-1"></i> @admin.Role
+                                                    </small>
                                                 </div>
+
                                             </div>
                                         </td>
 

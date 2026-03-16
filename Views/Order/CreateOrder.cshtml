@@ -1904,9 +1904,10 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 lastOrder = {
                     number: orderNum, date: new Date(),
                     items: [...cart], subtotal: sub, discount: disc,
-                    discountType, discountAmount, total: totalUsd, totalKhr,
+                    discountType: discountType, discountAmount: discountAmount, 
+                    total: totalUsd, totalKhr: totalKhr,
                     paymentMethod: pmLabel, paymentCurrency: paymentCurrency === 'usd' ? 'ដុល្លារ' : 'រៀល',
-                    cashReceived: cash, changeUsd, changeKhr,
+                    cashReceived: cash, changeUsd: changeUsd, changeKhr: changeKhr,
                     cashier: '@firstName @lastName'
                 };
 
@@ -1979,39 +1980,249 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             $('#invoiceModal').addClass('show');
         }
 
+        // ─── PRINT INVOICE ───
         $('#printInvoiceBtn').click(function(){
             if (!lastOrder) return;
-            const pw = window.open('','_blank');
+
+            const order = lastOrder;
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+            const timeStr = now.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+
+            // Helper functions for formatting
+            const fmtUsd = (n) => '$' + parseFloat(n).toFixed(2);
+            const fmtKhr = (n) => Math.round(n).toLocaleString() + ' ៛';
+
+            // Build items HTML
             let itemsHtml = '';
-            lastOrder.items.forEach(i => {
-                itemsHtml += `<tr><td>${i.name}</td><td style="text-align:center;">${i.quantity}</td><td style="text-align:right;">${fmtUsd(i.price)}</td><td style="text-align:right;">${fmtUsd(i.price*i.quantity)}</td></tr>`;
+            order.items.forEach(item => {
+                const tot = item.price * item.quantity;
+                itemsHtml += `
+                    <tr>
+                        <td style="padding:8px 4px; border-bottom:1px solid #eee;">${item.name}</td>
+                        <td style="text-align:center; padding:8px 4px; border-bottom:1px solid #eee;">${item.quantity}</td>
+                        <td style="text-align:right; padding:8px 4px; border-bottom:1px solid #eee;">${fmtUsd(item.price)}</td>
+                        <td style="text-align:right; padding:8px 4px; border-bottom:1px solid #eee;">${fmtUsd(tot)}</td>
+                    </tr>
+                `;
             });
-            pw.document.write(`<!DOCTYPE html><html><head><title>Invoice #${lastOrder.number}</title>
-<style>body{font-family:Arial,sans-serif;margin:0;padding:16px;font-size:13px;}
-h2{color:#FF6B35;margin:0 0 4px;}
-table{width:100%;border-collapse:collapse;margin:10px 0;}
-th{background:#f0f0f0;padding:6px 4px;text-align:left;}
-td{padding:5px 4px;border-bottom:1px solid #eee;}
-.tot{font-weight:bold;font-size:15px;}.divider{border-top:1px dashed #999;margin:8px 0;}</style></head>
-<body><div style="text-align:center;margin-bottom:16px;">
-<h2>ផ្ទុះបាយសេនឌូ</h2><p style="margin:2px 0;font-size:11px;">ទូរស័ព្ទ: 012 345 678 | ភ្នំពេញ</p>
-<div class="divider"></div><strong>#${lastOrder.number}</strong><br>
-<span style="font-size:11px;">${new Date().toLocaleString()} | ${lastOrder.cashier}</span></div>
-<table><thead><tr><th>មុខ</th><th>ចំ</th><th>តម្លៃ</th><th>សរុប</th></tr></thead><tbody>${itemsHtml}</tbody></table>
-<div class="divider"></div>
-<div style="display:flex;justify-content:space-between;"><span>សរុបរង</span><span>${fmtUsd(lastOrder.subtotal)}</span></div>
-${lastOrder.discount>0?`<div style="display:flex;justify-content:space-between;color:#F59E0B;"><span>បញ្ចុះ</span><span>-${fmtUsd(lastOrder.discount)}</span></div>`:''}
-<div class="divider"></div>
-<div style="display:flex;justify-content:space-between;" class="tot"><span>សរុបទាំងអស់</span><span>${fmtUsd(lastOrder.total)}</span></div>
-<div style="text-align:right;font-size:11px;color:#888;">${fmtKhr(lastOrder.totalKhr)}</div>
-${lastOrder.paymentMethod==='សាច់ប្រាក់'?`<div style="display:flex;justify-content:space-between;margin-top:6px;"><span>ទទួល</span><span>${lastOrder.paymentCurrency==='ដុល្លារ'?fmtUsd(lastOrder.cashReceived):fmtKhr(lastOrder.cashReceived)}</span></div>
-<div style="display:flex;justify-content:space-between;"><span>អាប់</span><span>${lastOrder.paymentCurrency==='ដុល្លារ'?fmtUsd(lastOrder.changeUsd):fmtKhr(lastOrder.changeKhr)}</span></div>`:''}
-<div style="text-align:center;margin-top:20px;font-size:12px;">
-<p>🙏 សូមអរគុណ!</p><p>ទំនិញមិនអាចដូរ</p></div>
-</body></html>`);
-            pw.document.close();
-            pw.focus();
-            setTimeout(() => pw.print(), 300);
+
+            // Build summary HTML
+            let summaryHtml = `
+                <div style="display:flex; justify-content:space-between; margin:5px 0;">
+                    <span>សរុបរង</span>
+                    <span>${fmtUsd(order.subtotal)}</span>
+                </div>
+            `;
+
+            if (order.discount > 0) {
+                summaryHtml += `
+                    <div style="display:flex; justify-content:space-between; margin:5px 0; color:#F59E0B;">
+                        <span>បញ្ចុះ ${order.discountType === 'percentage' ? '(' + order.discountAmount + '%)' : ''}</span>
+                        <span>-${fmtUsd(order.discount)}</span>
+                    </div>
+                `;
+            }
+
+            summaryHtml += `
+                <div style="display:flex; justify-content:space-between; margin:5px 0; font-weight:bold; font-size:16px; border-top:2px dashed #333; padding-top:8px;">
+                    <span>សរុបទាំងអស់</span>
+                    <span>${fmtUsd(order.total)}</span>
+                </div>
+                <div style="text-align:right; font-size:11px; color:#666;">${fmtKhr(order.totalKhr)}</div>
+            `;
+
+            // Build payment HTML
+            let paymentHtml = '';
+            if (order.paymentMethod === 'សាច់ប្រាក់') {
+                const cashDisp = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.cashReceived) : fmtKhr(order.cashReceived);
+                const changeDisp = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.changeUsd) : fmtKhr(order.changeKhr);
+                paymentHtml = `
+                    <div style="display:flex; justify-content:space-between; margin:5px 0;">
+                        <span>ទទួល (${order.paymentCurrency})</span>
+                        <span>${cashDisp}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin:5px 0;">
+                        <span>អាប់</span>
+                        <span>${changeDisp}</span>
+                    </div>
+                `;
+            } else {
+                paymentHtml = `
+                    <div style="display:flex; justify-content:space-between; margin:5px 0;">
+                        <span>វិធីបង់ប្រាក់</span>
+                        <span>${order.paymentMethod}</span>
+                    </div>
+                `;
+            }
+
+            // Complete HTML template
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>វិក័យប័ត្រ #${order.number}</title>
+                    <meta charset="utf-8">
+                    <style>
+                        body {
+                            font-family: 'Khmer OS', 'Leelawadee UI', Arial, sans-serif;
+                            margin: 0;
+                            padding: 20px;
+                            font-size: 14px;
+                            line-height: 1.4;
+                            color: #333;
+                        }
+                        .invoice-container {
+                            max-width: 300px;
+                            margin: 0 auto;
+                            background: white;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 20px;
+                            border-bottom: 2px dashed #FF6B35;
+                            padding-bottom: 15px;
+                        }
+                        .shop-name {
+                            color: #FF6B35;
+                            font-size: 24px;
+                            font-weight: bold;
+                            margin: 0 0 5px;
+                        }
+                        .shop-details {
+                            font-size: 12px;
+                            color: #666;
+                            margin: 2px 0;
+                        }
+                        .order-info {
+                            background: #f8f9fa;
+                            padding: 10px;
+                            border-radius: 5px;
+                            margin: 15px 0;
+                            font-size: 12px;
+                        }
+                        .order-info div {
+                            display: flex;
+                            justify-content: space-between;
+                            margin: 3px 0;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 15px 0;
+                        }
+                        th {
+                            background: #f0f0f0;
+                            padding: 8px 4px;
+                            text-align: left;
+                            font-size: 12px;
+                        }
+                        th:first-child { text-align: left; }
+                        th:last-child { text-align: right; }
+                        .summary-section {
+                            border-top: 2px dashed #333;
+                            margin-top: 15px;
+                            padding-top: 15px;
+                        }
+                        .payment-section {
+                            border-top: 1px dashed #999;
+                            margin-top: 15px;
+                            padding-top: 15px;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 25px;
+                            padding-top: 15px;
+                            border-top: 2px dashed #FF6B35;
+                            font-size: 12px;
+                        }
+                        .thankyou {
+                            color: #FF6B35;
+                            font-size: 18px;
+                            margin: 5px 0;
+                        }
+                        @@media print {
+                            body { padding: 0; }
+                            .invoice-container { max-width: 100%; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="invoice-container">
+                        <div class="header">
+                            <div class="shop-name">ផ្ទុះបាយសេនឌូ</div>
+                            <div class="shop-details">ទូរស័ព្ទ: 012 345 678</div>
+                            <div class="shop-details">ភ្នំពេញ, កម្ពុជា</div>
+                        </div>
+
+                        <div class="order-info">
+                            <div>
+                                <span>លេខវិក័យប័ត្រ:</span>
+                                <strong>#${order.number}</strong>
+                            </div>
+                            <div>
+                                <span>កាលបរិច្ឆេទ:</span>
+                                <span>${dateStr} ${timeStr}</span>
+                            </div>
+                            <div>
+                                <span>អ្នកលក់:</span>
+                                <span>${order.cashier || '@firstName @lastName'}</span>
+                            </div>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>មុខទំនិញ</th>
+                                    <th>ចំ</th>
+                                    <th>តម្លៃ</th>
+                                    <th>សរុប</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${itemsHtml}
+                            </tbody>
+                        </table>
+
+                        <div class="summary-section">
+                            ${summaryHtml}
+                        </div>
+
+                        <div class="payment-section">
+                            ${paymentHtml}
+                        </div>
+
+                        <div class="footer">
+                            <div class="thankyou">🙏 សូមអរគុណ!</div>
+                            <div style="font-size:11px; color:#666; margin-top:8px;">
+                                ទំនិញដែលបានទិញ មិនអាចដូរបានទេ
+                            </div>
+                            <div style="font-size:10px; color:#999; margin-top:10px;">
+                                សូមអញ្ជើញមកម្តងទៀត
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        // Auto print when loaded
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                // Optional: close after printing
+                                window.onafterprint = function() {
+                                    window.close();
+                                };
+                            }, 100);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            // Open new window and print
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
         });
 
         $('#closeInvoiceBtn').click(function(){ $('#invoiceModal').removeClass('show'); });
@@ -2020,10 +2231,10 @@ ${lastOrder.paymentMethod==='សាច់ប្រាក់'?`<div style="displa
         // ─── RECENT ORDERS ───
         function addRecentChip(num, amt) {
             const html = `<div class="recent-chip" data-order="${num}">
-            <span class="rord-num">#${num}</span>
-            <span>${fmtUsd(amt)}</span>
-            <span class="rord-status">✓</span>
-        </div>`;
+                <span class="rord-num">#${num}</span>
+                <span>${fmtUsd(amt)}</span>
+                <span class="rord-status">✓</span>
+            </div>`;
             $('#recentOrders').prepend(html);
             if ($('#recentOrders .recent-chip').length > 6) $('#recentOrders .recent-chip:last').remove();
         }

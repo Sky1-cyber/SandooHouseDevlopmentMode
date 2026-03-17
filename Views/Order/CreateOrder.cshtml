@@ -1699,151 +1699,262 @@
             // Write content to iframe
             const printContent = `
                 <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>វិក័យប័ត្រ #${order.number}</title>
-                    <meta charset="utf-8">
-                    <style>
-                        body {
-                            font-family: 'Khmer OS', 'Leelawadee UI', Arial, sans-serif;
-                            margin: 0;
-                            padding: 20px;
-                            font-size: 14px;
-                            line-height: 1.4;
-                            color: #333;
-                        }
-                        .invoice-container {
-                            max-width: 300px;
-                            margin: 0 auto;
-                            background: white;
-                        }
-                        .header {
-                            text-align: center;
-                            margin-bottom: 20px;
-                            border-bottom: 2px dashed #FF6B35;
-                            padding-bottom: 15px;
-                        }
-                        .shop-name {
-                            color: #FF6B35;
-                            font-size: 24px;
-                            font-weight: bold;
-                            margin: 0 0 5px;
-                        }
-                        .shop-details {
-                            font-size: 12px;
-                            color: #666;
-                            margin: 2px 0;
-                        }
-                        .order-info {
-                            background: #f8f9fa;
-                            padding: 10px;
-                            border-radius: 5px;
-                            margin: 15px 0;
-                            font-size: 12px;
-                        }
-                        .order-info div {
-                            display: flex;
-                            justify-content: space-between;
-                            margin: 3px 0;
-                        }
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin: 15px 0;
-                        }
-                        th {
-                            background: #f0f0f0;
-                            padding: 8px 4px;
-                            text-align: left;
-                            font-size: 12px;
-                        }
-                        th:first-child { text-align: left; }
-                        th:last-child { text-align: right; }
-                        .summary-section {
-                            border-top: 2px dashed #333;
-                            margin-top: 15px;
-                            padding-top: 15px;
-                        }
-                        .payment-section {
-                            border-top: 1px dashed #999;
-                            margin-top: 15px;
-                            padding-top: 15px;
-                        }
-                        .footer {
-                            text-align: center;
-                            margin-top: 25px;
-                            padding-top: 15px;
-                            border-top: 2px dashed #FF6B35;
-                            font-size: 12px;
-                        }
-                        .thankyou {
-                            color: #FF6B35;
-                            font-size: 18px;
-                            margin: 5px 0;
-                        }
-                        @@media print {
-                            body { padding: 0; }
-                            .invoice-container { max-width: 100%; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="invoice-container">
-                        <div class="header">
-                            <div class="shop-name">ផ្ទះបាយសេនឌូ</div>
-                            <div class="shop-details">ទូរស័ព្ទ: 086262828</div>
-                            <div class="shop-details">ភ្នំពេញ, កម្ពុជា</div>
-                        </div>
+<html>
+<head>
+    <title>វិក័យប័ត្រ #${order.number}</title>
+    <meta charset="utf-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Khmer OS', 'Leelawadee UI', Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #111;
+            background: #fff;
+            width: 72mm;
+            margin: 0 auto;
+            padding: 4mm 3mm;
+        }
 
-                        <div class="order-info">
-                            <div>
-                                <span>លេខវិក័យប័ត្រ:</span>
-                                <strong>#${order.number}</strong>
-                            </div>
-                            <div>
-                                <span>កាលបរិច្ឆេទ:</span>
-                                <span>${dateStr} ${timeStr}</span>
-                            </div>
-                            <div>
-                                <span>អ្នកលក់:</span>
-                                <span>${order.cashier || '@firstName @lastName'}</span>
-                            </div>
-                        </div>
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #111;
+            margin-bottom: 6px;
+        }
+        .shop-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 2px;
+        }
+        .shop-details {
+            font-size: 11px;
+            color: #333;
+        }
 
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>មុខទំនិញ</th>
-                                    <th>ចំនួន</th>
-                                    <th>តម្លៃ</th>
-                                    <th>សរុប</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${itemsHtml}
-                            </tbody>
-                        </table>
+        /* ===== ORDER INFO ===== */
+        .order-info {
+            margin-bottom: 6px;
+            border-bottom: 1px dashed #555;
+            padding-bottom: 6px;
+        }
+        .order-info .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+        .order-info .row .lbl {
+            color: #555;
+        }
+        .order-info .row .val {
+            font-weight: bold;
+            color: #111;
+            text-align: right;
+        }
+        .order-number {
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
 
-                        <div class="summary-section">
-                            ${summaryHtml}
-                        </div>
+        /* ===== ITEMS TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 4px;
+            table-layout: fixed;
+        }
+        thead tr {
+            border-bottom: 1px solid #111;
+            border-top: 1px solid #111;
+        }
+        th {
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 2px;
+            text-align: left;
+            color: #111;
+        }
+        th:nth-child(1) { width: 38%; }
+        th:nth-child(2) { width: 14%; text-align: center; }
+        th:nth-child(3) { width: 22%; text-align: right; }
+        th:nth-child(4) { width: 26%; text-align: right; }
 
-                        <div class="payment-section">
-                            ${paymentHtml}
-                        </div>
+        tbody tr {
+            border-bottom: 1px dotted #bbb;
+        }
+        tbody tr:last-child {
+            border-bottom: 1px solid #111;
+        }
+        td {
+            font-size: 12px;
+            padding: 4px 2px;
+            color: #222;
+            vertical-align: middle;
+        }
+        td:first-child {
+            font-weight: bold;
+        }
+        td:nth-child(2) {
+            text-align: center;
+            color: #444;
+        }
+        td:nth-child(3) {
+            text-align: right;
+            color: #444;
+        }
+        td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
 
-                        <div class="footer">
-                            <div class="thankyou">🙏 សូមអរគុណ!</div>
-                            <div style="font-size:11px; color:#666; margin-top:8px;">
-                                ទំនិញដែលបានទិញ មិនអាចដូរបានទេ
-                            </div>
-                            <div style="font-size:10px; color:#999; margin-top:10px;">
-                                សូមអញ្ជើញមកម្តងទៀត
-                            </div>
-                        </div>
-                    </div>
-                </body>
-                </html>
+        /* ===== SUMMARY ===== */
+        .summary-section {
+            padding: 5px 0;
+            border-bottom: 1px dashed #555;
+            margin-bottom: 5px;
+        }
+        .sum-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .sum-row .s-lbl { color: #444; }
+        .sum-row .s-val { font-weight: bold; }
+        .sum-row .s-val.discount { color: #1a7a3a; }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 5px 0;
+            border-top: 2px solid #111;
+            border-bottom: 2px solid #111;
+            margin: 6px 0;
+        }
+        .total-row .t-lbl {
+            font-size: 14px;
+            font-weight: bold;
+            color: #111;
+        }
+        .total-row .t-val {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        /* ===== PAYMENT ===== */
+        .payment-section {
+            padding: 5px 0;
+            border-bottom: 1px dashed #555;
+            margin-bottom: 6px;
+        }
+        .pay-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .pay-row .p-lbl { color: #444; }
+        .pay-row .p-val { font-weight: bold; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding-top: 6px;
+            border-top: 1px dashed #555;
+        }
+        .thankyou {
+            font-size: 15px;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 3px;
+        }
+        .footer-sub {
+            font-size: 10px;
+            color: #555;
+            margin: 2px 0;
+        }
+
+        /* ===== PRINT ===== */
+        @@media print {
+            body {
+                width: 72mm;
+                padding: 2mm;
+                margin: 0;
+            }
+            * { -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="shop-name">ផ្ទះបាយសេនឌូ</div>
+        <div class="shop-details">ទូរស័ព្ទ: 086 262 828</div>
+        <div class="shop-details">ភ្នំពេញ, កម្ពុជា</div>
+    </div>
+
+    <!-- Order Number -->
+    <div class="order-number">លេខ #${order.number}</div>
+
+    <!-- Order Info -->
+    <div class="order-info">
+        <div class="row">
+            <span class="lbl">កាលបរិច្ឆេទ:</span>
+            <span class="val">${dateStr} ${timeStr}</span>
+        </div>
+        <div class="row">
+            <span class="lbl">អ្នកលក់:</span>
+            <span class="val">${order.cashier || '@firstName @lastName'}</span>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>មុខទំនិញ</th>
+                <th style="text-align:center;">ចំនួន</th>
+                <th style="text-align:right;">តម្លៃ</th>
+                <th style="text-align:right;">សរុប</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${itemsHtml}
+        </tbody>
+    </table>
+
+    <!-- Summary -->
+    <div class="summary-section">
+        ${summaryHtml}
+    </div>
+
+    <!-- Payment -->
+    <div class="payment-section">
+        ${paymentHtml}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="thankyou">សូមអរគុណ! 🙏</div>
+        <div class="footer-sub">ទំនិញដែលបានទិញ មិនអាចដូរបានទេ</div>
+        <div class="footer-sub">សូមអញ្ជើញមកម្តងទៀត</div>
+    </div>
+
+</body>
+</html>
             `;
 
             // Write to iframe and print

@@ -1711,9 +1711,10 @@
         }
         body {
             font-family: 'Khmer OS', 'Leelawadee UI', Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.5;
-            color: #111;
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.6;
+            color: #000;
             background: #fff;
             width: 72mm;
             margin: 0 auto;
@@ -1723,47 +1724,55 @@
         /* ===== HEADER ===== */
         .header {
             text-align: center;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #111;
-            margin-bottom: 6px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #000;
+            margin-bottom: 8px;
         }
         .shop-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #111;
-            margin-bottom: 2px;
+            font-size: 22px;
+            font-weight: 900;
+            color: #000;
+            margin-bottom: 3px;
+            letter-spacing: 1px;
         }
         .shop-details {
-            font-size: 11px;
-            color: #333;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
+            margin: 1px 0;
+        }
+
+        /* ===== ORDER NUMBER ===== */
+        .order-number {
+            font-size: 15px;
+            font-weight: 900;
+            text-align: center;
+            margin: 6px 0;
+            letter-spacing: 1px;
+            border: 2px solid #000;
+            padding: 4px 0;
         }
 
         /* ===== ORDER INFO ===== */
         .order-info {
-            margin-bottom: 6px;
-            border-bottom: 1px dashed #555;
-            padding-bottom: 6px;
+            margin-bottom: 7px;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 7px;
         }
         .order-info .row {
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 2px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 3px;
         }
         .order-info .row .lbl {
-            color: #555;
+            color: #000;
         }
         .order-info .row .val {
-            font-weight: bold;
-            color: #111;
+            font-weight: 900;
+            color: #000;
             text-align: right;
-        }
-        .order-number {
-            font-size: 13px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-            letter-spacing: 0.5px;
         }
 
         /* ===== ITEMS TABLE ===== */
@@ -1774,116 +1783,128 @@
             table-layout: fixed;
         }
         thead tr {
-            border-bottom: 1px solid #111;
-            border-top: 1px solid #111;
+            border-bottom: 2px solid #000;
+            border-top: 2px solid #000;
         }
         th {
-            font-size: 11px;
-            font-weight: bold;
-            padding: 4px 2px;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 5px 2px;
             text-align: left;
-            color: #111;
+            color: #000;
         }
         th:nth-child(1) { width: 38%; }
-        th:nth-child(2) { width: 14%; text-align: center; }
+        th:nth-child(2) { width: 13%; text-align: center; }
         th:nth-child(3) { width: 22%; text-align: right; }
-        th:nth-child(4) { width: 26%; text-align: right; }
+        th:nth-child(4) { width: 27%; text-align: right; }
 
         tbody tr {
-            border-bottom: 1px dotted #bbb;
+            border-bottom: 1px dashed #000;
         }
         tbody tr:last-child {
-            border-bottom: 1px solid #111;
+            border-bottom: 2px solid #000;
         }
         td {
-            font-size: 12px;
-            padding: 4px 2px;
-            color: #222;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 2px;
+            color: #000;
             vertical-align: middle;
         }
         td:first-child {
-            font-weight: bold;
+            font-weight: 900;
+            font-size: 13px;
         }
         td:nth-child(2) {
             text-align: center;
-            color: #444;
+            font-weight: bold;
         }
         td:nth-child(3) {
             text-align: right;
-            color: #444;
+            font-weight: bold;
         }
         td:last-child {
             text-align: right;
-            font-weight: bold;
+            font-weight: 900;
+            font-size: 13px;
         }
 
         /* ===== SUMMARY ===== */
         .summary-section {
-            padding: 5px 0;
-            border-bottom: 1px dashed #555;
-            margin-bottom: 5px;
+            padding: 6px 0;
+            border-bottom: 2px dashed #000;
+            margin-bottom: 6px;
         }
         .sum-row {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 3px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
         }
-        .sum-row .s-lbl { color: #444; }
-        .sum-row .s-val { font-weight: bold; }
-        .sum-row .s-val.discount { color: #1a7a3a; }
+        .sum-row .s-lbl { color: #000; }
+        .sum-row .s-val {
+            font-weight: 900;
+            color: #000;
+        }
 
         .total-row {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding: 5px 0;
-            border-top: 2px solid #111;
-            border-bottom: 2px solid #111;
-            margin: 6px 0;
+            padding: 7px 4px;
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+            margin: 7px 0;
         }
         .total-row .t-lbl {
-            font-size: 14px;
-            font-weight: bold;
-            color: #111;
+            font-size: 16px;
+            font-weight: 900;
+            color: #000;
         }
         .total-row .t-val {
-            font-size: 18px;
-            font-weight: bold;
-            color: #111;
+            font-size: 22px;
+            font-weight: 900;
+            color: #000;
         }
 
         /* ===== PAYMENT ===== */
         .payment-section {
-            padding: 5px 0;
-            border-bottom: 1px dashed #555;
-            margin-bottom: 6px;
+            padding: 6px 0;
+            border-bottom: 2px dashed #000;
+            margin-bottom: 7px;
         }
         .pay-row {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 3px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
         }
-        .pay-row .p-lbl { color: #444; }
-        .pay-row .p-val { font-weight: bold; }
+        .pay-row .p-lbl { color: #000; }
+        .pay-row .p-val {
+            font-weight: 900;
+            font-size: 14px;
+        }
 
         /* ===== FOOTER ===== */
         .footer {
             text-align: center;
-            padding-top: 6px;
-            border-top: 1px dashed #555;
+            padding-top: 7px;
+            border-top: 2px dashed #000;
         }
         .thankyou {
-            font-size: 15px;
-            font-weight: bold;
-            color: #111;
-            margin-bottom: 3px;
+            font-size: 17px;
+            font-weight: 900;
+            color: #000;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
         }
         .footer-sub {
-            font-size: 10px;
-            color: #555;
-            margin: 2px 0;
+            font-size: 11px;
+            font-weight: bold;
+            color: #000;
+            margin: 3px 0;
         }
 
         /* ===== PRINT ===== */
@@ -1893,7 +1914,10 @@
                 padding: 2mm;
                 margin: 0;
             }
-            * { -webkit-print-color-adjust: exact; }
+            * {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
         }
     </style>
 </head>

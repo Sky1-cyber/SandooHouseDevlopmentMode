@@ -1,0 +1,1147 @@
+﻿@using Sandoohouse.Models.Enum
+@model Sandoohouse.Models.ModelViewer.OrderModelViewer.EditOrderViewModel
+@{
+    ViewData["Title"] = "Edit Order";
+    var brands = ViewBag.Brands as List<Brand>;
+    var categories = ViewBag.Categories as List<Category>;
+    var menus = ViewBag.Menus as List<Menu>;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    :root {
+        --brand: #FF6B35;
+        --brand-dark: #E85520;
+        --brand-light: #FFF0EA;
+        --accent: #2D3561;
+        --success: #00B894;
+        --warning: #FDCB6E;
+        --danger: #FF7675;
+        --bg: #F7F4F0;
+        --surface: #FFFFFF;
+        --surface2: #FAF8F5;
+        --border: #EDE8E0;
+        --text: #1A1714;
+        --text-sub: #7A736B;
+        --text-light: #B5AFA8;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+        --shadow-md: 0 8px 24px rgba(0,0,0,0.10);
+        --shadow-lg: 0 20px 48px rgba(0,0,0,0.14);
+        --r-sm: 10px;
+        --r-md: 16px;
+        --r-lg: 22px;
+        --r-xl: 30px;
+        --font-main: 'Khmer OS battambong','Sora','Noto Sans Khmer',sans-serif;
+    }
+
+    /* Reset & base */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .eo-page {
+        font-family: var(--font-main);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+        min-height: 100vh;
+        padding: 24px;
+    }
+
+    /* Header */
+    .eo-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--surface);
+        border-radius: var(--r-lg);
+        border: 1.5px solid var(--border);
+        padding: 18px 24px;
+        margin-bottom: 20px;
+    }
+
+    .eo-header-left { display: flex; align-items: center; gap: 14px; }
+
+    .eo-icon-box {
+        width: 44px; height: 44px;
+        background: var(--brand-light);
+        border-radius: var(--r-sm);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--brand);
+        flex-shrink: 0;
+    }
+
+    .eo-title { font-size: 17px; font-weight: 600; color: var(--text); }
+
+    .eo-chips { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+
+    .chip-order {
+        font-size: 12px; font-weight: 600; color: var(--brand);
+        background: var(--brand-light);
+        padding: 3px 10px; border-radius: 20px;
+    }
+
+    .chip-status {
+        display: inline-flex; align-items: center; gap: 5px;
+        font-size: 12px; font-weight: 600;
+        padding: 3px 10px; border-radius: 20px;
+    }
+
+    .chip-status.pending  { background: #FFF8E6; color: #C08000; }
+    .chip-status.paid { background: #E6FAF4; color: #00865A; }
+    .chip-status.cancelled { background: #FFE8E8; color: #C0392B; }
+    .chip-status::before  { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .btn-back {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 9px 18px;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-sm);
+        color: var(--text-sub);
+        font-family: var(--font-main); font-size: 13px; font-weight: 500;
+        text-decoration: none; cursor: pointer;
+        transition: all .15s ease;
+    }
+
+    .btn-back:hover {
+        background: var(--bg);
+        border-color: var(--text-light);
+        color: var(--text);
+        text-decoration: none;
+    }
+
+    /* Info strip */
+    .eo-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .strip-card {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-md);
+        padding: 16px 18px;
+    }
+
+    .strip-label {
+        font-size: 11px; font-weight: 500;
+        color: var(--text-light);
+        text-transform: uppercase; letter-spacing: .05em;
+        margin-bottom: 8px;
+    }
+
+    .strip-value { font-size: 15px; font-weight: 600; color: var(--text); }
+    .strip-value.brand { color: var(--brand); }
+    .strip-value.success { color: var(--success); }
+
+    .strip-select {
+        width: 100%;
+        padding: 8px 32px 8px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-sm);
+        background: var(--surface2);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A736B' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        appearance: none;
+        font-family: var(--font-main); font-size: 13px; font-weight: 500; color: var(--text);
+        outline: none; cursor: pointer;
+        transition: border-color .15s;
+    }
+
+    .strip-select:focus { border-color: var(--brand); }
+
+    /* Body grid */
+    .eo-body {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 16px;
+        align-items: start;
+    }
+
+    /* Panel */
+    .panel {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+    }
+
+    .panel-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 1.5px solid var(--border);
+    }
+
+    .panel-title {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 13px; font-weight: 600; color: var(--text);
+    }
+
+    .panel-title::before {
+        content: '';
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--brand);
+        flex-shrink: 0;
+    }
+
+    .panel-badge {
+        font-size: 11px; font-weight: 600; color: var(--brand);
+        background: var(--brand-light);
+        padding: 2px 9px; border-radius: 20px;
+    }
+
+    /* Filter row */
+    .filter-row {
+        display: flex; gap: 10px;
+        padding: 14px 20px;
+        background: var(--surface2);
+        border-bottom: 1.5px solid var(--border);
+    }
+
+    .filter-sel, .filter-inp {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-sm);
+        background: var(--surface);
+        font-family: var(--font-main); font-size: 12px; color: var(--text);
+        outline: none;
+        transition: border-color .15s;
+    }
+
+    .filter-sel {
+        appearance: none;
+        padding-right: 28px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237A736B' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        cursor: pointer;
+    }
+
+    .filter-inp { flex: 1.5; }
+
+    .filter-sel:focus, .filter-inp:focus { border-color: var(--brand); }
+    .filter-inp::placeholder { color: var(--text-light); }
+
+    /* Menu table */
+    .menu-scroll { max-height: 340px; overflow-y: auto; }
+
+    .menu-scroll::-webkit-scrollbar { width: 4px; }
+    .menu-scroll::-webkit-scrollbar-track { background: transparent; }
+    .menu-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .menu-table { width: 100%; border-collapse: collapse; }
+
+    .menu-table thead th {
+        padding: 10px 16px;
+        font-size: 11px; font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase; letter-spacing: .05em;
+        text-align: left;
+        background: var(--surface2);
+        border-bottom: 1.5px solid var(--border);
+        position: sticky; top: 0; z-index: 1;
+    }
+
+    .menu-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background .12s;
+    }
+
+    .menu-table tbody tr:last-child { border-bottom: none; }
+    .menu-table tbody tr:hover { background: var(--brand-light); }
+
+    .menu-table td {
+        padding: 10px 16px;
+        font-size: 13px; color: var(--text);
+        vertical-align: middle;
+    }
+
+    .menu-table td:first-child { font-weight: 500; }
+
+    .badge-brand {
+        display: inline-block;
+        padding: 2px 8px;
+        background: #EEF0FF; color: var(--accent);
+        font-size: 11px; font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .badge-cat {
+        display: inline-block;
+        padding: 2px 8px;
+        background: var(--surface2); color: var(--text-sub);
+        border: 1px solid var(--border);
+        font-size: 11px; font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .price-tag { font-weight: 700; color: var(--brand); }
+
+    .btn-add {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 5px 12px;
+        background: var(--brand); color: #fff;
+        border: none; border-radius: 8px;
+        font-family: var(--font-main); font-size: 12px; font-weight: 600;
+        cursor: pointer;
+        transition: all .15s ease;
+        white-space: nowrap;
+    }
+
+    .btn-add:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .btn-add:active { transform: translateY(0); }
+
+    /* Order items */
+    .order-scroll { max-height: 290px; overflow-y: auto; }
+
+    .order-scroll::-webkit-scrollbar { width: 4px; }
+    .order-scroll::-webkit-scrollbar-track { background: transparent; }
+    .order-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .order-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--border);
+        transition: background .12s;
+    }
+
+    .order-row:last-child { border-bottom: none; }
+    .order-row:hover { background: var(--surface2); }
+
+    .order-row-info { flex: 1; min-width: 0; }
+
+    .order-row-name {
+        font-size: 13px; font-weight: 500; color: var(--text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .order-row-brand { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+    .qty-ctrl {
+        display: flex; align-items: center; gap: 2px;
+        background: var(--surface2);
+        border: 1.5px solid var(--border);
+        border-radius: 8px; padding: 2px;
+        flex-shrink: 0;
+    }
+
+    .qty-btn {
+        width: 26px; height: 26px;
+        border: none; background: none; border-radius: 6px;
+        color: var(--text-sub);
+        font-size: 17px; line-height: 1; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: all .12s;
+    }
+
+    .qty-btn:hover { background: var(--surface); color: var(--brand); }
+
+    .qty-input {
+        width: 32px;
+        border: none; background: none;
+        font-family: var(--font-main); font-size: 13px; font-weight: 600;
+        color: var(--text); text-align: center; outline: none;
+    }
+
+    .qty-input::-webkit-inner-spin-button,
+    .qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .row-sub {
+        font-size: 13px; font-weight: 700; color: var(--text);
+        min-width: 58px; text-align: right; flex-shrink: 0;
+    }
+
+    .btn-remove {
+        width: 28px; height: 28px;
+        border: none; background: none; border-radius: 8px;
+        color: var(--text-light);
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; transition: all .12s;
+    }
+
+    .btn-remove:hover { background: #FFE8E8; color: var(--danger); }
+
+    /* Empty state */
+    .empty-state {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 48px 24px; gap: 12px;
+    }
+
+    .empty-state-icon {
+        width: 52px; height: 52px;
+        background: var(--surface2); border-radius: var(--r-md);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-light);
+    }
+
+    .empty-state p { font-size: 13px; color: var(--text-light); text-align: center; }
+
+    /* Summary */
+    .summary-body { padding: 6px 18px; }
+
+    .summary-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .summary-row:last-child { border-bottom: none; }
+
+    .summary-label { font-size: 13px; color: var(--text-sub); font-weight: 500; }
+
+    .summary-val { font-size: 13px; font-weight: 700; color: var(--text); }
+
+    .summary-inp {
+        width: 115px;
+        padding: 7px 10px;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface2);
+        font-family: var(--font-main); font-size: 13px; font-weight: 600;
+        color: var(--text); text-align: right;
+        outline: none; transition: border-color .15s;
+    }
+
+    .summary-inp:focus { border-color: var(--brand); }
+    .summary-inp.invalid { border-color: var(--danger); background: #FFF5F5; }
+
+    .change-positive { color: var(--success) !important; }
+    .change-negative { color: var(--danger) !important; }
+
+    .summary-total-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 20px;
+        background: var(--accent);
+        border-radius: 0 0 var(--r-lg) var(--r-lg);
+    }
+
+    .summary-total-bar span:first-child {
+        font-size: 13px; font-weight: 500;
+        color: rgba(255,255,255,.65);
+    }
+
+    .total-amount {
+        font-size: 22px; font-weight: 700; color: #fff;
+    }
+
+    /* Update button */
+    .btn-update {
+        width: 100%;
+        padding: 15px;
+        background: var(--brand);
+        border: none; border-radius: var(--r-md);
+        color: #fff;
+        font-family: var(--font-main); font-size: 14px; font-weight: 700;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: all .18s ease;
+        letter-spacing: .01em;
+    }
+
+    .btn-update:hover:not(:disabled) {
+        background: var(--brand-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(255,107,53,.38);
+    }
+
+    .btn-update:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-update:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* Spinner */
+    .spin { display: inline-block; animation: spin .7s linear infinite; }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @@media (max-width: 960px) {
+        .eo-body { grid-template-columns: 1fr; }
+        .eo-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @@media (max-width: 600px) {
+        .eo-page { padding: 12px; }
+        .eo-strip { grid-template-columns: 1fr 1fr; }
+        .filter-row { flex-wrap: wrap; }
+    }
+</style>
+
+<div class="eo-page">
+
+    <!-- Header -->
+    <div class="eo-header">
+        <div class="eo-header-left">
+            <div class="eo-icon-box">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+            </div>
+            <div>
+                <div class="eo-title">Edit Order</div>
+                <div class="eo-chips">
+                    <span class="chip-order">#@Model.OrderNumber</span>
+                    @{
+                        var statusClass = Model.OrderStatus switch {
+                            OrderStatus.Pending    => "pending",
+                            OrderStatus.Paid       => "paid",
+                            OrderStatus.Canceled   => "cancelled",
+                            _                      => "pending"
+                        };
+                    }
+                    <span class="chip-status @statusClass">@Model.OrderStatus</span>
+                </div>
+            </div>
+        </div>
+
+        <a asp-action="Index" asp-controller="Home" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+            Back to list
+        </a>
+    </div>
+
+    <form id="editOrderForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="orderId" value="@Model.Id" />
+
+        <!-- Info strip -->
+        <div class="eo-strip">
+            <div class="strip-card">
+                <div class="strip-label">Order date</div>
+                <div class="strip-value">@Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</div>
+            </div>
+
+            <div class="strip-card">
+                <div class="strip-label">Order status</div>
+                <select id="orderStatus" class="strip-select">
+                    @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                    {
+                        var isSelected = status == Model.OrderStatus;
+                        if (isSelected)
+                        {
+                            <option value="@((int)status)" selected="selected">
+                                @status
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@((int)status)">
+                                @status
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="strip-card">
+                <div class="strip-label">Items in order</div>
+                <div class="strip-value brand" id="itemCountDisplay">
+                    @(Model.Items?.Count ?? 0) item@(Model.Items?.Count == 1 ? "" : "s")
+                </div>
+            </div>
+
+            <div class="strip-card">
+                <div class="strip-label">Payment method</div>
+                <div class="strip-value success">Cash</div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="eo-body">
+
+            <!-- LEFT: Menu catalog -->
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title">Menu catalog</div>
+                    <span class="panel-badge" id="menuCount">
+                        @(menus?.Count ?? 0) items
+                    </span>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-row">
+                    <select id="brandFilter" class="filter-sel">
+                        <option value="">All brands</option>
+                        @if (brands != null)
+                        {
+                            foreach (var brand in brands)
+                            {
+                                <option value="@brand.Id">@brand.BrandName</option>
+                            }
+                        }
+                    </select>
+
+                    <select id="categoryFilter" class="filter-sel">
+                        <option value="">All categories</option>
+                        @if (categories != null)
+                        {
+                            foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id" data-brand="@cat.BrandId">@cat.CategoryName</option>
+                            }
+                        }
+                    </select>
+
+                    <input type="text" id="menuSearch" class="filter-inp"
+                           placeholder="Search items…" autocomplete="off" />
+                </div>
+
+                <!-- Menu table -->
+                <div class="menu-scroll">
+                    <table class="menu-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="menuItemsList">
+                            @if (menus != null)
+                            {
+                                foreach (var menu in menus)
+                                {
+                                    <tr data-brand="@menu.Category?.BrandId"
+                                        data-category="@menu.CategoryId"
+                                        data-name="@menu.MenuName.ToLower()">
+                                        <td>@menu.MenuName</td>
+                                        <td><span class="badge-brand">@menu.Category?.Brand?.BrandName</span></td>
+                                        <td><span class="badge-cat">@menu.Category?.CategoryName</span></td>
+                                        <td><span class="price-tag">@menu.Price.ToString("C2")</span></td>
+                                        <td>
+                                            <button type="button" class="btn-add add-to-order"
+                                                    data-id="@menu.Id"
+                                                    data-name="@menu.MenuName"
+                                                    data-brandid="@menu.Category?.BrandId"
+                                                    data-brandname="@menu.Category?.Brand?.BrandName"
+                                                    data-price="@menu.Price">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                                                     stroke="currentColor" stroke-width="3"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                                </svg>
+                                                Add
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RIGHT: Order panel -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title">Order items</div>
+                        <span class="panel-badge" id="orderCount">
+                            @(Model.Items?.Count ?? 0)
+                        </span>
+                    </div>
+
+                    <!-- Order items list -->
+                    <div class="order-scroll" id="orderItemsContainer">
+                        <div id="orderItemsList">
+                            @if (Model.Items != null && Model.Items.Any())
+                            {
+                                foreach (var item in Model.Items)
+                                {
+                                    <div class="order-row"
+                                         data-id="@item.MenuItemId"
+                                         data-price="@item.Price"
+                                         data-brandid="@item.BrandId"
+                                         data-orderitemid="@item.Id">
+                                        <div class="order-row-info">
+                                            <div class="order-row-name">@item.MenuItemName</div>
+                                            <div class="order-row-brand">@item.Price.ToString("C2") each</div>
+                                        </div>
+                                        <div class="qty-ctrl">
+                                            <button type="button" class="qty-btn qty-dec">−</button>
+                                            <input type="number" class="qty-input item-quantity"
+                                                   value="@item.Quantity" min="1" />
+                                            <button type="button" class="qty-btn qty-inc">+</button>
+                                        </div>
+                                        <div class="row-sub item-subtotal">@item.Subtotal.ToString("C2")</div>
+                                        <button type="button" class="btn-remove remove-item" title="Remove item">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="2.5"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                <path d="M10 11v6M14 11v6"/>
+                                                <path d="M9 6V4h6v2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-state" id="emptyState">
+                                    <div class="empty-state-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                             stroke="currentColor" stroke-width="1.5"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="9" cy="21" r="1"/>
+                                            <circle cx="20" cy="21" r="1"/>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                        </svg>
+                                    </div>
+                                    <p>No items yet — add from the catalog</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Summary rows -->
+                    <div class="summary-body">
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal</span>
+                            <span class="summary-val" id="subtotalDisplay">@Model.TotalAmount.ToString("C2")</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Discount</span>
+                            <input type="number" class="summary-inp" id="discountAmount"
+                                   value="@Model.DiscountAmount" min="0" step="0.01" />
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Cash received</span>
+                            <input type="number" class="summary-inp" id="cashReceived"
+                                   value="@Model.CashReceived" min="0" step="0.01" />
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Change</span>
+                            <span class="summary-val" id="changeDisplay">@Model.ChangeAmount.ToString("C2")</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-total-bar">
+                        <span>Total amount</span>
+                        <span class="total-amount" id="totalDisplay">@Model.TotalAmount.ToString("C2")</span>
+                    </div>
+                </div>
+
+                <!-- Update button -->
+                <button type="button" id="updateOrderBtn" class="btn-update">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Update Order
+                </button>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Get anti-forgery token
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            // State — built from server-rendered DOM
+            let orderItems = [];
+
+            function initFromDOM() {
+                orderItems = [];
+                $('#orderItemsList .order-row').each(function () {
+                    const $row = $(this);
+                    const price = parseFloat($row.data('price')) || 0;
+                    const qty = parseInt($row.find('.item-quantity').val()) || 1;
+                    orderItems.push({
+                        id: parseInt($row.data('orderitemid')) || 0,
+                        menuItemId: parseInt($row.data('id')),
+                        brandId: parseInt($row.data('brandid')) || 0,
+                        price: price,
+                        quantity: qty,
+                        subtotal: price * qty
+                    });
+                    $row.find('.item-subtotal').text(fmt(price * qty));
+                });
+                refreshSummary();
+                refreshCounts();
+            }
+
+            initFromDOM();
+
+            // Filters
+            $('#brandFilter').on('change', function () {
+                const brandId = $(this).val();
+                // Filter category dropdown
+                $('#categoryFilter option').each(function () {
+                    const $opt = $(this);
+                    const optBrand = $opt.data('brand')?.toString() || '';
+                    if (!$opt.val()) return; // keep "All categories"
+                    $opt.toggle(!brandId || optBrand === brandId);
+                });
+                // Reset category if its brand is now hidden
+                const selCatBrand = $('#categoryFilter option:selected').data('brand')?.toString() || '';
+                if (brandId && selCatBrand !== brandId) $('#categoryFilter').val('');
+                applyFilters();
+            });
+
+            $('#categoryFilter').on('change', applyFilters);
+            $('#menuSearch').on('input', applyFilters);
+
+            function applyFilters() {
+                const brandId = $('#brandFilter').val();
+                const catId = $('#categoryFilter').val();
+                const q = $('#menuSearch').val().toLowerCase().trim();
+                let visible = 0;
+
+                $('#menuItemsList tr').each(function () {
+                    const $tr = $(this);
+                    const rowBrand = $tr.data('brand')?.toString() || '';
+                    const rowCat = $tr.data('category')?.toString() || '';
+                    const rowName = $tr.data('name') || '';
+
+                    const show = (!brandId || rowBrand === brandId)
+                        && (!catId || rowCat === catId)
+                        && (!q || rowName.includes(q));
+
+                    $tr.toggle(show);
+                    if (show) visible++;
+                });
+
+                $('#menuCount').text(visible + ' item' + (visible === 1 ? '' : 's'));
+            }
+
+            // Add item from catalog
+            $(document).on('click', '.add-to-order', function () {
+                const $btn = $(this);
+                const menuItemId = parseInt($btn.data('id'));
+                const name = $btn.data('name');
+                const brandId = parseInt($btn.data('brandid')) || 0;
+                const brandName = $btn.data('brandname') || '';
+                const price = parseFloat($btn.data('price')) || 0;
+
+                const idx = orderItems.findIndex(i => i.menuItemId === menuItemId);
+
+                if (idx >= 0) {
+                    // Increment quantity
+                    orderItems[idx].quantity++;
+                    orderItems[idx].subtotal = orderItems[idx].quantity * price;
+
+                    const $row = $(`#orderItemsList .order-row[data-id="${menuItemId}"]`);
+                    $row.find('.item-quantity').val(orderItems[idx].quantity);
+                    $row.find('.item-subtotal').text(fmt(orderItems[idx].subtotal));
+                } else {
+                    // New item
+                    orderItems.push({ 
+                        id: 0, 
+                        menuItemId, 
+                        brandId, 
+                        price, 
+                        quantity: 1, 
+                        subtotal: price 
+                    });
+
+                    $('#emptyState').remove();
+
+                    const html = `
+                        <div class="order-row"
+                             data-id="${menuItemId}"
+                             data-price="${price}"
+                             data-brandid="${brandId}"
+                             data-orderitemid="0">
+                            <div class="order-row-info">
+                                <div class="order-row-name">${escapeHtml(name)}</div>
+                                <div class="order-row-brand">${fmt(price)} each</div>
+                            </div>
+                            <div class="qty-ctrl">
+                                <button type="button" class="qty-btn qty-dec">−</button>
+                                <input type="number" class="qty-input item-quantity" value="1" min="1" />
+                                <button type="button" class="qty-btn qty-inc">+</button>
+                            </div>
+                            <div class="row-sub item-subtotal">${fmt(price)}</div>
+                            <button type="button" class="btn-remove remove-item" title="Remove item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                    <path d="M10 11v6M14 11v6"/>
+                                    <path d="M9 6V4h6v2"/>
+                                </svg>
+                            </button>
+                        </div>`;
+                    $('#orderItemsList').append(html);
+                }
+
+                refreshSummary();
+                refreshCounts();
+                toast(name + ' added to order', 'success');
+            });
+
+            // Quantity — increment / decrement
+            $(document).on('click', '.qty-inc', function () {
+                const $input = $(this).closest('.qty-ctrl').find('.item-quantity');
+                $input.val(parseInt($input.val()) + 1).trigger('change');
+            });
+
+            $(document).on('click', '.qty-dec', function () {
+                const $input = $(this).closest('.qty-ctrl').find('.item-quantity');
+                const cur = parseInt($input.val()) || 1;
+                if (cur > 1) $input.val(cur - 1).trigger('change');
+            });
+
+            $(document).on('change', '.item-quantity', function () {
+                const $row = $(this).closest('.order-row');
+                const menuItemId = parseInt($row.data('id'));
+                const price = parseFloat($row.data('price')) || 0;
+                const qty = Math.max(1, parseInt($(this).val()) || 1);
+                $(this).val(qty);
+
+                const idx = orderItems.findIndex(i => i.menuItemId === menuItemId);
+                if (idx >= 0) {
+                    orderItems[idx].quantity = qty;
+                    orderItems[idx].subtotal = qty * price;
+                    $row.find('.item-subtotal').text(fmt(orderItems[idx].subtotal));
+                }
+
+                refreshSummary();
+            });
+
+            // Remove item
+            $(document).on('click', '.remove-item', function () {
+                const $row = $(this).closest('.order-row');
+                const name = $row.find('.order-row-name').text();
+                const menuItemId = parseInt($row.data('id'));
+
+                Swal.fire({
+                    title: 'Remove item?',
+                    text: `"${name}" will be removed from this order.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#FF7675',
+                    cancelButtonColor: '#2D3561',
+                    confirmButtonText: 'Yes, remove',
+                    cancelButtonText: 'Cancel',
+                    borderRadius: '16px',
+                    customClass: { popup: 'swal-font' }
+                }).then(result => {
+                    if (!result.isConfirmed) return;
+
+                    orderItems = orderItems.filter(i => i.menuItemId !== menuItemId);
+                    $row.remove();
+
+                    if (!orderItems.length) {
+                        $('#orderItemsList').html(`
+                            <div class="empty-state" id="emptyState">
+                                <div class="empty-state-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" stroke-width="1.5"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="9" cy="21" r="1"/>
+                                        <circle cx="20" cy="21" r="1"/>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                    </svg>
+                                </div>
+                                <p>No items yet — add from the catalog</p>
+                            </div>`);
+                    }
+
+                    refreshSummary();
+                    refreshCounts();
+                    toast(name + ' removed', 'error');
+                });
+            });
+
+            // Summary recalculation
+            $('#discountAmount, #cashReceived').on('input', refreshSummary);
+
+            function refreshSummary() {
+                const subtotal = orderItems.reduce((s, i) => s + i.subtotal, 0);
+                const discount = Math.max(0, parseFloat($('#discountAmount').val()) || 0);
+                const cash = parseFloat($('#cashReceived').val()) || 0;
+                const total = Math.max(0, subtotal - discount);
+                const change = cash - total;
+
+                $('#subtotalDisplay').text(fmt(subtotal));
+                $('#totalDisplay').text(fmt(total));
+
+                const $chg = $('#changeDisplay');
+                $chg.text(fmt(Math.max(0, change)));
+                $chg.removeClass('change-positive change-negative');
+
+                const $cash = $('#cashReceived');
+                if (cash > 0 && change < 0) {
+                    $chg.addClass('change-negative');
+                    $cash.addClass('invalid');
+                } else if (cash > 0 && change >= 0) {
+                    $chg.addClass('change-positive');
+                    $cash.removeClass('invalid');
+                } else {
+                    $cash.removeClass('invalid');
+                }
+            }
+
+            // Count badges
+            function refreshCounts() {
+                const n = orderItems.length;
+                $('#orderCount').text(n);
+                $('#itemCountDisplay').text(n + ' item' + (n === 1 ? '' : 's'));
+            }
+
+            // Submit
+            $('#updateOrderBtn').on('click', function () {
+                if (!orderItems.length) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Empty order',
+                        text: 'Please add at least one item before saving.',
+                        confirmButtonColor: '#FF6B35'
+                    });
+                    return;
+                }
+
+                const cash = parseFloat($('#cashReceived').val()) || 0;
+                const discount = parseFloat($('#discountAmount').val()) || 0;
+                const subtotal = orderItems.reduce((s, i) => s + i.subtotal, 0);
+                const total = Math.max(0, subtotal - discount);
+
+                if (cash > 0 && cash < total) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Insufficient payment',
+                        html: `Cash received <strong>${fmt(cash)}</strong> is less than the total <strong>${fmt(total)}</strong>.<br>Continue anyway?`,
+                        showCancelButton: true,
+                        confirmButtonColor: '#FF6B35',
+                        cancelButtonColor: '#2D3561',
+                        confirmButtonText: 'Yes, save anyway',
+                        cancelButtonText: 'Review'
+                    }).then(result => { 
+                        if (result.isConfirmed) submitOrder(); 
+                    });
+                } else {
+                    submitOrder();
+                }
+            });
+
+            function submitOrder() {
+                const payload = {
+                    id: parseInt($('#orderId').val()),
+                    orderStatus: parseInt($('#orderStatus').val()),
+                    discountAmount: parseFloat($('#discountAmount').val()) || 0,
+                    cashReceived: parseFloat($('#cashReceived').val()) || 0,
+                    items: orderItems.map(i => ({
+                        id: i.id,
+                        menuItemId: i.menuItemId,
+                        brandId: i.brandId,
+                        quantity: i.quantity,
+                        price: i.price,
+                        subtotal: i.subtotal
+                    }))
+                };
+
+                const $btn = $('#updateOrderBtn');
+                const orig = $btn.html();
+                $btn.prop('disabled', true).html('<span class="spin">⟳</span>&nbsp; Saving…');
+
+                $.ajax({
+                    url: '/Order/EditOrder',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Saved!',
+                                text: res.message || 'Order updated successfully.',
+                                showConfirmButton: false,
+                                timer: 1600,
+                                confirmButtonColor: '#FF6B35'
+                            }).then(() => { 
+                                window.location.href = '/Home/Index'; 
+                            });
+                        } else {
+                            $btn.prop('disabled', false).html(orig);
+                            Swal.fire({ 
+                                icon: 'error', 
+                                title: 'Error', 
+                                text: res.error || 'Something went wrong.', 
+                                confirmButtonColor: '#FF6B35' 
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        $btn.prop('disabled', false).html(orig);
+                        const msg = xhr.responseJSON?.error || 'An unexpected error occurred.';
+                        Swal.fire({ 
+                            icon: 'error', 
+                            title: 'Error', 
+                            text: msg, 
+                            confirmButtonColor: '#FF6B35' 
+                        });
+                        console.error('[EditOrder] AJAX error:', xhr);
+                    }
+                });
+            }
+
+            // Helpers
+            function fmt(n) {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency', 
+                    currency: 'USD',
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2
+                }).format(n);
+            }
+
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function toast(msg, type) {
+                const icon = type === 'success' ? 'success' : 'error';
+                Swal.fire({
+                    icon, 
+                    text: msg,
+                    showConfirmButton: false,
+                    timer: 1400,
+                    toast: true,
+                    position: 'top-end',
+                    customClass: { popup: 'swal-font' }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        /* SweetAlert2 font override */
+        .swal-font, .swal2-popup {
+            font-family: 'Sora', 'Khmer OS battambong', sans-serif !important; 
+            border-radius: 16px !important; }
+    </style>
+}

@@ -29,6 +29,8 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
 
         <PackageReference Include="QuestPDF" Version="2026.2.3" />
+
+        <PackageReference Include="Supabase" Version="1.1.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1776,331 +1776,1006 @@
             }
         }
 
-        /* ─── RESPONSIVE ─── */
+        /* ─── ADD THIS AT THE END OF YOUR CSS FILE ─── */
+
+        /* ============================================
+           RESPONSIVE DESIGN - ADD WITHOUT CHANGING OLD STYLES
+           ============================================ */
 
         /* Large Desktop (1200px and up) */
         @@media (min-width: 1200px) {
         .products-grid {
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+        }
+
+        .panel-cart {
+            width: 360px !important;
         }
         }
 
         /* Medium Desktop (992px to 1199px) */
-        @@media (max-width: 1199px) {
+        @@media (max-width: 1199px) and (min-width: 992px) {
         .panel-cart {
-            width: 340px;
-            min-width: 300px;
+            width: 320px !important;
+            min-width: 280px !important;
         }
 
         .products-grid {
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+        }
+
+        .prod-name {
+            font-size: 12px !important;
         }
         }
 
-        /* Tablet Landscape (768px to 991px) */
-        @@media (max-width: 991px) {
+        /* Small Desktop / Tablet Landscape (768px to 991px) */
+        @@media (max-width: 991px) and (min-width: 768px) {
         .topbar-hide-sm .exrate-chip {
-            display: none;
+            display: none !important;
         }
 
         .panel-cart {
-            width: 300px;
-            min-width: 280px;
+            width: 280px !important;
+            min-width: 260px !important;
         }
 
         .products-grid {
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 10px;
-            padding: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+            gap: 8px !important;
+            padding: 12px !important;
+        }
+
+        .product-card {
+            padding: 12px 6px 10px !important;
+            min-height: 170px !important;
+        }
+
+        .prod-img {
+            width: 55px !important;
+            height: 55px !important;
+            font-size: 22px !important;
+        }
+
+        .prod-name {
+            font-size: 11px !important;
+            margin-bottom: 6px !important;
+            padding: 0 2px !important;
+        }
+
+        .prod-price {
+            font-size: 12px !important;
+        }
+
+        .prod-price-khr {
+            font-size: 9px !important;
         }
 
         .cart-item {
-            grid-template-columns: 35px 1fr auto auto;
+            gap: 6px !important;
+            padding: 8px !important;
+        }
+
+        .ci-thumb {
+            width: 36px !important;
+            height: 36px !important;
+        }
+
+        .ci-name {
+            font-size: 11px !important;
+        }
+
+        .ci-price {
+            font-size: 10px !important;
+        }
+
+        .ci-qty-btn {
+            width: 22px !important;
+            height: 22px !important;
+        }
+
+        .ci-qty-num {
+            font-size: 12px !important;
+            min-width: 20px !important;
         }
 
         .ci-total {
-            display: none;
+            font-size: 11px !important;
+            min-width: 45px !important;
+        }
+
+        .sum-row {
+            font-size: 12px !important;
+        }
+
+        .sum-row.total {
+            font-size: 14px !important;
+        }
+
+        .pay-method {
+            padding: 6px 4px !important;
+            font-size: 10px !important;
+        }
+
+        .pay-method i {
+            font-size: 14px !important;
         }
         }
 
         /* Tablet Portrait (576px to 767px) */
-        @@media (max-width: 767px) {
+        @@media (max-width: 767px) and (min-width: 576px) {
         .pos-body {
-            flex-direction: column;
+            flex-direction: column !important;
         }
 
         .panel-cart {
-            width: 100%;
-            max-width: 100%;
-            border-left: none;
-            border-top: 1px solid var(--border);
+            width: 100% !important;
+            max-width: 100% !important;
+            border-left: none !important;
+            border-top: 2px solid var(--border) !important;
         }
 
         .products-grid {
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+            max-height: 50vh !important;
         }
 
         .topbar-info {
-            display: none;
+            display: none !important;
         }
 
         .user-chip {
-            display: none;
+            display: none !important;
         }
 
-        .action-buttons {
-            justify-content: flex-start;
+        .exrate-chip {
+            display: none !important;
         }
 
-        .action-btn {
-            flex: 0 1 auto;
+        .cart-fab {
+            display: flex !important;
         }
 
-        .status-bar {
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
+        .kbd-hint {
+            display: none !important;
+        }
+
+        .filter-bar {
+            padding: 8px 12px 0 !important;
+        }
+
+        .scroll-tabs {
+            padding-bottom: 8px !important;
+        }
+
+        .tab-pill {
+            padding: 5px 14px !important;
+            font-size: 11px !important;
+        }
+
+        .cart-head {
+            padding: 12px !important;
+        }
+
+        .cart-title {
+            font-size: 14px !important;
+        }
+
+        .cart-badge {
+            font-size: 10px !important;
+            padding: 2px 8px !important;
+        }
+
+        .cart-summary {
+            padding: 8px 10px !important;
+        }
+
+        .pay-section {
+            padding: 8px 10px !important;
+        }
+
+        .pay-methods {
+            gap: 4px !important;
+        }
+
+        .quick-btn {
+            font-size: 10px !important;
+            height: 30px !important;
         }
         }
 
         /* Mobile Landscape (480px to 575px) */
-        @@media (max-width: 575px) {
+        @@media (max-width: 575px) and (min-width: 481px) {
+        .pos-body {
+            flex-direction: column !important;
+        }
+
+        .panel-cart {
+            width: 100% !important;
+            max-width: 100% !important;
+            border-left: none !important;
+            border-top: 2px solid var(--border) !important;
+        }
+
         .topbar {
-            height: 50px;
-            padding: 0 12px;
-            gap: 8px;
+            height: 50px !important;
+            padding: 0 10px !important;
+            gap: 6px !important;
         }
 
         .topbar-logo {
-            height: 28px;
+            height: 28px !important;
+        }
+
+        .topbar-info {
+            display: none !important;
+        }
+
+        .topbar-divider {
+            height: 24px !important;
         }
 
         .curr-btn {
-            padding: 4px 8px;
-            font-size: 11px;
+            padding: 3px 8px !important;
+            font-size: 11px !important;
         }
 
-        .products-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            padding: 10px;
-        }
-
-        .product-card {
-            min-height: 170px;
-            padding: 12px 6px 10px;
-        }
-
-        .prod-img {
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-        }
-
-        .prod-name {
-            font-size: 12px;
-            margin: 2px 0 6px;
-            min-height: 32px;
-        }
-
-        .prod-price {
-            font-size: 13px;
-        }
-
-        .prod-price-khr {
-            font-size: 10px;
-        }
-
-        .filter-bar {
-            padding: 6px 10px;
-        }
-
-        .tab-pill {
-            padding: 4px 12px;
-            font-size: 11px;
-        }
-
-        .search-wrap {
-            padding: 6px 10px;
-        }
-
-        .search-inner input {
-            height: 36px;
-            font-size: 12px;
-        }
-
-        .search-btn {
-            height: 36px;
-            padding: 0 12px;
-            font-size: 12px;
-        }
-
-        .action-buttons {
-            padding: 6px 10px;
-            gap: 6px;
-        }
-
-        .action-btn {
-            height: 32px;
-            padding: 0 12px;
-            font-size: 11px;
-        }
-
-        .cart-item {
-            grid-template-columns: 35px 1fr auto;
-            padding: 8px;
-        }
-
-        .ci-total {
-            display: none;
-        }
-
-        .ci-name {
-            font-size: 12px;
-        }
-
-        .ci-price {
-            font-size: 10px;
-        }
-
-        .pay-row {
-            font-size: 12px;
-        }
-
-        .pay-row .amount.due {
-            font-size: 14px;
-        }
-
-        .status-bar {
-            padding: 6px 12px;
-            font-size: 11px;
-            gap: 8px;
-        }
-
-        .status-key span {
-            padding: 3px 6px;
-            font-size: 10px;
-        }
-        }
-
-        /* Mobile Portrait (up to 479px) */
-        @@media (max-width: 479px) {
-        .products-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            padding: 8px;
-        }
-
-        .product-card {
-            min-height: 160px;
-        }
-
-        .prod-img {
-            width: 55px;
-            height: 55px;
-            font-size: 22px;
-        }
-
-        .prod-name {
-            font-size: 11px;
-            min-height: 30px;
-            margin: 2px 0 4px;
-        }
-
-        .filter-bar {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
-        }
-
-        .scroll-tabs {
-            width: 100%;
+        .user-chip {
+            display: none !important;
         }
 
         .exrate-chip {
-            display: none;
+            display: none !important;
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8px !important;
+            padding: 10px !important;
+            max-height: 45vh !important;
+        }
+
+        .product-card {
+            padding: 12px 6px 8px !important;
+            min-height: 160px !important;
+        }
+
+        .prod-img {
+            width: 55px !important;
+            height: 55px !important;
+            font-size: 22px !important;
+        }
+
+        .prod-name {
+            font-size: 11px !important;
+            margin: 2px 0 6px !important;
+            padding: 0 2px !important;
+        }
+
+        .prod-price {
+            font-size: 12px !important;
+        }
+
+        .prod-price-khr {
+            font-size: 9px !important;
+        }
+
+        .prod-add-btn {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 12px !important;
+        }
+
+        .filter-bar {
+            padding: 6px 10px 0 !important;
+        }
+
+        .filter-label {
+            font-size: 9px !important;
+            margin-bottom: 4px !important;
+        }
+
+        .scroll-tabs {
+            gap: 4px !important;
+            padding-bottom: 6px !important;
+        }
+
+        .tab-pill {
+            padding: 4px 12px !important;
+            font-size: 11px !important;
+        }
+
+        .search-wrap {
+            padding: 8px 10px !important;
+        }
+
+        .search-inner input {
+            height: 36px !important;
+            font-size: 12px !important;
+            padding: 0 10px 0 32px !important;
+        }
+
+        .search-inner i {
+            font-size: 12px !important;
+            left: 10px !important;
+        }
+
+        .cart-fab {
+            display: flex !important;
+            width: 56px !important;
+            height: 56px !important;
+            font-size: 20px !important;
+            bottom: 12px !important;
+            right: 12px !important;
+        }
+
+        .cart-fab-badge {
+            width: 16px !important;
+            height: 16px !important;
+            font-size: 9px !important;
         }
 
         .cart-head {
-            padding: 12px;
+            padding: 10px !important;
         }
 
         .cart-title {
-            font-size: 14px;
+            font-size: 14px !important;
+            gap: 6px !important;
         }
 
         .cart-badge {
-            font-size: 11px;
-            padding: 3px 8px;
+            font-size: 10px !important;
+            padding: 2px 8px !important;
+        }
+
+        .cart-items {
+            padding: 8px !important;
+            max-height: 30vh !important;
+        }
+
+        .cart-item {
+            padding: 6px !important;
+            gap: 6px !important;
+        }
+
+        .ci-thumb {
+            width: 35px !important;
+            height: 35px !important;
+            font-size: 14px !important;
+        }
+
+        .ci-name {
+            font-size: 11px !important;
+        }
+
+        .ci-price {
+            font-size: 9px !important;
+            margin-top: 1px !important;
+        }
+
+        .ci-qty-btn {
+            width: 22px !important;
+            height: 22px !important;
+            font-size: 10px !important;
+        }
+
+        .ci-qty-num {
+            font-size: 12px !important;
+            min-width: 18px !important;
+        }
+
+        .ci-total {
+            font-size: 11px !important;
+            min-width: 45px !important;
+        }
+
+        .ci-remove {
+            font-size: 11px !important;
+            padding: 2px !important;
+        }
+
+        .cart-summary {
+            padding: 8px !important;
+        }
+
+        .sum-row {
+            font-size: 12px !important;
+            margin-bottom: 4px !important;
+        }
+
+        .sum-row.total {
+            font-size: 14px !important;
+            padding-top: 6px !important;
+            margin-top: 4px !important;
+        }
+
+        .sum-khr {
+            font-size: 9px !important;
+        }
+
+        .pay-section {
+            padding: 8px !important;
         }
 
         .pay-methods {
-            grid-template-columns: 1fr;
+            gap: 4px !important;
+            margin-bottom: 8px !important;
         }
 
-        .card-row {
-            flex-direction: column;
-            align-items: flex-start;
+        .pay-method {
+            padding: 6px 4px !important;
+            font-size: 10px !important;
+            gap: 2px !important;
         }
 
-        .card-expiry {
-            width: 100%;
+        .pay-method i {
+            font-size: 14px !important;
         }
 
-        .card-expiry input {
-            flex: 1;
+        .pay-currency-row {
+            gap: 4px !important;
+            margin-bottom: 6px !important;
         }
 
-        .pay-actions {
-            flex-direction: column;
+        .pay-curr-btn {
+            height: 32px !important;
+            font-size: 11px !important;
+        }
+
+        .cash-input-row input {
+            height: 36px !important;
+            font-size: 13px !important;
+            padding: 0 8px !important;
+        }
+
+        .exact-btn {
+            height: 36px !important;
+            font-size: 10px !important;
+            padding: 0 8px !important;
+        }
+
+        .quick-row {
+            gap: 4px !important;
+        }
+
+        .quick-btn {
+            height: 30px !important;
+            font-size: 10px !important;
+            min-width: 40px !important;
+        }
+
+        .action-row {
+            gap: 6px !important;
+            margin-top: 8px !important;
+        }
+
+        .act-btn {
+            height: 38px !important;
+            font-size: 12px !important;
+        }
+
+        .act-pay {
+            height: 46px !important;
+            font-size: 14px !important;
+        }
+
+        .recent-bar {
+            padding: 6px 8px !important;
+        }
+
+        .recent-label {
+            font-size: 9px !important;
+            margin-bottom: 4px !important;
+        }
+
+        .recent-chip {
+            padding: 4px 10px !important;
+            font-size: 10px !important;
+            gap: 4px !important;
         }
 
         .status-bar {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
+            padding: 6px 10px !important;
+            font-size: 11px !important;
+            gap: 12px !important;
+        }
+
+        .status-key span {
+            padding: 3px 6px !important;
+            font-size: 10px !important;
+        }
+
+        .kbd-hint {
+            display: none !important;
+        }
+        }
+
+        /* Mobile Portrait (up to 480px) */
+        @@media (max-width: 480px) {
+        .pos-body {
+            flex-direction: column !important;
+        }
+
+        .panel-cart {
+            width: 100% !important;
+            max-width: 100% !important;
+            border-left: none !important;
+            border-top: 2px solid var(--border) !important;
+        }
+
+        .topbar {
+            height: 48px !important;
+            padding: 0 8px !important;
+            gap: 4px !important;
+        }
+
+        .topbar-logo {
+            height: 26px !important;
+        }
+
+        .topbar-info {
+            display: none !important;
+        }
+
+        .topbar-divider {
+            height: 22px !important;
+        }
+
+        .curr-toggle {
+            padding: 2px !important;
+        }
+
+        .curr-btn {
+            padding: 3px 6px !important;
+            font-size: 10px !important;
+        }
+
+        .user-chip {
+            display: none !important;
+        }
+
+        .exrate-chip {
+            display: none !important;
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 6px !important;
+            padding: 8px !important;
+            max-height: 40vh !important;
+        }
+
+        .product-card {
+            padding: 10px 4px 6px !important;
+            min-height: 150px !important;
+            gap: 4px !important;
+        }
+
+        .prod-img {
+            width: 50px !important;
+            height: 50px !important;
+            font-size: 20px !important;
+            margin-bottom: 4px !important;
+        }
+
+        .prod-name {
+            font-size: 10px !important;
+            margin: 2px 0 4px !important;
+            padding: 0 2px !important;
+            line-height: 1.4 !important;
+        }
+
+        .prod-price {
+            font-size: 11px !important;
+        }
+
+        .prod-price-khr {
+            font-size: 8px !important;
+        }
+
+        .prod-add-btn {
+            width: 22px !important;
+            height: 22px !important;
+            font-size: 11px !important;
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+
+        .filter-bar {
+            padding: 6px 8px 0 !important;
+        }
+
+        .filter-label {
+            font-size: 9px !important;
+            margin-bottom: 3px !important;
+        }
+
+        .scroll-tabs {
+            gap: 4px !important;
+            padding-bottom: 6px !important;
+        }
+
+        .tab-pill {
+            padding: 4px 10px !important;
+            font-size: 10px !important;
+        }
+
+        .search-wrap {
+            padding: 6px 8px !important;
+        }
+
+        .search-inner input {
+            height: 34px !important;
+            font-size: 11px !important;
+            padding: 0 8px 0 28px !important;
+        }
+
+        .search-inner i {
+            font-size: 11px !important;
+            left: 8px !important;
+        }
+
+        .cart-fab {
+            display: flex !important;
+            width: 52px !important;
+            height: 52px !important;
+            font-size: 18px !important;
+            bottom: 10px !important;
+            right: 10px !important;
+        }
+
+        .cart-fab-badge {
+            width: 16px !important;
+            height: 16px !important;
+            font-size: 9px !important;
+            top: 4px !important;
+            right: 4px !important;
+        }
+
+        .cart-head {
+            padding: 8px 10px !important;
+        }
+
+        .cart-title {
+            font-size: 13px !important;
+            gap: 4px !important;
+        }
+
+        .cart-badge {
+            font-size: 9px !important;
+            padding: 2px 6px !important;
+        }
+
+        .cart-items {
+            padding: 6px !important;
+            max-height: 28vh !important;
+        }
+
+        .cart-item {
+            padding: 6px !important;
+            gap: 4px !important;
+        }
+
+        .ci-thumb {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 13px !important;
+        }
+
+        .ci-name {
+            font-size: 10px !important;
+        }
+
+        .ci-price {
+            font-size: 8px !important;
+            margin-top: 1px !important;
+        }
+
+        .ci-qty-btn {
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 9px !important;
+        }
+
+        .ci-qty-num {
+            font-size: 11px !important;
+            min-width: 16px !important;
+        }
+
+        .ci-total {
+            display: none !important;
+        }
+
+        .ci-remove {
+            font-size: 10px !important;
+            padding: 2px !important;
+        }
+
+        .cart-summary {
+            padding: 6px 8px !important;
+        }
+
+        .sum-row {
+            font-size: 11px !important;
+            margin-bottom: 3px !important;
+        }
+
+        .sum-row.total {
+            font-size: 13px !important;
+            padding-top: 5px !important;
+            margin-top: 3px !important;
+        }
+
+        .sum-khr {
+            font-size: 8px !important;
+        }
+
+        .pay-section {
+            padding: 6px 8px !important;
+        }
+
+        .pay-methods {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 4px !important;
+            margin-bottom: 6px !important;
+        }
+
+        .pay-method {
+            padding: 5px 3px !important;
+            font-size: 9px !important;
+            gap: 2px !important;
+        }
+
+        .pay-method i {
+            font-size: 12px !important;
+        }
+
+        .pay-currency-row {
+            gap: 4px !important;
+            margin-bottom: 6px !important;
+        }
+
+        .pay-curr-btn {
+            height: 30px !important;
+            font-size: 10px !important;
+        }
+
+        .cash-input-row input {
+            height: 34px !important;
+            font-size: 12px !important;
+            padding: 0 6px !important;
+        }
+
+        .exact-btn {
+            height: 34px !important;
+            font-size: 9px !important;
+            padding: 0 6px !important;
+        }
+
+        .quick-row {
+            gap: 3px !important;
+        }
+
+        .quick-btn {
+            height: 28px !important;
+            font-size: 9px !important;
+            min-width: 35px !important;
+        }
+
+        .action-row {
+            gap: 4px !important;
+            margin-top: 6px !important;
+        }
+
+        .act-btn {
+            height: 36px !important;
+            font-size: 11px !important;
+            gap: 4px !important;
+        }
+
+        .act-pay {
+            height: 42px !important;
+            font-size: 13px !important;
+        }
+
+        .shortcut-tag {
+            font-size: 8px !important;
+        }
+
+        .recent-bar {
+            padding: 4px 6px !important;
+        }
+
+        .recent-label {
+            font-size: 8px !important;
+            margin-bottom: 3px !important;
+        }
+
+        .recent-chip {
+            padding: 3px 8px !important;
+            font-size: 9px !important;
+            gap: 3px !important;
+        }
+
+        .recent-chip .rord-status {
+            font-size: 8px !important;
+            padding: 1px 4px !important;
+        }
+
+        .status-bar {
+            padding: 4px 8px !important;
+            font-size: 10px !important;
+            gap: 8px !important;
+            flex-wrap: wrap !important;
+        }
+
+        .status-key {
+            gap: 4px !important;
+        }
+
+        .status-key span {
+            padding: 2px 5px !important;
+            font-size: 9px !important;
+        }
+
+        .kbd-hint {
+            display: none !important;
+        }
+
+        .modal-overlay {
+            padding: 10px !important;
+        }
+
+        .invoice-box {
+            max-height: 95dvh !important;
+        }
+
+        .inv-head {
+            padding: 16px 16px 14px !important;
+        }
+
+        .inv-head h2 {
+            font-size: 18px !important;
+        }
+
+        .inv-body {
+            padding: 16px !important;
+        }
+
+        .inv-item {
+            font-size: 12px !important;
+        }
+
+        .inv-summary {
+            padding: 12px !important;
+        }
+
+        .inv-sum-row {
+            font-size: 12px !important;
+        }
+
+        .inv-sum-row.total {
+            font-size: 15px !important;
+        }
+
+        .inv-footer {
+            padding: 12px 16px !important;
+            font-size: 11px !important;
+        }
+
+        .inv-actions {
+            padding: 0 16px 16px !important;
+            gap: 8px !important;
+        }
+
+        .inv-btn {
+            height: 42px !important;
+            font-size: 13px !important;
         }
         }
 
         /* Very Small Devices (up to 360px) */
         @@media (max-width: 360px) {
         .products-grid {
-            gap: 4px;
+            gap: 4px !important;
+            padding: 6px !important;
         }
 
         .product-card {
-            padding: 10px 4px 8px;
-            min-height: 150px;
+            padding: 8px 3px 5px !important;
+            min-height: 140px !important;
         }
 
         .prod-img {
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
+            width: 45px !important;
+            height: 45px !important;
+            font-size: 18px !important;
         }
 
         .prod-name {
-            font-size: 10px;
-            min-height: 28px;
-            -webkit-line-clamp: 2;
+            font-size: 9px !important;
+            margin: 2px 0 3px !important;
+            min-height: 24px !important;
         }
 
         .prod-price {
-            font-size: 12px;
+            font-size: 10px !important;
         }
 
         .prod-price-khr {
-            font-size: 9px;
+            font-size: 7px !important;
         }
 
         .prod-add-btn {
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 10px !important;
+        }
+
+        .tab-pill {
+            padding: 3px 8px !important;
+            font-size: 9px !important;
+        }
+
+        .cart-item {
+            padding: 4px !important;
+        }
+
+        .ci-thumb {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 12px !important;
+        }
+
+        .ci-name {
+            font-size: 9px !important;
+        }
+
+        .ci-qty-btn {
+            width: 18px !important;
+            height: 18px !important;
+            font-size: 8px !important;
+        }
+
+        .ci-qty-num {
+            font-size: 10px !important;
+            min-width: 14px !important;
+        }
+
+        .pay-methods {
+            grid-template-columns: 1fr !important;
+        }
+
+        .status-bar {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 4px !important;
+        }
+
+        .status-key {
+            width: 100% !important;
+            justify-content: space-between !important;
         }
         }
 
-        /* Print Styles */
+        /* Fix for hover states on touch devices */
+        @@media (hover: none) and (pointer: coarse) {
+        .product-card:hover {
+            transform: none !important;
+        }
+
+        .prod-add-btn {
+            opacity: 1 !important;
+            transform: scale(1) !important;
+        }
+
+        .product-card:active {
+            transform: scale(0.98) !important;
+        }
+        }
+
+        /* Print Styles - Keep as is */
         @@media print {
             .topbar,
             .filter-bar,
@@ -2108,81 +2783,71 @@
             .action-buttons,
             .panel-cart,
             .status-bar,
-            .prod-add-btn {
+            .prod-add-btn,
+            .cart-fab,
+            .kbd-hint {
                 display: none !important;
             }
 
             .panel-products {
-                width: 100%;
+                width: 100% !important;
             }
 
             .products-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(4, 1fr) !important;
+                max-height: none !important;
+                overflow: visible !important;
             }
 
             .product-card {
-                break-inside: avoid;
-                border: 1px solid #ddd;
-                box-shadow: none;
+                break-inside: avoid !important;
+                border: 1px solid #ddd !important;
+                box-shadow: none !important;
+                page-break-inside: avoid !important;
             }
         }
 
-        /* Utility Classes */
-        .hidden {
-            display: none !important;
+        /* Landscape orientation specific fixes */
+        @@media (max-height: 480px) and (orientation: landscape) {
+        .products-grid {
+            max-height: 35vh !important;
         }
 
-        .text-center {
-            text-align: center;
+        .cart-items {
+            max-height: 25vh !important;
         }
 
-        .w-100 {
-            width: 100%;
+        .product-card {
+            min-height: 140px !important;
         }
 
-        .mt-2 {
-            margin-top: 8px;
+        .prod-img {
+            width: 45px !important;
+            height: 45px !important;
         }
 
-        .mb-2 {
-            margin-bottom: 8px;
+        .prod-name {
+            font-size: 10px !important;
+        }
         }
 
-        /* Animations */
-        @@keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        /* Fix for notched phones */
+        @@supports (padding: max(0px)) {
+        .topbar {
+            padding-left: max(16px, env(safe-area-inset-left)) !important;
+            padding-right: max(16px, env(safe-area-inset-right)) !important;
         }
 
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+        .cart-fab {
+            bottom: max(16px, env(safe-area-inset-bottom)) !important;
+            right: max(16px, env(safe-area-inset-right)) !important;
         }
 
-        .pulse {
-            animation: pulseAnim 0.25s ease;
+        .status-bar {
+            padding-left: max(16px, env(safe-area-inset-left)) !important;
+            padding-right: max(16px, env(safe-area-inset-right)) !important;
+            padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
         }
-
-        @@keyframes pulseAnim {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.06);
-            }
-            100% {
-                transform: scale(1);
-            }
         }
 </style>
 </head>

@@ -1,723 +1,744 @@
 ﻿@model Sandoohouse.Models.ModelViewer.CategoryModelViewer.CategoryViewerModel
 @{
-    ViewData["Title"] = Model.Id == 0 ? "Create Category" : "Edit Category";
+ViewData["Title"] = Model.Id == 0 ? "Create Category" : "Edit Category";
+bool isEdit = Model.Id != 0;
 }
 
-<!-- Add this in your layout or section for icons if not already included -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-<div class="page-inner">
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">@(Model.Id == 0 ? "Create Category" : "Edit Category")</h3>
-        <ul class="breadcrumbs mb-3">
-            <li class="nav-home">
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a asp-controller="Category" asp-action="Index">Category</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">@(Model.Id == 0 ? "Create Category" : "Edit Category")</li>
-        </ul>
-    </div>
-
-    <!-- Main Form Card -->
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-        <!-- Card Header with Gradient -->
-        <div class="card-header bg-gradient-primary text-white border-0 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <h4 class="mb-0 fw-bold">
-                <i class="fas fa-info-circle me-2"></i>@(Model.Id == 0 ? "Category Information" : "Edit Category Information")
-            </h4>
-            <p class="mb-0 mt-1 small opacity-75">Fill in the details below to @(Model.Id == 0 ? "create a new" : "update the") category</p>
-        </div>
-
-        <div class="card-body p-4">
-            <form asp-controller="Category" asp-action="@(Model.Id == 0 ? "CreateCategory" : "EditCategory")" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                <input type="hidden" asp-for="Id" />
-
-                <div class="row g-4">
-                    <!-- Left Column - Form Fields -->
-                    <div class="col-lg-8">
-                        <!-- Category Name -->
-                        <div class="mb-4">
-                            <label asp-for="CategoryName" class="form-label fw-semibold text-muted mb-2">
-                                <i class="fas fa-tag me-2 text-primary"></i>Category Name <span class="text-danger">*</span>
-                            </label>
-                            <input asp-for="CategoryName"
-                                   class="form-control form-control-lg border-2 rounded-3 @(ViewData.ModelState["CategoryName"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                   placeholder="e.g., Electronics, Furniture, Clothing" />
-                            <span asp-validation-for="CategoryName" class="invalid-feedback"></span>
-                            <div class="form-text text-muted">
-                                <i class="fas fa-info-circle me-1"></i>Choose a descriptive name for your category
-                            </div>
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-4">
-                            <label asp-for="Description" class="form-label fw-semibold text-muted mb-2">
-                                <i class="fas fa-align-left me-2 text-primary"></i>Description
-                            </label>
-                            <textarea asp-for="Description"
-                                      class="form-control border-2 rounded-3"
-                                      rows="4"
-                                      placeholder="Provide a detailed description of this category..."></textarea>
-                            <div class="form-text text-muted">
-                                <i class="fas fa-info-circle me-1"></i>Optional: Add more details about this category
-                            </div>
-                        </div>
-
-                        <!-- Status with Toggle -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold text-muted mb-2">
-                                <i class="fas fa-toggle-on me-2 text-primary"></i>Category Status
-                            </label>
-                            <div class="d-flex align-items-center gap-4 p-3 bg-light rounded-3">
-                                <div class="form-check form-switch">
-                                    <input asp-for="Status" class="form-check-input" type="checkbox" id="statusToggle" />
-                                    <label class="form-check-label fw-semibold" for="statusToggle" id="statusLabel">
-                                        @(Model.Status ? "Active" : "Inactive")
-                                    </label>
-                                </div>
-                                <span class="badge @(Model.Status ? "bg-success" : "bg-secondary") px-3 py-2" id="statusBadge">
-                                    @(Model.Status ? "Published" : "Draft")
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Created Info (Read Only) - Only show in Edit mode -->
-                        @if (Model.Id != 0)
-                        {
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-muted">
-                                        <i class="fas fa-user me-2 text-primary"></i>Created By
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light border-2">
-                                            <i class="fas fa-user-circle text-primary"></i>
-                                        </span>
-                                        <div class="form-control bg-light border-2">
-                                            @Model.CreatedByName
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-muted">
-                                        <i class="fas fa-building me-2 text-primary"></i>Brand
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light border-2">
-                                            <i class="fas fa-building text-primary"></i>
-                                        </span>
-                                        <select asp-for="BrandId" class="form-control bg-light border-2"
-                                                asp-items="ViewBag.Brands">
-                                            <option value="">-- Select Brand --</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-muted">
-                                        <i class="fas fa-calendar me-2 text-primary"></i>Created At
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light border-2">
-                                            <i class="fas fa-clock text-primary"></i>
-                                        </span>
-                                        
-                                        <div class="form-control bg-light border-2">
-                                            @Model.CreatedAt.ToString("MMM dd, yyyy")
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                        
-                    </div>
-
-                    <!-- Right Column - Image Upload -->
-                    <div class="col-lg-4">
-                        <div class="card border-2 rounded-4 bg-light">
-                            <div class="card-body text-center p-4">
-                                <label class="form-label fw-semibold text-muted mb-3 w-100">
-                                    <i class="fas fa-image me-2 text-primary"></i>Category Image
-                                </label>
-
-                                <div class="image-upload-container mb-3">
-                                    <div class="image-preview-wrapper mx-auto mb-3" style="width: 180px; height: 180px;">
-                                        @if (!string.IsNullOrEmpty(Model.CategoryImageUrl))
-                                        {
-                                            <img src="~/Category/@Url.Content(Model.CategoryImageUrl)"
-                                                 id="imagePreview"
-                                                 alt="Category Image"
-                                                 class="rounded-4 shadow-sm w-100 h-100"
-                                                 style="object-fit: cover; display: block;" />
-                                            <div id="noImagePlaceholder"
-                                                 class="bg-white rounded-4 d-flex flex-column align-items-center justify-content-center h-100 border-2 border-dashed"
-                                                 style="display: none;">
-                                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
-                                                <span class="text-muted small">No image selected</span>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <img id="imagePreview"
-                                                 class="rounded-4 shadow-sm w-100 h-100"
-                                                 alt="Category Image"
-                                                 src=""
-                                                 style="object-fit: cover; display: none;" />
-                                            <div id="noImagePlaceholder"
-                                                 class="bg-white rounded-4 d-flex flex-column align-items-center justify-content-center h-100 border-2 border-dashed">
-                                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
-                                                <span class="text-muted small">No image selected</span>
-                                            </div>
-                                        }
-                                    </div>
-
-                                    <div class="upload-btn-wrapper">
-                                        <input type="file"
-                                               name="ImageFile"
-                                               class="form-control d-none"
-                                               id="imageUpload"
-                                               accept="image/*"
-                                               onchange="previewImage(event)" />
-                                        <button type="button"
-                                                class="btn btn-outline-primary rounded-pill px-4 py-2"
-                                                onclick="document.getElementById('imageUpload').click();">
-                                            <i class="fas fa-camera me-2"></i>Choose Image
-                                        </button>
-                                        
-                                        @if (!string.IsNullOrEmpty(Model.CategoryImageUrl))
-                                        {
-                                            <!-- Hidden field to store current image URL for backend reference -->
-                                            <input type="hidden" name="ExistingImageUrl" value="@Model.CategoryImageUrl" />
-                                            
-                                            <!-- Hidden field to track image removal -->
-                                            <input type="hidden" name="RemoveImage" id="removeImage" value="false" />
-                                        }
-                                    </div>
-
-                                    <div class="form-text text-muted mt-3">
-                                        <i class="fas fa-info-circle me-1"></i>Recommended: 500x500px, max 2MB
-                                    </div>
-                                    <div class="form-text text-muted">
-                                        Supported formats: JPG, PNG, GIF
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Actions -->
-                <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
-                    <a asp-action="Index"
-                       class="btn btn-outline-secondary rounded-pill px-4 py-2">
-                        <i class="fas fa-arrow-left me-2"></i>Back to List
-                    </a>
-                    <div>
-                        <button type="reset"
-                                class="btn btn-outline-secondary rounded-pill px-4 py-2 me-2">
-                            <i class="fas fa-undo me-2"></i>Reset
-                        </button>
-                        <button type="submit"
-                                class="btn btn-primary rounded-pill px-5 py-2 shadow-sm hover-scale">
-                            <i class="fas fa-save me-2"></i>@(Model.Id == 0 ? "Create Category" : "Update Category")
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <style>
-    /* Custom Styles */
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    :root {
+        --brand:        #FF6B35;
+        --brand-dark:   #E85520;
+        --brand-light:  #FFF0EA;
+        --brand-mid:    rgba(255,107,53,.13);
+        --accent:       #1C2340;
+        --success:      #00B894;
+        --success-bg:   rgba(0,184,148,.1);
+        --warning:      #F0A500;
+        --warning-bg:   rgba(240,165,0,.1);
+        --danger:       #E84545;
+        --danger-bg:    rgba(232,69,69,.1);
+        --bg:           #F2EFE9;
+        --surface:      #FFFFFF;
+        --surface2:     #FAF8F5;
+        --surface3:     #F4F1EC;
+        --border:       #EAE5DC;
+        --border-s:     #D8D2C8;
+        --text:         #18150F;
+        --text-sub:     #6E685F;
+        --text-light:   #AEA89F;
+        --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+        --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+        --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+        --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+        --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+        --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+        --font: 'Sora', sans-serif;
     }
 
-    .border-2 {
-        border-width: 2px !important;
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ── Page ── */
+    .cc-page {
+        font-family: var(--font);
+        background: var(--bg);
+        background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+        background-size: 28px 28px;
+        min-height: 100vh;
+        padding: 28px 24px;
+        color: var(--text);
     }
 
-    .border-3 {
-        border-width: 3px !important;
+    /* ── Top bar ── */
+    .cc-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+        max-width: 1020px; margin-left: auto; margin-right: auto;
+    }
+    .cc-topbar-left h1 {
+        font-size: 20px; font-weight: 700; color: var(--text);
+        margin: 0 0 5px; letter-spacing: -.4px;
+    }
+    .cc-breadcrumb {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+    }
+    .cc-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+    .cc-breadcrumb a:hover { color: var(--brand); }
+    .cc-breadcrumb .sep { color: var(--border-s); }
+    .cc-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+    /* ── Wrapper ── */
+    .cc-wrap { max-width: 1020px; margin: 0 auto; display: flex; flex-direction: column; }
+
+    /* ── Hero banner ── */
+    .cc-hero {
+        background: var(--accent);
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+        padding: 32px 36px;
+        display: flex; align-items: center; gap: 20px;
+        position: relative; overflow: hidden;
+    }
+    /* Subtle dot texture */
+    .cc-hero::before {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        background-image: radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+        background-size: 22px 22px;
+    }
+    /* Glow orbs */
+    .cc-hero-orb1 {
+        position: absolute; width: 300px; height: 300px; border-radius: 50%;
+        background: rgba(255,107,53,.07); top: -120px; right: -60px; pointer-events: none;
+    }
+    .cc-hero-orb2 {
+        position: absolute; width: 180px; height: 180px; border-radius: 50%;
+        background: rgba(255,255,255,.03); bottom: -80px; left: 200px; pointer-events: none;
     }
 
-    .border-dashed {
-        border-style: dashed !important;
+    .cc-hero-badge {
+        width: 60px; height: 60px; border-radius: 18px;
+        background: var(--brand); color: #fff; font-size: 26px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; z-index: 1; box-shadow: var(--shadow-brand);
+        transition: transform .2s;
+    }
+    .cc-hero-badge:hover { transform: scale(1.06) rotate(-3deg); }
+
+    .cc-hero-text { z-index: 1; flex: 1; min-width: 0; }
+    .cc-hero-text h2 {
+        font-size: 21px; font-weight: 800; color: #fff;
+        margin: 0 0 5px; letter-spacing: -.3px; line-height: 1.2;
+    }
+    .cc-hero-text p { font-size: 12px; color: rgba(255,255,255,.5); margin: 0; font-weight: 500; }
+
+    /* Hero meta strip — shows existing data in edit mode */
+    .cc-hero-meta {
+        display: flex; align-items: center; gap: 18px;
+        margin-top: 14px; flex-wrap: wrap;
+    }
+    .cc-hero-meta-item {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 11px; color: rgba(255,255,255,.45); font-weight: 500;
+    }
+    .cc-hero-meta-item i { color: var(--brand); font-size: 11px; }
+    .cc-hero-meta-item strong { color: rgba(255,255,255,.75); font-weight: 600; }
+
+    .cc-hero-pill {
+        display: inline-flex; align-items: center; gap: 6px; z-index: 1; flex-shrink: 0;
+        padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .cc-hero-pill.new  { background: var(--brand-mid); color: var(--brand); border: 1px solid rgba(255,107,53,.25); }
+    .cc-hero-pill.edit { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.25); }
+
+    /* ── Form card ── */
+    .cc-form-area {
+        background: var(--surface);
+        border: 1.5px solid var(--border); border-top: none;
+        border-radius: 0 0 var(--r-lg) var(--r-lg);
+        box-shadow: var(--shadow-md); overflow: hidden;
     }
 
-    .hover-scale {
-        transition: transform 0.2s;
+    /* ── Two-panel layout ── */
+    .cc-panels { display: grid; grid-template-columns: 1fr 300px; min-height: 520px; }
+
+    /* ── Left ── */
+    .cc-left { padding: 32px 36px; border-right: 1.5px solid var(--border); }
+
+    .cc-sec {
+        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+        color: var(--text-light); margin: 0 0 18px; padding-bottom: 10px;
+        border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+    }
+    .cc-sec i { font-size: 12px; color: var(--brand); }
+    .cc-sec + .cc-sec, .cc-sec-gap { margin-top: 28px; }
+
+    /* ── Field ── */
+    .cc-field { margin-bottom: 22px; }
+    .cc-label {
+        display: flex; align-items: baseline; gap: 5px;
+        font-size: 11px; font-weight: 700; color: var(--text-sub);
+        text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
+    }
+    .cc-label .req { color: var(--brand); font-size: 14px; line-height: .8; text-transform: none; letter-spacing: 0; }
+    .cc-label .opt { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+    /* ── Input wrapper ── */
+    .cc-control {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        background: var(--surface2); overflow: hidden;
+        transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .cc-control:focus-within {
+        border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-mid); background: var(--surface);
+    }
+    .cc-control.err { border-color: var(--danger); }
+    .cc-control.err:focus-within { box-shadow: 0 0 0 3px var(--danger-bg); }
+    .cc-control.textarea-mode { align-items: flex-start; }
+    .cc-control.textarea-mode .cc-prefix { padding-top: 13px; }
+
+    .cc-prefix {
+        width: 44px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; color: var(--text-light);
+        border-right: 1.5px solid var(--border); background: var(--surface);
+        transition: color .15s, border-color .15s;
+    }
+    .cc-control:focus-within .cc-prefix { color: var(--brand); border-color: var(--brand); }
+
+    .cc-inp {
+        flex: 1; height: 46px; padding: 0 14px;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+    }
+    .cc-inp::placeholder { color: var(--text-light); font-weight: 400; }
+
+    .cc-area {
+        flex: 1; padding: 13px 14px; min-height: 100px; resize: vertical;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text); line-height: 1.65; font-weight: 500;
+    }
+    .cc-area::placeholder { color: var(--text-light); font-weight: 400; }
+
+    .cc-select {
+        flex: 1; height: 46px; padding: 0 36px 0 14px;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+        appearance: none; cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23AEA89F' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 14px center;
     }
 
-    .card-body {
-        border: 1px solid #e9ecef;
-        background: #ffffff;
+    .cc-val-msg { font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+    .cc-hint    { font-size: 11px; color: var(--text-light); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+
+    /* ── Status toggle ── */
+    .cc-toggle-card {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 18px;
+        background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        gap: 16px; transition: border-color .15s;
+    }
+    .cc-toggle-card:hover { border-color: var(--border-s); }
+    .cc-toggle-desc h6 {
+        font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 3px;
+        display: flex; align-items: center; gap: 7px;
+    }
+    .cc-toggle-desc h6 i { color: var(--brand); }
+    .cc-toggle-desc p { font-size: 11px; color: var(--text-light); margin: 0; }
+
+    .sw-wrap input[type="checkbox"] { display: none; }
+    .sw-track {
+        display: block; width: 52px; height: 28px; border-radius: 14px;
+        background: var(--border-s); cursor: pointer; transition: background .22s; position: relative;
+    }
+    .sw-track::after {
+        content: ''; position: absolute; top: 4px; left: 4px;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: #fff; box-shadow: var(--shadow-sm); transition: transform .22s, box-shadow .22s;
+    }
+    .sw-wrap input:checked + .sw-track { background: var(--success); }
+    .sw-wrap input:checked + .sw-track::after { transform: translateX(24px); box-shadow: 0 3px 10px rgba(0,184,148,.4); }
+
+    .cc-status-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; transition: all .2s;
+    }
+    .cc-status-chip.active   { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.2); }
+    .cc-status-chip.inactive { background: var(--surface2);   color: var(--text-sub); border: 1px solid var(--border); }
+
+    /* ── Timestamps / metadata (edit only) ── */
+    .cc-ts-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .cc-ts-cell {
+        padding: 13px 15px;
+        background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        position: relative; overflow: hidden;
+    }
+    .cc-ts-cell::before {
+        content: ''; position: absolute; top: 0; left: 0;
+        width: 3px; height: 100%; background: var(--brand); border-radius: 0 2px 2px 0;
+    }
+    .cc-ts-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--text-light); margin-bottom: 5px; }
+    .cc-ts-val   { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .cc-ts-val i { font-size: 12px; color: var(--brand); }
+
+    /* ── Actions ── */
+    .cc-actions { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+
+    .btn-submit {
+        flex: 1; height: 48px; min-width: 160px;
+        background: var(--brand); color: #fff;
+        border: none; border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: var(--shadow-brand); transition: all .18s;
+    }
+    .btn-submit:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,53,.4); }
+    .btn-submit:active { transform: translateY(0); }
+
+    .btn-cancel {
+        height: 48px; padding: 0 22px;
+        background: var(--surface); color: var(--text-sub);
+        border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        text-decoration: none; transition: all .18s;
+    }
+    .btn-cancel:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); text-decoration: none; }
+
+    /* ── Right panel ── */
+    .cc-right {
+        background: var(--surface3); padding: 32px 24px;
+        display: flex; flex-direction: column; align-items: center;
+        border-left: 1.5px solid var(--border); gap: 0;
     }
 
-    .profile-image-wrapper {
-        border: 4px solid #0d6efd;
-        transition: all 0.3s ease;
+    .cc-img-heading {
+        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+        color: var(--text-light); margin-bottom: 18px; align-self: flex-start;
+        display: flex; align-items: center; gap: 7px;
     }
+    .cc-img-heading i { color: var(--brand); font-size: 12px; }
 
-    .profile-image-wrapper:hover {
-        transform: scale(1.05);
-        border-color: #0b5ed7;
+    /* Image preview box */
+    .cc-img-box {
+        width: 200px; height: 200px; border-radius: var(--r-md);
+        overflow: hidden; cursor: pointer; position: relative;
+        border: 2px dashed var(--border-s); background: var(--surface);
+        transition: all .2s; box-shadow: var(--shadow-xs);
+        display: flex; align-items: center; justify-content: center;
     }
+    .cc-img-box:hover { border-color: var(--brand); border-style: solid; box-shadow: var(--shadow-brand); transform: translateY(-2px); }
+    .cc-img-box img   { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* Enhanced Input Group Styling with Borders */
-    .input-group {
-        border: 2px solid #e0e4e9;
-        border-radius: 0.6rem;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        background: #ffffff;
+    .cc-img-empty {
+        display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none;
     }
+    .cc-img-empty i    { font-size: 36px; color: var(--text-light); }
+    .cc-img-empty span { font-size: 11px; color: var(--text-light); font-weight: 600; text-align: center; }
 
-    .input-group:hover {
-        border-color: #b3b9c4;
+    .cc-img-cover {
+        position: absolute; inset: 0; border-radius: calc(var(--r-md) - 2px);
+        background: rgba(24,21,15,.52);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+        opacity: 0; transition: opacity .2s;
     }
+    .cc-img-cover i    { font-size: 28px; color: #fff; }
+    .cc-img-cover span { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; }
+    .cc-img-box:hover .cc-img-cover { opacity: 1; }
 
-    .input-group:focus-within {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
+    .cc-img-divider { width: 100%; height: 1px; background: var(--border); margin: 20px 0; }
 
-    .input-group .form-control,
-    .input-group .form-select {
-        border: none;
-        box-shadow: none;
-        background: transparent;
-    }
+    /* Buttons */
+    .cc-img-btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 
-    .input-group .form-control:focus,
-    .input-group .form-select:focus {
-        border: none;
-        box-shadow: none;
+    .btn-img-pick {
+        height: 40px; width: 100%;
+        border: 1.5px solid var(--brand); border-radius: var(--r-xl);
+        background: var(--brand-light); color: var(--brand);
+        font-family: var(--font); font-size: 12px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+        transition: all .16s;
     }
+    .btn-img-pick:hover { background: var(--brand); color: #fff; }
 
-    .input-group .input-group-text {
-        border: none;
-        background: #f8f9fa;
-        border-right: 2px solid #e0e4e9;
-        padding: 0.75rem 1rem;
+    .btn-img-remove {
+        height: 40px; width: 100%;
+        border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        background: none; color: var(--text-light);
+        font-family: var(--font); font-size: 12px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+        transition: all .16s;
     }
+    .btn-img-remove:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
 
-    .input-group:focus-within .input-group-text {
-        border-right-color: #667eea;
-        background: #e8f0fe;
-    }
+    .cc-img-hints { margin-top: 16px; width: 100%; display: flex; flex-direction: column; gap: 5px; }
+    .cc-img-hints span { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 6px; }
 
-    /* Individual Form Control Styling (for non-input-group inputs) */
-    .form-control:not(.input-group .form-control),
-    .form-select:not(.input-group .form-select) {
-        border: 2px solid #e0e4e9;
-        border-radius: 0.6rem;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-        background: #ffffff;
+    .cc-fname {
+        margin-top: 10px; font-size: 11px; color: var(--text-sub);
+        width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        display: none; align-items: center; gap: 5px;
     }
+    .cc-fname i { color: var(--brand); flex-shrink: 0; }
 
-    .form-control:not(.input-group .form-control):hover,
-    .form-select:not(.input-group .form-select):hover {
-        border-color: #b3b9c4;
+    /* Tips card in right panel */
+    .cc-tips {
+        margin-top: 20px; width: 100%;
+        background: var(--brand-light); border: 1.5px solid rgba(255,107,53,.18);
+        border-radius: var(--r-md); padding: 14px 16px;
     }
+    .cc-tips-title { font-size: 11px; font-weight: 700; color: var(--brand); display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .cc-tip { display: flex; align-items: flex-start; gap: 7px; font-size: 11px; color: var(--text-sub); margin-bottom: 7px; line-height: 1.5; }
+    .cc-tip:last-child { margin-bottom: 0; }
+    .cc-tip-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--brand); flex-shrink: 0; margin-top: 5px; }
 
-    .form-control:not(.input-group .form-control):focus,
-    .form-select:not(.input-group .form-select):focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        outline: none;
+    /* ── Responsive ── */
+    @@media (max-width: 860px) {
+        .cc-panels { grid-template-columns: 1fr; }
+        .cc-right  { border-left: none; border-top: 1.5px solid var(--border); }
+        .cc-ts-grid { grid-template-columns: 1fr 1fr; }
     }
-
-    /* Textarea specific styling */
-    textarea.form-control {
-        border: 2px solid #e0e4e9;
-        border-radius: 0.6rem;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-        background: #ffffff;
-    }
-
-    textarea.form-control:hover {
-        border-color: #b3b9c4;
-    }
-
-    textarea.form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        outline: none;
-    }
-
-    /* Form Select styling */
-    .form-select {
-        border: 2px solid #e0e4e9;
-        border-radius: 0.6rem;
-        padding: 0.75rem 2.25rem 0.75rem 1rem;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 16px 12px;
-    }
-
-    /* Form Check/Radio styling */
-    .form-check-input {
-        border: 2px solid #e0e4e9;
-        width: 1.2em;
-        height: 1.2em;
-        margin-top: 0.15em;
-    }
-
-    .form-check-input:checked {
-        background-color: #667eea;
-        border-color: #667eea;
-    }
-
-    .form-check-input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-
-    /* Form Switch styling */
-    .form-switch .form-check-input {
-        border: 2px solid #e0e4e9;
-        width: 2.5em;
-        height: 1.5em;
-    }
-
-    .form-switch .form-check-input:checked {
-        background-color: #28a745;
-        border-color: #28a745;
-    }
-
-    /* Input Group Variants */
-    .input-group-lg .form-control,
-    .input-group-lg .input-group-text {
-        padding: 0.75rem 1rem;
-    }
-
-    .input-group-sm .form-control,
-    .input-group-sm .input-group-text {
-        padding: 0.25rem 0.5rem;
-    }
-
-    /* Invalid state styling */
-    .form-control.is-invalid,
-    .was-validated .form-control:invalid {
-        border-color: #dc3545;
-        border-width: 2px;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right calc(0.375em + 0.1875rem) center;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    }
-
-    .input-group:has(.is-invalid) {
-        border-color: #dc3545;
-    }
-
-    /* Valid state styling */
-    .form-control.is-valid,
-    .was-validated .form-control:valid {
-        border-color: #28a745;
-        border-width: 2px;
-    }
-
-    .input-group:has(.is-valid) {
-        border-color: #28a745;
-    }
-
-    /* Disabled state styling */
-    .form-control:disabled,
-    .form-select:disabled {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-        opacity: 0.75;
-    }
-
-    /* Readonly state styling */
-    .form-control[readonly] {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-        cursor: default;
-    }
-
-    .form-control[readonly]:focus {
-        border-color: #dee2e6;
-        box-shadow: none;
-    }
-
-    .hover-scale:hover {
-        transform: scale(1.02);
-        transition: 0.2s;
-    }
-    
-    .hover-scale:hover {
-        transform: translateY(-2px);
-    }
-
-    .image-preview-wrapper {
-        position: relative;
-        overflow: hidden;
-        border-radius: 1rem !important;
-        transition: all 0.3s ease;
-    }
-
-    .image-preview-wrapper:hover {
-        transform: scale(1.02);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
-    }
-
-    #noImagePlaceholder {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 2px dashed #dee2e6 !important;
-    }
-
-    #noImagePlaceholder:hover {
-        background-color: #f8f9fa !important;
-        border-color: #667eea !important;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #5a6fd6 0%, #6a4292 100%);
-    }
-
-    .btn-outline-primary {
-        border: 2px solid #667eea;
-        color: #667eea;
-    }
-
-    .btn-outline-primary:hover {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-color: transparent;
-        color: white;
-    }
-
-    .btn-outline-danger {
-        border: 2px solid #dc3545;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: white;
-        border-color: #dc3545;
-    }
-
-    .form-check-input:checked {
-        background-color: #28a745;
-        border-color: #28a745;
-    }
-
-    /* Animation for status badge */
-    #statusBadge {
-        transition: all 0.3s ease;
-    }
-
-    .rounded-pill {
-        border-radius: 50rem !important;
-    }
-
-    /* Card border enhancements */
-    .card {
-        border: 1px solid rgba(0,0,0,.125);
-    }
-
-    .card.border-0 {
-        border: none !important;
-    }
-
-    /* Background light card for image upload */
-    .card.bg-light {
-        border: 2px solid #e9ecef !important;
-    }
-
-    /* Additional border utilities */
-    .border-primary-light {
-        border-color: #cfe2ff !important;
-    }
-
-    .border-success-light {
-        border-color: #d1e7dd !important;
-    }
-
-    .border-danger-light {
-        border-color: #f8d7da !important;
-    }
-
-    .border-warning-light {
-        border-color: #fff3cd !important;
-    }
-
-    /* Focus ring for better accessibility */
-    *:focus-visible {
-        outline: 2px solid #667eea;
-        outline-offset: 2px;
+    @@media (max-width: 600px) {
+        .cc-page { padding: 14px 12px; }
+        .cc-hero { padding: 24px 20px; gap: 14px; }
+        .cc-hero-badge { width: 48px; height: 48px; font-size: 20px; border-radius: 13px; }
+        .cc-hero-text h2 { font-size: 17px; }
+        .cc-hero-pill { display: none; }
+        .cc-left { padding: 24px 18px; }
+        .cc-right { padding: 24px 18px; }
+        .cc-actions { flex-direction: column; }
+        .btn-submit, .btn-cancel { min-width: unset; flex: unset; width: 100%; }
+        .cc-ts-grid { grid-template-columns: 1fr; }
     }
 </style>
 
+<div class="cc-page">
+
+    <!-- ── Top bar ── -->
+    <div class="cc-topbar">
+        <div class="cc-topbar-left">
+            <h1>@(isEdit ? "Edit Category" : "Create Category")</h1>
+            <nav class="cc-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Category" asp-action="Index">Category</a>
+                <span class="sep">›</span>
+                <span class="cur">@(isEdit ? "Edit · " + Model.CategoryName : "New Category")</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="cc-wrap">
+
+        <!-- ── Hero ── -->
+        <div class="cc-hero">
+            <div class="cc-hero-orb1"></div>
+            <div class="cc-hero-orb2"></div>
+
+            <div class="cc-hero-badge">
+                <i class="bi @(isEdit ? "bi-pencil-square" : "bi-folder-plus")"></i>
+            </div>
+
+            <div class="cc-hero-text">
+                <h2>@(isEdit ? Model.CategoryName : "New Category")</h2>
+                <p>@(isEdit ? "Update the details and settings for this category" : "Add a new category to your catalog")</p>
+
+                @if (isEdit)
+                {
+                <div class="cc-hero-meta">
+                        <span class="cc-hero-meta-item">
+                            <i class="bi bi-person-fill"></i>
+                            Created by <strong>@Model.CreatedByName</strong>
+                        </span>
+                    <span class="cc-hero-meta-item">
+                            <i class="bi bi-calendar-check"></i>
+                            <strong>@Model.CreatedAt.ToString("MMM dd, yyyy")</strong>
+                        </span>
+                    <span class="cc-hero-meta-item">
+                            <i class="bi bi-hash"></i>
+                            ID <strong>#@Model.Id</strong>
+                        </span>
+                </div>
+                }
+            </div>
+
+            <span class="cc-hero-pill @(isEdit ? "edit" : "new")">
+                <i class="bi @(isEdit ? "bi-pencil-fill" : "bi-plus-circle-fill")" style="font-size:10px;"></i>
+                @(isEdit ? "Editing" : "New Category")
+            </span>
+        </div>
+
+        <!-- ── Form area ── -->
+        <div class="cc-form-area">
+            <form asp-controller="Category"
+                  asp-action="@(isEdit ? "EditCategory" : "CreateCategory")"
+                  method="post" enctype="multipart/form-data"
+                  id="categoryForm" class="needs-validation" novalidate>
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" name="RemoveImage" id="removeImageField" value="false" />
+                @if (!string.IsNullOrEmpty(Model.CategoryImageUrl))
+                {
+                <input type="hidden" name="ExistingImageUrl" value="@Model.CategoryImageUrl" />
+                }
+
+                <div class="cc-panels">
+
+                    <!-- ════ LEFT ════ -->
+                    <div class="cc-left">
+
+                        <div class="cc-sec"><i class="fas fa-layer-group"></i> Category Information</div>
+
+                        <!-- Category Name -->
+                        <div class="cc-field">
+                            <label class="cc-label">Category Name <span class="req">*</span></label>
+                            <div class="cc-control @(ViewData.ModelState["CategoryName"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="cc-prefix"><i class="fas fa-tag"></i></span>
+                                <input asp-for="CategoryName" class="cc-inp"
+                                       placeholder="e.g. Beverages, Pastries, Salads…" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="CategoryName" class="cc-val-msg">
+                            </span>
+                            <span class="cc-hint"><i class="bi bi-info-circle"></i> Choose a clear, descriptive name</span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="cc-field">
+                            <label class="cc-label">Description <span class="opt">&nbsp;optional</span></label>
+                            <div class="cc-control textarea-mode">
+                                <span class="cc-prefix"><i class="fas fa-align-left"></i></span>
+                                <textarea asp-for="Description" class="cc-area"
+                                          placeholder="Describe this category…"></textarea>
+                            </div>
+                            <span class="cc-hint"><i class="bi bi-info-circle"></i> Helps team members understand the category</span>
+                        </div>
+
+                        <!-- Brand -->
+                        <div class="cc-field">
+                            <label class="cc-label">Brand <span class="req">*</span></label>
+                            <div class="cc-control @(ViewData.ModelState["BrandId"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="cc-prefix"><i class="fas fa-building"></i></span>
+                                <select asp-for="BrandId" class="cc-select" asp-items="ViewBag.Brands">
+                                    <option value="">— Select a Brand —</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="BrandId" class="cc-val-msg">
+                            </span>
+                            <span class="cc-hint"><i class="bi bi-info-circle"></i> Link this category to a restaurant brand</span>
+                        </div>
+
+                        <!-- Settings section -->
+                        <div class="cc-sec cc-sec-gap"><i class="bi bi-sliders"></i> Settings</div>
+
+                        <!-- Status toggle -->
+                        <div class="cc-field">
+                            <div class="cc-toggle-card">
+                                <div class="cc-toggle-desc">
+                                    <h6><i class="bi bi-toggle-on"></i> Category Visibility</h6>
+                                    <p>Enable to make this category visible and active in the system</p>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                                    <span class="cc-status-chip @(Model.Status ? "active" : "inactive")" id="statusChip">
+                                        <i class="bi bi-circle-fill" style="font-size:6px;"></i>
+                                        @(Model.Status ? "Active" : "Inactive")
+                                    </span>
+                                    <div class="sw-wrap">
+                                        <input asp-for="Status" type="checkbox" id="statusSwitch" />
+                                        <label class="sw-track" for="statusSwitch"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Record info (edit only) — now shown in hero, but also shown here as cards -->
+                        @if (isEdit)
+                        {
+                        <div class="cc-sec cc-sec-gap"><i class="bi bi-clock-history"></i> Record Info</div>
+                        <div class="cc-ts-grid">
+                            <div class="cc-ts-cell">
+                                <div class="cc-ts-label">Created By</div>
+                                <div class="cc-ts-val"><i class="bi bi-person-fill"></i> @Model.CreatedByName</div>
+                            </div>
+                            <div class="cc-ts-cell">
+                                <div class="cc-ts-label">Created At</div>
+                                <div class="cc-ts-val"><i class="bi bi-calendar-check"></i> @Model.CreatedAt.ToString("MMM dd, yyyy")</div>
+                            </div>
+                            <div class="cc-ts-cell">
+                                <div class="cc-ts-label">Category ID</div>
+                                <div class="cc-ts-val"><i class="bi bi-hash"></i> @Model.Id</div>
+                            </div>
+                        </div>
+                        }
+
+                        <!-- Actions -->
+                        <div class="cc-actions">
+                            <button type="submit" class="btn-submit">
+                                <i class="bi bi-check-circle-fill"></i>
+                                @(isEdit ? "Save Changes" : "Create Category")
+                            </button>
+                            <a asp-controller="Category" asp-action="Index" class="btn-cancel">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+
+                    </div>
+                    <!-- ════ END LEFT ════ -->
+
+                    <!-- ════ RIGHT: image panel ════ -->
+                    <div class="cc-right">
+
+                        <div class="cc-img-heading">
+                            <i class="bi bi-image-fill"></i> Category Image
+                        </div>
+
+                        <!-- Preview box -->
+                        <div class="cc-img-box" onclick="document.getElementById('imageUpload').click();">
+                            @if (!string.IsNullOrEmpty(Model.CategoryImageUrl))
+                            {
+                            <img id="imagePreview"
+                                 src="~/Category/@Model.CategoryImageUrl"
+                                 alt="Category image" />
+                            <div id="imgEmpty" class="cc-img-empty" style="display:none;">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <span>Click to<br>upload image</span>
+                            </div>
+                            }
+                            else
+                            {
+                            <div id="imgEmpty" class="cc-img-empty">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <span>Click to<br>upload image</span>
+                            </div>
+                            <img id="imagePreview" src="" alt="Category image" style="display:none;" />
+                            }
+                            <div class="cc-img-cover">
+                                <i class="bi bi-camera-fill"></i>
+                                <span>@(isEdit ? "Change image" : "Choose image")</span>
+                            </div>
+                        </div>
+
+                        <input type="file" name="ImageFile" id="imageUpload"
+                               style="display:none;" accept="image/*" onchange="previewImg(event)" />
+
+                        <div class="cc-img-divider"></div>
+
+                        <!-- Action buttons -->
+                        <div class="cc-img-btns">
+                            <button type="button" class="btn-img-pick"
+                                    onclick="document.getElementById('imageUpload').click();">
+                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                                @(string.IsNullOrEmpty(Model.CategoryImageUrl) ? "Choose Image" : "Change Image")
+                            </button>
+                            <button type="button" class="btn-img-remove" id="removeImgBtn"
+                                    onclick="removeImg()"
+                                    style="@(string.IsNullOrEmpty(Model.CategoryImageUrl) ? "display:none;" : "")">
+                                <i class="bi bi-trash3"></i> Remove Image
+                            </button>
+                        </div>
+
+                        <!-- Hints -->
+                        <div class="cc-img-hints">
+                            <span><i class="bi bi-file-earmark-image"></i> JPG, PNG or GIF · Max 2 MB</span>
+                            <span><i class="bi bi-aspect-ratio"></i> Recommended 500 × 500 px</span>
+                            <span><i class="bi bi-info-circle"></i> Image is optional</span>
+                        </div>
+
+                        <!-- Selected filename -->
+                        <div class="cc-fname" id="fileNameRow">
+                            <i class="bi bi-paperclip"></i>
+                            <span id="selectedFileName"></span>
+                        </div>
+
+                        <!-- Tips card -->
+                        <div class="cc-tips">
+                            <div class="cc-tips-title"><i class="fas fa-lightbulb"></i> Tips</div>
+                            <div class="cc-tip">
+                                <span class="cc-tip-dot"></span>
+                                Use a short, memorable name so customers can find items easily.
+                            </div>
+                            <div class="cc-tip">
+                                <span class="cc-tip-dot"></span>
+                                A clear image boosts category visibility in menus.
+                            </div>
+                            <div class="cc-tip">
+                                <span class="cc-tip-dot"></span>
+                                Set to <strong>Active</strong> only when the category is ready to go live.
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- ════ END RIGHT ════ -->
+
+                </div><!-- /.cc-panels -->
+            </form>
+        </div><!-- /.cc-form-area -->
+
+    </div><!-- /.cc-wrap -->
+</div><!-- /.cc-page -->
+
+@section Scripts {
 <script>
-    // Fixed Image preview function
-    function previewImage(event) {
-        const reader = new FileReader();
-        const file = event.target.files[0];
-        const imagePreview = document.getElementById('imagePreview');
-        const noImagePlaceholder = document.getElementById('noImagePlaceholder');
-        const removeImageField = document.getElementById('removeImage');
+    /* ── Image preview ── */
+    function previewImg(e) {
+        const file  = e.target.files[0];
+        const img   = document.getElementById('imagePreview');
+        const empty = document.getElementById('imgEmpty');
+        const rmBtn = document.getElementById('removeImgBtn');
+        const fname = document.getElementById('selectedFileName');
+        const frow  = document.getElementById('fileNameRow');
+        const rflag = document.getElementById('removeImageField');
 
-        if (file) {
-            // Validate file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size must be less than 2MB');
-                event.target.value = '';
-                return;
-            }
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { alert('File must be under 2 MB.'); e.target.value = ''; return; }
+        if (!file.type.match('image.*'))  { alert('Please select an image file.'); e.target.value = ''; return; }
 
-            // Validate file type
-            if (!file.type.match('image.*')) {
-                alert('Please select an image file');
-                event.target.value = '';
-                return;
-            }
-
-            reader.onload = function(e) {
-                // Show image preview and hide placeholder
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = "block";
-                noImagePlaceholder.style.display = "none";
-
-                // If we're removing an image, this new selection overrides that
-                if (removeImageField) {
-                    removeImageField.value = 'false';
-                }
-
-                // Add animation effect
-                imagePreview.style.animation = "fadeIn 0.5s";
-
-                // Remove animation after it completes
-                setTimeout(() => {
-                    imagePreview.style.animation = "";
-                }, 500);
-            };
-
-            reader.readAsDataURL(file);
-        } else {
-            // If no file selected, show placeholder and hide preview
-            imagePreview.style.display = "none";
-            noImagePlaceholder.style.display = "flex";
-        }
+        const r = new FileReader();
+        r.onload = ev => {
+            img.src           = ev.target.result;
+            img.style.display = 'block';
+            if (empty) empty.style.display = 'none';
+            rflag.value       = 'false';
+            fname.textContent = file.name;
+            frow.style.display = 'flex';
+            if (rmBtn) rmBtn.style.display = 'flex';
+            img.style.animation = 'ccFade .35s ease';
+            setTimeout(() => img.style.animation = '', 350);
+        };
+        r.readAsDataURL(file);
     }
-    
 
-    // Status toggle label update
-    document.addEventListener('DOMContentLoaded', function() {
-        const statusToggle = document.getElementById('statusToggle');
-        const statusLabel = document.getElementById('statusLabel');
-        const statusBadge = document.getElementById('statusBadge');
+    function removeImg() {
+        const img   = document.getElementById('imagePreview');
+        const empty = document.getElementById('imgEmpty');
+        const rmBtn = document.getElementById('removeImgBtn');
+        const frow  = document.getElementById('fileNameRow');
+        const rflag = document.getElementById('removeImageField');
+        const inp   = document.getElementById('imageUpload');
 
-        if (statusToggle) {
-            // Initial setup
-            updateStatusDisplay(statusToggle.checked);
+        inp.value             = '';
+        img.src               = '';
+        img.style.display     = 'none';
+        if (empty) empty.style.display = 'flex';
+        rflag.value           = 'true';
+        frow.style.display    = 'none';
+        if (rmBtn) rmBtn.style.display = 'none';
+    }
 
-            statusToggle.addEventListener('change', function() {
-                updateStatusDisplay(this.checked);
-            });
+    /* ── Status chip ── */
+    document.addEventListener('DOMContentLoaded', function () {
+        const sw   = document.getElementById('statusSwitch');
+        const chip = document.getElementById('statusChip');
+
+        function syncChip(on) {
+            chip.innerHTML = `<i class="bi bi-circle-fill" style="font-size:6px;"></i> ${on ? 'Active' : 'Inactive'}`;
+            chip.className = 'cc-status-chip ' + (on ? 'active' : 'inactive');
         }
 
-        function updateStatusDisplay(isActive) {
-            if (isActive) {
-                statusLabel.innerText = 'Active';
-                statusBadge.innerText = 'Published';
-                statusBadge.className = 'badge bg-success px-3 py-2';
-            } else {
-                statusLabel.innerText = 'Inactive';
-                statusBadge.innerText = 'Draft';
-                statusBadge.className = 'badge bg-secondary px-3 py-2';
-            }
+        if (sw) { syncChip(sw.checked); sw.addEventListener('change', () => syncChip(sw.checked)); }
+
+        /* Auto-resize textarea */
+        const ta = document.querySelector('.cc-area');
+        if (ta) {
+            const resize = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+            resize();
+            ta.addEventListener('input', resize);
         }
 
-        // Form validation
-        const forms = document.querySelectorAll('.needs-validation');
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+        /* Form validation */
+        document.querySelectorAll('.needs-validation').forEach(form => {
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
                 form.classList.add('was-validated');
             }, false);
         });
-
-        // Handle reset button
-        const resetBtn = document.querySelector('button[type="reset"]');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const form = this.closest('form');
-                form.reset();
-
-                // Reset image preview to original state
-                const imagePreview = document.getElementById('imagePreview');
-                const noImagePlaceholder = document.getElementById('noImagePlaceholder');
-                const removeImageField = document.getElementById('removeImage');
-
-                @if (!string.IsNullOrEmpty(Model.CategoryImageUrl))
-                {
-                    <text>
-                    imagePreview.src = '@Url.Content(Model.CategoryImageUrl)';
-                    imagePreview.style.display = "block";
-                    noImagePlaceholder.style.display = "none";
-                    if (removeImageField) {
-                        removeImageField.value = 'false';
-                    }
-                    </text>
-                }
-                else
-                {
-                    <text>
-                    imagePreview.style.display = "none";
-                    noImagePlaceholder.style.display = "flex";
-                    if (removeImageField) {
-                        removeImageField.value = 'false';
-                    }
-                    </text>
-                }
-            });
-        }
     });
-
-    // CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-    @@keyframes fadeIn {
-        from { 
-            opacity: 0; 
-            transform: scale(0.9); 
-        }
-        to { 
-            opacity: 1; 
-            transform: scale(1); 
-        }
-    }
-`;
-    document.head.appendChild(style);
 </script>
+}

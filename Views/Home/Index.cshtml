@@ -1228,7 +1228,7 @@
             <a asp-controller="Order" asp-action="CreateOrder" class="btn-tp btn-tp-accent">
                 <i class="fas fa-plus"></i> Create Order
             </a>
-            <button type="button" onclick="downloadPDF()" class="btn-tp btn-tp-danger">
+            <button type="button" onclick="downloadSalesReport()" class="btn-tp btn-tp-danger">
                 <i class="fas fa-file-pdf"></i> Export PDF
             </button>
         </div>
@@ -1761,7 +1761,8 @@
         }
 
         /* PDF Export */
-        async function downloadPDF() {
+        /* PDF Export */
+        async function downloadSalesReport() {
             document.getElementById("pdfOverlay").classList.add("show");
             await new Promise(function (resolve) {
                 setTimeout(resolve, 60);
@@ -1782,181 +1783,319 @@
                     year: "numeric"
                 }) + " " + now.toLocaleTimeString("en-US", {
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
+                    hour12: true
                 });
 
-                // Header
+                // Get current month and previous month names
+                const currentMonth = now.toLocaleString('default', { month: 'long' });
+                const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+                    .toLocaleString('default', { month: 'long' });
+
+                // HEADER SECTION
                 doc.setFillColor(255, 107, 53);
                 doc.rect(0, 0, 297, 22, "F");
+
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(16);
                 doc.setFont("helvetica", "bold");
-                doc.text("Order Management Report", 14, 10);
+                doc.text("Sales Performance Report", 14, 10);
+
                 doc.setFontSize(9);
                 doc.setFont("helvetica", "normal");
                 doc.text("Generated: " + printed, 14, 17);
                 doc.text("Sandoo Chicken", 297 - 14, 17, {align: "right"});
 
-                // KPI Cards
-                const allTableRows = document.querySelectorAll("#ordersTable tbody tr");
-                let totalOrders = 0, totalRevenue = 0;
+                // EXTRACT REAL DATA FROM TABLE ROWS
+                const tableRows = document.querySelectorAll('.order-row');
+                let orders = [];
+                let totalRevenue = 0;
+                let totalOrders = 0;
+                let totalDiscount = 0;
+                let currentMonthRevenue = 0;
+                let currentMonthOrders = 0;
+                let previousMonthRevenue = 0;
+                let previousMonthOrders = 0;
 
-                allTableRows.forEach(function (row) {
-                    totalRevenue += parseFloat($(row).data('total')) || 0;
+                const currentYear = now.getFullYear();
+                const currentMonthIndex = now.getMonth();
+                const previousMonthIndex = currentMonthIndex - 1;
+                const previousMonthYear = previousMonthIndex < 0 ? currentYear - 1 : currentYear;
+
+                tableRows.forEach(function(row) {
+                    const orderDate = new Date(row.dataset.date);
+                    const orderTotal = parseFloat(row.dataset.total) || 0;
+                    const orderNumber = row.dataset.orderNum || '';
+                    const displayDate = row.dataset.displayDate || '';
+                    const items = parseInt(row.dataset.items) || 0;
+                    const status = row.dataset.status || 'Paid';
+                    const discount = parseFloat(document.querySelector(`[data-order-id="${row.dataset.orderId}"] .disc-badge`)?.innerText.replace('$', '') || '0');
+
+                    // Extract month from date
+                    const month = orderDate.toLocaleString('default', { month: 'short' });
+
+                    orders.push({
+                        orderNo: orderNumber,
+                        date: displayDate,
+                        month: month,
+                        items: items,
+                        total: orderTotal,
+                        status: status,
+                        discount: discount
+                    });
+
+                    totalRevenue += orderTotal;
                     totalOrders++;
+                    totalDiscount += discount;
+
+                    // Check if order belongs to current month
+                    if (orderDate.getMonth() === currentMonthIndex &&
+                        orderDate.getFullYear() === currentYear) {
+                        currentMonthRevenue += orderTotal;
+                        currentMonthOrders++;
+                    }
+                    // Check if order belongs to previous month
+                    else if (orderDate.getMonth() === (previousMonthIndex + 12) % 12 &&
+                        orderDate.getFullYear() === previousMonthYear) {
+                        previousMonthRevenue += orderTotal;
+                        previousMonthOrders++;
+                    }
                 });
 
-                const totalDiscountElement = document.querySelector('.stat-card.sc-accent .stat-value');
-                const totalDiscount = parseFloat(totalDiscountElement ? totalDiscountElement.textContent.replace(/[$,]/g, '') : '0') || 0;
-                const avgOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+                // Calculate growth percentages
+                const revenueGrowth = previousMonthRevenue > 0
+                    ? ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue * 100)
+                    : currentMonthRevenue > 0 ? 100 : 0;
 
+                const ordersGrowth = previousMonthOrders > 0
+                    ? ((currentMonthOrders - previousMonthOrders) / previousMonthOrders * 100)
+                    : currentMonthOrders > 0 ? 100 : 0;
+
+                // Calculate average order value
+                const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+                // Calculate current month share
+                const currentMonthShare = totalRevenue > 0 ? (currentMonthRevenue / totalRevenue * 100) : 0;
+
+                // KPI CARDS
                 const kpis = [
-                    {label: "Total Orders", value: String(totalOrders), color: [255, 107, 53]},
-                    {label: "Total Revenue", value: "$" + totalRevenue.toFixed(2), color: [0, 184, 148]},
-                    {label: "Avg. Order", value: "$" + avgOrder.toFixed(2), color: [45, 53, 97]},
-                    {label: "Total Discount", value: "$" + totalDiscount.toFixed(2), color: [253, 203, 110]}
+                    {label: `${currentMonth} Revenue`, value: "$" + currentMonthRevenue.toFixed(2), color: [255, 107, 53]},
+                    {label: `${previousMonth} Revenue`, value: "$" + previousMonthRevenue.toFixed(2), color: [0, 184, 148]},
+                    {label: "Revenue Growth", value: revenueGrowth.toFixed(1) + "%", color: [45, 53, 97]},
+                    {label: "Orders Growth", value: ordersGrowth.toFixed(1) + "%", color: [253, 203, 110]}
                 ];
 
                 const kpiWidth = (297 - 28 - 9) / 4;
 
                 kpis.forEach(function (kpi, index) {
                     const xPos = 14 + index * (kpiWidth + 3);
+
+                    // Main card
                     doc.setFillColor(kpi.color[0], kpi.color[1], kpi.color[2]);
                     doc.roundedRect(xPos, 26, kpiWidth, 18, 3, 3, "F");
+
                     doc.setTextColor(255, 255, 255);
                     doc.setFontSize(8);
                     doc.setFont("helvetica", "normal");
                     doc.text(kpi.label.toUpperCase(), xPos + 4, 32);
-                    doc.setFontSize(13);
+
+                    doc.setFontSize(11);
                     doc.setFont("helvetica", "bold");
                     doc.text(kpi.value, xPos + 4, 40);
                 });
 
-                // Monthly Summary
+                // MONTHLY COMPARISON SECTION
                 doc.setTextColor(26, 23, 20);
-                doc.setFontSize(9);
+                doc.setFontSize(10);
                 doc.setFont("helvetica", "bold");
-                doc.text("Monthly Summary (" + MONTH_NAME + ")", 14, 52);
+                doc.text("Monthly Sales Comparison", 14, 52);
                 doc.setDrawColor(237, 232, 224);
                 doc.setLineWidth(0.3);
                 doc.line(14, 54, 283, 54);
 
-                const dayLabels = [];
-                for (let i = 0; i < DAILY_REVENUE.length; i++) {
-                    if (DAILY_REVENUE[i] > 0) {
-                        dayLabels.push({
-                            day: i + 1,
-                            revenue: DAILY_REVENUE[i],
-                            count: DAILY_COUNTS[i]
-                        });
-                    }
-                }
-
-                if (dayLabels.length > 0) {
-                    const tableBody = dayLabels.map(function (item) {
-                        return [item.day, item.count, "$" + item.revenue.toFixed(2)];
-                    });
-
-                    doc.autoTable({
-                        startY: 56,
-                        head: [["Day", "Orders", "Revenue ($)"]],
-                        body: tableBody,
-                        styles: {fontSize: 8, cellPadding: 2},
-                        headStyles: {
-                            fillColor: [255, 107, 53],
-                            textColor: 255,
-                            fontStyle: "bold",
-                            fontSize: 8
-                        },
-                        columnStyles: {
-                            0: {cellWidth: 15},
-                            1: {cellWidth: 18},
-                            2: {cellWidth: 28}
-                        },
-                        tableWidth: 65,
-                        margin: {left: 14},
-                        theme: "striped",
-                        alternateRowStyles: {fillColor: [255, 240, 234]}
+                // Calculate last 3 months data
+                const months = [];
+                for (let i = 2; i >= 0; i--) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    months.push({
+                        name: d.toLocaleString('default', { month: 'short', year: 'numeric' }),
+                        orders: 0,
+                        revenue: 0
                     });
                 }
 
-                // Order Details Table
-                const lastY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 56;
-                const tableStartY = lastY + 8;
+                // Populate months data from actual orders
+                tableRows.forEach(function(row) {
+                    const orderDate = new Date(row.dataset.date);
+                    const orderTotal = parseFloat(row.dataset.total) || 0;
 
-                doc.setFontSize(9);
-                doc.setFont("helvetica", "bold");
-                doc.setTextColor(26, 23, 20);
-                doc.text("Order Details", 14, tableStartY - 2);
-
-                const visibleRows = Array.from(document.querySelectorAll("#ordersTable tbody tr"))
-                    .filter(function (row) {
-                        return row.style.display !== "none";
+                    months.forEach((month, index) => {
+                        const monthDate = new Date(now.getFullYear(), now.getMonth() - (2 - index), 1);
+                        if (orderDate.getMonth() === monthDate.getMonth() &&
+                            orderDate.getFullYear() === monthDate.getFullYear()) {
+                            month.revenue += orderTotal;
+                            month.orders++;
+                        }
                     });
-
-                const tableBodyData = visibleRows.map(function (row, idx) {
-                    const $row = $(row);
-                    return [
-                        idx + 1,
-                        ($row.data('order-num') || "") + "\nID: " + ($row.data('order-id') || ""),
-                        $row.data('display-date') || "",
-                        ($row.data('items') || 0) + " items",
-                        "$" + parseFloat($row.data('total') || 0).toFixed(2),
-                        $row.data('status') || "",
-                        "$" + parseFloat($row.data('cash') || 0).toFixed(2),
-                        "$" + parseFloat($row.data('change') || 0).toFixed(2)
-                    ];
                 });
 
-                const totalSum = visibleRows.reduce(function (sum, row) {
-                    return sum + (parseFloat($(row).data('total')) || 0);
-                }, 0);
+                const comparisonData = months.map(month => [
+                    month.name,
+                    month.orders.toString(),
+                    "$" + month.revenue.toFixed(2)
+                ]);
 
                 doc.autoTable({
-                    startY: tableStartY + 2,
-                    head: [["#", "Order No.", "Date", "Items", "Total", "Status", "Cash", "Change"]],
-                    body: tableBodyData,
-                    styles: {fontSize: 8, cellPadding: 3, overflow: "linebreak"},
+                    startY: 56,
+                    head: [["Month", "Orders", "Revenue"]],
+                    body: comparisonData,
+                    styles: {fontSize: 8, cellPadding: 3},
                     headStyles: {
                         fillColor: [255, 107, 53],
                         textColor: 255,
                         fontStyle: "bold",
-                        fontSize: 8
+                        halign: "left"
+                    },
+                    columnStyles: {
+                        0: {cellWidth: 35, halign: "left"},
+                        1: {cellWidth: 20, halign: "center"},
+                        2: {cellWidth: 30, halign: "right"}
+                    },
+                    tableWidth: 95,
+                    margin: {left: 14},
+                    theme: "striped",
+                    alternateRowStyles: {fillColor: [255, 240, 234]}
+                });
+
+                // PERFORMANCE SUMMARY SECTION
+                const lastY = doc.lastAutoTable ? doc.lastAutoTable.finalY : 56;
+
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "bold");
+                doc.text("Performance Summary", 14, lastY + 10);
+
+                const summaryData = [
+                    ["Total Revenue (All Time)", "$" + totalRevenue.toFixed(2)],
+                    ["Total Orders (All Time)", totalOrders.toString()],
+                    ["Total Discount", "$" + totalDiscount.toFixed(2)],
+                    ["Average Order Value", "$" + avgOrderValue.toFixed(2)],
+                    ["Current Month Share", currentMonthShare.toFixed(1) + "% of total"]
+                ];
+
+                doc.autoTable({
+                    startY: lastY + 12,
+                    head: [["Metric", "Value"]],
+                    body: summaryData,
+                    styles: {fontSize: 8, cellPadding: 3},
+                    headStyles: {
+                        fillColor: [45, 53, 97],
+                        textColor: 255,
+                        fontStyle: "bold"
+                    },
+                    columnStyles: {
+                        0: {cellWidth: 45, halign: "left"},
+                        1: {cellWidth: 30, halign: "right"}
+                    },
+                    tableWidth: 85,
+                    margin: {left: 14},
+                    theme: "striped",
+                    alternateRowStyles: {fillColor: [255, 240, 234]}
+                });
+
+                // RECENT ORDER DETAILS SECTION
+                const summaryEndY = doc.lastAutoTable ? doc.lastAutoTable.finalY : lastY + 12;
+                const tableStartY = summaryEndY + 15;
+
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(26, 23, 20);
+                doc.text("Recent Order Details", 14, tableStartY);
+
+                // Get visible/filtered rows or all rows if no filter
+                const visibleRows = Array.from(document.querySelectorAll('.order-row'))
+                    .filter(function(row) {
+                        return row.style.display !== 'none';
+                    })
+                    .slice(0, 20); // Show last 20 orders
+
+                const tableBodyData = visibleRows.map(function (row, idx) {
+                    const orderDate = new Date(row.dataset.date);
+                    const monthName = orderDate.toLocaleString('default', { month: 'short' });
+
+                    return [
+                        (idx + 1).toString(),
+                        row.dataset.orderNum || '',
+                        row.dataset.displayDate || '',
+                        monthName,
+                        row.dataset.items + ' items',
+                        '$' + parseFloat(row.dataset.total || 0).toFixed(2),
+                        row.dataset.status || 'Paid'
+                    ];
+                });
+
+                doc.autoTable({
+                    startY: tableStartY + 4,
+                    head: [["#", "Order No.", "Date", "Month", "Items", "Total", "Status"]],
+                    body: tableBodyData,
+                    styles: {
+                        fontSize: 7,
+                        cellPadding: 2,
+                        lineColor: [220, 220, 220],
+                        lineWidth: 0.05
+                    },
+                    headStyles: {
+                        fillColor: [255, 107, 53],
+                        textColor: 255,
+                        fontStyle: "bold",
+                        halign: "center",
+                        fontSize: 7
                     },
                     columnStyles: {
                         0: {cellWidth: 8, halign: "center"},
-                        1: {cellWidth: 42},
-                        2: {cellWidth: 28},
-                        3: {cellWidth: 20, halign: "center"},
-                        4: {cellWidth: 24, halign: "right"},
-                        5: {cellWidth: 24, halign: "center"},
-                        6: {cellWidth: 24, halign: "right"},
-                        7: {cellWidth: 24, halign: "right"}
+                        1: {cellWidth: 45, halign: "left"},
+                        2: {cellWidth: 22, halign: "left"},
+                        3: {cellWidth: 15, halign: "center"},
+                        4: {cellWidth: 15, halign: "center"},
+                        5: {cellWidth: 18, halign: "right"},
+                        6: {cellWidth: 18, halign: "center"}
                     },
-                    theme: "striped",
+                    theme: "grid",
                     alternateRowStyles: {fillColor: [255, 240, 234]},
                     didParseCell: function (data) {
-                        if (data.section === "body" && data.column.index === 5) {
+                        if (data.section === "body" && data.column.index === 6) {
                             const text = (data.cell.raw || "").toString().toLowerCase();
                             if (text.includes("paid")) {
                                 data.cell.styles.textColor = [0, 122, 86];
+                                data.cell.styles.fontStyle = "bold";
                             } else if (text.includes("pending")) {
                                 data.cell.styles.textColor = [154, 104, 0];
                             } else if (text.includes("cancel")) {
                                 data.cell.styles.textColor = [192, 57, 43];
                             }
                         }
-                    },
-                    foot: [["", "", "", "", "$" + totalSum.toFixed(2), "", "", ""]],
-                    footStyles: {
-                        fillColor: [255, 240, 234],
-                        textColor: [26, 23, 20],
-                        fontStyle: "bold",
-                        fontSize: 8
+                        if (data.section === "body" && data.column.index === 1) {
+                            data.cell.styles.fontSize = 6;
+                            data.cell.styles.fontStyle = "courier";
+                        }
+                        if (data.section === "body" && data.column.index === 5) {
+                            data.cell.styles.fontStyle = "bold";
+                        }
                     }
                 });
 
-                // Page Numbers
+                // Add status summary boxes at bottom
+                const bottomY = 170;
+
+                // Calculate status counts
+                const paidCount = Array.from(document.querySelectorAll('.order-row')).filter(
+                    row => row.dataset.status?.toLowerCase().includes('paid')).length;
+                const pendingCount = Array.from(document.querySelectorAll('.order-row')).filter(
+                    row => row.dataset.status?.toLowerCase().includes('pending')).length;
+                const canceledCount = Array.from(document.querySelectorAll('.order-row')).filter(
+                    row => row.dataset.status?.toLowerCase().includes('cancel')).length;
+                
+
+                // FOOTER
                 const pageCount = doc.internal.getNumberOfPages();
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
@@ -1964,10 +2103,12 @@
                     doc.setTextColor(181, 175, 168);
                     doc.setFont("helvetica", "normal");
                     doc.text("Page " + i + " of " + pageCount, 297 - 14, 205, {align: "right"});
-                    doc.text("Sandoo Chicken — Order Report", 14, 205);
+                    doc.text("Sandoo Chicken — Sales Report", 14, 205);
                 }
 
-                const fileName = "orders-" + now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + ".pdf";
+                const fileName = "sales-report-" + now.getFullYear() + "-" +
+                    String(now.getMonth() + 1).padStart(2, "0") + "-" +
+                    String(now.getDate()).padStart(2, "0") + ".pdf";
                 doc.save(fileName);
 
             } catch (err) {
@@ -1976,7 +2117,7 @@
             } finally {
                 document.getElementById("pdfOverlay").classList.remove("show");
             }
-        }
+}
 
         // Global functions
         function viewOrder(id) {

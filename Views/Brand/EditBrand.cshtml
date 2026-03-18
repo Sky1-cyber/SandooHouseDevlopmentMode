@@ -1,518 +1,644 @@
 ﻿@model Sandoohouse.Models.ModelViewer.BrandModelViewer.BrandViewerModel
-
 @{
     ViewData["Title"] = "Edit Brand";
 }
 
-<!-- Add Bootstrap Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<div class="page-inner">
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Edit Brand</h3>
-        <ul class="breadcrumbs mb-3">
-            <li class="nav-home">
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a asp-controller="Brand" asp-action="Index">Brand</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">Edit Brand</li>
-        </ul>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-11">
-            <!-- Main Form Card -->
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <!-- Card Header with Gradient -->
-                <div class="card-header bg-gradient-primary text-white border-0 py-4">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-opacity-25 p-3 me-3">
-                            <i class="bi bi-pencil-square fs-3"></i>
-                        </div>
-                        <div>
-                            <h4 class="mb-1 fw-bold">Edit Brand: @Model.BrandName</h4>
-                            <p class="mb-0 small opacity-75">Update brand information</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-5">
-                    <form asp-action="EditBrand" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                        <!-- Hidden ID field -->
-                        <input type="hidden" asp-for="Id" />
-                        
-                        <div class="row">
-                            <!-- Left Column: Form Fields -->
-                            <div class="col-lg-7">
-                                <div class="row g-4">
-                                    <!-- Brand Name -->
-                                    <div class="col-md-12">
-                                        <label class="form-label fw-semibold text-muted">
-                                            Brand Name <span class="text-danger">*</span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-2">
-                                                <i class="bi bi-tag text-primary"></i>
-                                            </span>
-                                            <input asp-for="BrandName"
-                                                   class="form-control form-control-lg border-2 @(ViewData.ModelState["BrandName"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                                   placeholder="e.g., Nike, Adidas, Apple" />
-                                        </div>
-                                        <span asp-validation-for="BrandName" class="text-danger small"></span>
-                                    </div>
-
-                                    <!-- Description -->
-                                    <div class="col-md-12">
-                                        <label class="form-label fw-semibold text-muted">
-                                            Description
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-2">
-                                                <i class="bi bi-card-text text-primary"></i>
-                                            </span>
-                                            <textarea asp-for="Description"
-                                                      class="form-control form-control-lg border-2"
-                                                      rows="4"
-                                                      placeholder="Enter brand description..."></textarea>
-                                        </div>
-                                        <span asp-validation-for="Description" class="text-danger small"></span>
-                                        <div class="form-text">
-                                            <i class="bi bi-info-circle me-1"></i>Brief description of the brand (optional)
-                                        </div>
-                                    </div>
-
-                                    <!-- Status Toggle -->
-                                    <div class="col-12 mt-4">
-                                        <div class="bg-light rounded-3 p-4">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-grow-1">
-                                                    <h6 class="fw-bold mb-1">
-                                                        <i class="bi bi-toggle-on text-primary me-2"></i>Brand Status
-                                                    </h6>
-                                                    <p class="text-muted small mb-0">Enable to make this brand visible and available</p>
-                                                </div>
-                                                <div class="form-check form-switch ms-3">
-                                                    <input asp-for="Status" class="form-check-input" type="checkbox" style="width: 3rem; height: 1.5rem;" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Timestamps Information -->
-                                    <div class="col-12 mt-3">
-                                        <div class="alert alert-info bg-opacity-10 border-0 rounded-3">
-                                            <div class="d-flex align-items-center mb-2">
-                                                <i class="bi bi-clock-history me-2 fs-5"></i>
-                                                <span class="fw-semibold">Timestamps</span>
-                                            </div>
-                                            <div class="row g-2 small">
-                                                <div class="col-6">
-                                                    <span class="text-muted">Created:</span>
-                                                    <span class="fw-semibold ms-1">@Model.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</span>
-                                                </div>
-                                                <div class="col-6">
-                                                    <span class="text-muted">Last Updated:</span>
-                                                    <span class="fw-semibold ms-1">
-                                                        @(Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt") ?? "Never")
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Right Column: Logo Upload -->
-                            <div class="col-lg-5">
-                                <div class="sticky-top" style="top: 2rem;">
-                                    <div class="card border-0 bg-light rounded-4 p-4">
-                                        <div class="text-center">
-                                            <label class="form-label fw-semibold text-muted mb-3">
-                                                <i class="bi bi-image text-primary me-2"></i>Brand Logo
-                                            </label>
-
-                                            <!-- Logo Upload Area -->
-                                            <div class="position-relative d-inline-block w-100">
-                                                <div class="brand-logo-wrapper rounded-4 border-4 border-primary shadow-lg mx-auto"
-                                                     style="width: 250px; height: 250px; overflow: hidden; cursor: pointer;"
-                                                     onclick="document.getElementById('logoInput').click();">
-                                                    <img id="previewImage"
-                                                         src="@(string.IsNullOrEmpty(Model.LogoBrandUrl) ? "~/no-image.png.jpg" : Url.Content($"~/BrandImage/{Model.LogoBrandUrl}"))"
-                                                         class="w-100 h-100"
-                                                         alt="Brand Logo"
-                                                         style="object-fit: cover;" />
-                                                    <div class="brand-logo-overlay">
-                                                        <i class="bi bi-camera-fill text-white fs-1"></i>
-                                                        <span class="d-block text-white mt-2 small">Click to change</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Current Logo Info (if exists) -->
-                                            @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
-                                            {
-                                                <div class="mt-3 p-2 bg-white rounded-3">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                                        <div class="text-start small">
-                                                            <span class="d-block text-muted">Current logo:</span>
-                                                            <span class="fw-semibold">@Model.LogoBrandUrl</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            }
-
-                                            <!-- Logo Input -->
-                                            <input asp-for="LogoFile"
-                                                   id="logoInput"
-                                                   type="file"
-                                                   class="d-none"
-                                                   accept="image/*"
-                                                   onchange="previewFile(event)" />
-
-                                            <!-- Upload Buttons -->
-                                            <div class="mt-4">
-                                                <label for="logoInput" class="btn btn-outline-primary rounded-pill w-100">
-                                                    <i class="bi bi-cloud-upload me-2"></i>Change Logo
-                                                </label>
-                                                @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
-                                                {
-                                                    <button type="button" class="btn btn-outline-danger rounded-pill w-100 mt-2" onclick="removeLogo()">
-                                                        <i class="bi bi-trash me-2"></i>Remove Logo
-                                                    </button>
-                                                }
-                                                <p class="text-muted small mt-3 mb-0">
-                                                    <i class="bi bi-info-circle me-1"></i>JPG, PNG, GIF up to 2MB
-                                                </p>
-                                                <p class="text-muted small mb-0">
-                                                    <i class="bi bi-arrows-angle-expand me-1"></i>Recommended 500x500px
-                                                </p>
-                                            </div>
-
-                                            <!-- File Name Display -->
-                                            <div id="fileNameDisplay" class="mt-2 text-muted small" style="display: none;">
-                                                <i class="bi bi-file-image me-1"></i>
-                                                <span id="selectedFileName"></span>
-                                            </div>
-
-                                            <!-- Hidden field to track logo removal -->
-                                            <input type="hidden" asp-for="LogoBrandUrl" id="currentLogoUrl" />
-                                            <input type="hidden" name="RemoveLogo" id="removeLogoFlag" value="false" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="row mt-5 g-3">
-                            <div class="col-md-6">
-                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill shadow-sm hover-scale">
-                                    <i class="bi bi-check-circle me-2"></i>Update Brand
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <a asp-controller="Brand" asp-action="Index"
-                                   class="btn btn-outline-danger w-100 py-3 rounded-pill">
-                                    <i class="bi bi-x-circle me-2"></i>Cancel
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-    /* Custom Styles - Matching Create View */
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+:root {
+    --brand:        #FF6B35;
+    --brand-dark:   #E85520;
+    --brand-light:  #FFF0EA;
+    --brand-mid:    rgba(255,107,53,.13);
+    --accent:       #1C2340;
+    --accent2:      #2D3561;
+    --success:      #00B894;
+    --success-bg:   rgba(0,184,148,.1);
+    --warning:      #F0A500;
+    --warning-bg:   rgba(240,165,0,.1);
+    --danger:       #E84545;
+    --danger-bg:    rgba(232,69,69,.1);
+    --bg:           #F2EFE9;
+    --surface:      #FFFFFF;
+    --surface2:     #FAF8F5;
+    --surface3:     #F4F1EC;
+    --border:       #EAE5DC;
+    --border-s:     #D8D2C8;
+    --text:         #18150F;
+    --text-sub:     #6E685F;
+    --text-light:   #AEA89F;
+    --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+    --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+    --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+    --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+    --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+    --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+    --font: 'Sora', sans-serif;
+}
 
-    .card-body {
-        border: 1px solid #e9ecef;
-        background: #ffffff;
-    }
+*, *::before, *::after { box-sizing: border-box; }
 
-    .brand-logo-wrapper {
-        border: 4px solid #0d6efd;
-        transition: all 0.3s ease;
-        position: relative;
-    }
+.eb-page {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+    padding: 28px 24px;
+    color: var(--text);
+}
 
-    .brand-logo-wrapper:hover {
-        transform: scale(1.02);
-        border-color: #0b5ed7;
-    }
+/* ── Top bar ── */
+.eb-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+    max-width: 1020px; margin-left: auto; margin-right: auto;
+}
+.eb-topbar-left h1 {
+    font-size: 20px; font-weight: 700; color: var(--text);
+    margin: 0 0 5px; letter-spacing: -.4px;
+}
+.eb-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+}
+.eb-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+.eb-breadcrumb a:hover { color: var(--brand); }
+.eb-breadcrumb .sep { color: var(--border-s); }
+.eb-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
 
-    .brand-logo-wrapper:hover .brand-logo-overlay {
-        opacity: 1;
-    }
+/* ── Outer wrapper ── */
+.eb-wrap {
+    max-width: 1020px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
 
-    .brand-logo-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        border-radius: 1rem;
-    }
+/* ── Hero header strip ── */
+.eb-hero {
+    background: var(--accent);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    padding: 32px 36px;
+    display: flex; align-items: center; gap: 20px;
+    position: relative; overflow: hidden;
+}
+.eb-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+}
+/* Decorative circles */
+.eb-hero::after {
+    content: '';
+    position: absolute; width: 280px; height: 280px;
+    border-radius: 50%; background: rgba(255,107,53,.08);
+    top: -100px; right: -60px; pointer-events: none;
+}
 
-    .input-group {
-        border: 1px solid #dee2e6;
-        border-radius: 0.6rem;
-    }
+.eb-hero-badge {
+    width: 58px; height: 58px; border-radius: 16px;
+    background: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: #fff;
+    flex-shrink: 0; z-index: 1;
+    box-shadow: var(--shadow-brand);
+}
+.eb-hero-text { z-index: 1; flex: 1; }
+.eb-hero-text h2 {
+    font-size: 20px; font-weight: 800; color: #fff;
+    margin: 0 0 5px; letter-spacing: -.3px; line-height: 1.2;
+}
+.eb-hero-text p { font-size: 12px; color: rgba(255,255,255,.5); margin: 0; font-weight: 500; }
 
-    .input-group:focus-within {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
-    }
+/* Status chip in hero */
+.eb-hero-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; z-index: 1; flex-shrink: 0;
+}
+.eb-hero-status.active   { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.25); }
+.eb-hero-status.inactive { background: rgba(255,255,255,.08); color: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.12); }
 
-    .hover-scale:hover {
-        transform: scale(1.02);
-        transition: 0.2s;
-    }
+/* Extra circle behind left */
+.eb-hero-circle {
+    position: absolute; width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,.03); bottom: -80px; left: 160px; pointer-events: none;
+}
 
-    .hover-scale:hover {
-        transform: translateY(-2px);
-    }
+/* ── Main form area ── */
+.eb-form-area {
+    background: var(--surface);
+    border: 1.5px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
 
-    .border-2 {
-        border-width: 2px !important;
-    }
+/* ── Two-panel layout ── */
+.eb-panels {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    min-height: 520px;
+}
 
-    .border-4 {
-        border-width: 4px !important;
-    }
+/* ── Left panel ── */
+.eb-left-panel {
+    padding: 32px 36px;
+    border-right: 1.5px solid var(--border);
+}
 
-    .form-control-lg, .input-group-text {
-        border-radius: 0.5rem;
-    }
+/* Section heading */
+.eb-sec {
+    font-size: 9px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--text-light);
+    margin: 0 0 18px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+}
+.eb-sec i { font-size: 12px; color: var(--brand); }
 
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
+/* Field */
+.eb-field { margin-bottom: 22px; }
+.eb-label {
+    display: flex; align-items: baseline; gap: 5px;
+    font-size: 11px; font-weight: 700; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: .05em;
+    margin-bottom: 8px;
+}
+.eb-label .req { color: var(--brand); font-size: 14px; line-height: .8; text-transform: none; letter-spacing: 0; }
+.eb-label .opt { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: none; letter-spacing: 0; }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-    }
+.eb-control {
+    display: flex; align-items: stretch;
+    border: 1.5px solid var(--border); border-radius: var(--r-sm);
+    background: var(--surface2); overflow: hidden;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.eb-control:focus-within {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-mid);
+    background: var(--surface);
+}
+.eb-control.err { border-color: var(--danger); }
+.eb-control.err:focus-within { box-shadow: 0 0 0 3px var(--danger-bg); }
 
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #5a6fd6 0%, #6a4292 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
+.eb-prefix {
+    width: 44px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: var(--text-light);
+    border-right: 1.5px solid var(--border); background: var(--surface);
+    transition: color .15s, border-color .15s;
+}
+.eb-control:focus-within .eb-prefix { color: var(--brand); border-color: var(--brand); }
 
-    .btn-outline-primary {
-        border: 2px solid #667eea;
-        color: #667eea;
-    }
+/* align-items: flex-start for textarea variant */
+.eb-control.textarea-mode { align-items: flex-start; }
+.eb-control.textarea-mode .eb-prefix { padding-top: 13px; align-self: flex-start; }
 
-    .btn-outline-primary:hover {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-color: transparent;
-        color: white;
-    }
+.eb-inp {
+    flex: 1; height: 46px; padding: 0 14px;
+    border: none; background: none; outline: none;
+    font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+}
+.eb-inp::placeholder { color: var(--text-light); font-weight: 400; }
 
-    .btn-outline-danger {
-        border: 2px solid #dc3545;
-    }
+.eb-area {
+    flex: 1; padding: 13px 14px; min-height: 100px; resize: vertical;
+    border: none; background: none; outline: none;
+    font-family: var(--font); font-size: 13px; color: var(--text);
+    line-height: 1.65; font-weight: 500;
+}
+.eb-area::placeholder { color: var(--text-light); font-weight: 400; }
 
-    .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-    }
+.eb-val-msg { font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.eb-hint    { font-size: 11px; color: var(--text-light); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
 
-    .rounded-pill {
-        border-radius: 50rem !important;
-    }
+/* ── Status toggle ── */
+.eb-toggle-card {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px;
+    background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+    gap: 16px; transition: border-color .15s;
+}
+.eb-toggle-card:hover { border-color: var(--border-s); }
 
-    .form-check-input:checked {
-        background-color: #667eea;
-        border-color: #667eea;
-    }
+.eb-toggle-desc h6 {
+    font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 3px;
+    display: flex; align-items: center; gap: 7px;
+}
+.eb-toggle-desc h6 i { color: var(--brand); }
+.eb-toggle-desc p { font-size: 11px; color: var(--text-light); margin: 0; }
 
-    .form-check-input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
+.sw-wrap { flex-shrink: 0; }
+.sw-wrap input[type="checkbox"] { display: none; }
+.sw-track {
+    display: block; width: 52px; height: 28px; border-radius: 14px;
+    background: var(--border-s); cursor: pointer;
+    transition: background .22s; position: relative;
+}
+.sw-track::after {
+    content: ''; position: absolute; top: 4px; left: 4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: var(--shadow-sm);
+    transition: transform .22s, box-shadow .22s;
+}
+.sw-wrap input:checked + .sw-track { background: var(--success); }
+.sw-wrap input:checked + .sw-track::after {
+    transform: translateX(24px);
+    box-shadow: 0 3px 10px rgba(0,184,148,.4);
+}
 
-    /* Sticky column */
-    .sticky-top {
-        position: sticky;
-        top: 2rem;
-        z-index: 1;
-    }
+/* ── Timestamps ── */
+.eb-ts-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px;
+}
+.eb-ts-cell {
+    padding: 13px 15px;
+    background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+    position: relative; overflow: hidden;
+}
+.eb-ts-cell::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%; background: var(--brand);
+    border-radius: 0 2px 2px 0;
+}
+.eb-ts-cell-label {
+    font-size: 9px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .09em; color: var(--text-light); margin-bottom: 5px;
+}
+.eb-ts-cell-val {
+    font-size: 12px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+}
+.eb-ts-cell-val i { font-size: 12px; color: var(--brand); }
 
-    /* Animation for preview image */
-    #previewImage {
-        transition: all 0.3s ease;
-    }
+/* ── Action buttons ── */
+.eb-actions {
+    display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap;
+}
+.btn-save {
+    flex: 1; height: 48px; min-width: 160px;
+    background: var(--brand); color: #fff;
+    border: none; border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: var(--shadow-brand); transition: all .18s;
+    letter-spacing: .01em;
+}
+.btn-save:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,53,.4); }
+.btn-save:active { transform: translateY(0); }
 
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
+.btn-discard {
+    flex: 1; height: 48px; min-width: 140px;
+    background: var(--surface); color: var(--text-sub);
+    border: 1.5px solid var(--border); border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 14px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    text-decoration: none; transition: all .18s;
+}
+.btn-discard:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); text-decoration: none; }
 
-    /* Responsive adjustments */
-    @@media (max-width: 768px) {
-        .sticky-top {
-            position: static;
-        }
-        
-        .card-body {
-            padding: 2rem !important;
-        }
-    }
+/* ── RIGHT: logo panel ── */
+.eb-right-panel {
+    background: var(--surface3);
+    padding: 32px 28px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0;
+    border-left: 1.5px solid var(--border);
+}
 
-    /* Validation styling */
-    .field-validation-error {
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
+.eb-logo-heading {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+    color: var(--text-light); margin-bottom: 20px; align-self: flex-start;
+    display: flex; align-items: center; gap: 7px;
+}
+.eb-logo-heading i { color: var(--brand); font-size: 12px; }
 
-    .input-group.has-validation .form-control.is-invalid {
-        border-color: #dc3545;
-    }
+/* Logo preview box */
+.eb-logo-box {
+    width: 200px; height: 200px; border-radius: var(--r-md);
+    overflow: hidden; cursor: pointer;
+    position: relative;
+    border: 2px dashed var(--border-s);
+    background: var(--surface); transition: all .2s;
+    box-shadow: var(--shadow-xs);
+}
+.eb-logo-box:hover { border-color: var(--brand); border-style: solid; box-shadow: var(--shadow-brand); transform: translateY(-2px); }
+.eb-logo-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .input-group.has-validation .form-control.is-invalid:focus {
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-    }
+.eb-logo-cover {
+    position: absolute; inset: 0; border-radius: calc(var(--r-md) - 2px);
+    background: rgba(24,21,15,.55);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    opacity: 0; transition: opacity .2s;
+}
+.eb-logo-cover i    { font-size: 30px; color: #fff; }
+.eb-logo-cover span { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; letter-spacing: .03em; }
+.eb-logo-box:hover .eb-logo-cover { opacity: 1; }
 
-    /* Alert styling */
-    .alert-info {
-        background-color: rgba(102, 126, 234, 0.1);
-        border-left: 4px solid #667eea;
-    }
+/* Current file badge */
+.eb-logo-badge {
+    width: 100%; margin-top: 14px; padding: 9px 12px;
+    background: var(--success-bg); border: 1px solid rgba(0,184,148,.2);
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+}
+.eb-logo-badge i    { color: var(--success); flex-shrink: 0; font-size: 14px; }
+.eb-logo-badge span { color: var(--text-sub); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Divider */
+.eb-logo-div {
+    width: 100%; height: 1px; background: var(--border); margin: 20px 0;
+}
+
+/* Upload / remove buttons */
+.eb-logo-btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+
+.btn-pick {
+    height: 40px; width: 100%;
+    border: 1.5px solid var(--brand); border-radius: var(--r-xl);
+    background: var(--brand-light); color: var(--brand);
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all .16s;
+}
+.btn-pick:hover { background: var(--brand); color: #fff; }
+
+.btn-remove-img {
+    height: 40px; width: 100%;
+    border: 1.5px solid var(--border); border-radius: var(--r-xl);
+    background: none; color: var(--text-light);
+    font-family: var(--font); font-size: 12px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all .16s;
+}
+.btn-remove-img:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+
+/* Hints */
+.eb-logo-hints { margin-top: 16px; width: 100%; display: flex; flex-direction: column; gap: 5px; }
+.eb-logo-hints span {
+    font-size: 11px; color: var(--text-light);
+    display: flex; align-items: center; gap: 6px;
+}
+
+/* File name */
+.eb-fname {
+    margin-top: 12px; font-size: 11px; color: var(--text-sub);
+    display: none; align-items: center; gap: 5px; width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.eb-fname i { color: var(--brand); flex-shrink: 0; }
+
+/* ── Responsive ── */
+@@media (max-width: 820px) {
+    .eb-panels { grid-template-columns: 1fr; }
+    .eb-right-panel { border-left: none; border-top: 1.5px solid var(--border); }
+    .eb-logo-box { width: 160px; height: 160px; }
+    .eb-ts-grid { grid-template-columns: 1fr; }
+}
+@@media (max-width: 600px) {
+    .eb-page { padding: 16px 14px; }
+    .eb-hero { padding: 24px 22px; gap: 14px; }
+    .eb-hero-badge { width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
+    .eb-left-panel { padding: 24px 20px; }
+    .eb-right-panel { padding: 24px 20px; }
+    .eb-hero-text h2 { font-size: 17px; }
+    .eb-actions { flex-direction: column; }
+    .btn-save, .btn-discard { min-width: unset; }
+}
 </style>
 
+<div class="eb-page">
+
+    <!-- Top bar -->
+    <div class="eb-topbar">
+        <div class="eb-topbar-left">
+            <h1>Edit Brand</h1>
+            <nav class="eb-breadcrumb">
+                <a asp-controller="Home"  asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Brand" asp-action="Index">Brand</a>
+                <span class="sep">›</span>
+                <span class="cur">Edit · @Model.BrandName</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="eb-wrap">
+
+        <!-- ── Hero header ── -->
+        <div class="eb-hero">
+            <div class="eb-hero-circle"></div>
+            <div class="eb-hero-badge"><i class="bi bi-pencil-square"></i></div>
+            <div class="eb-hero-text">
+                <h2>@Model.BrandName</h2>
+                <p>Edit brand details · ID #@Model.Id</p>
+            </div>
+            <span class="eb-hero-status @(Model.Status ? "active" : "inactive")">
+                <i class="bi bi-circle-fill" style="font-size:7px;"></i>
+                @(Model.Status ? "Active" : "Inactive")
+            </span>
+        </div>
+
+        <!-- ── Form area ── -->
+        <div class="eb-form-area">
+            <form asp-action="EditBrand" method="post" enctype="multipart/form-data"
+                  class="needs-validation" novalidate>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="eb-panels">
+
+                    <!-- ════ LEFT PANEL ════ -->
+                    <div class="eb-left-panel">
+
+                        <!-- Brand info section -->
+                        <div class="eb-sec"><i class="bi bi-tag-fill"></i> Brand Information</div>
+
+                        <div class="eb-field">
+                            <label class="eb-label">Brand Name <span class="req">*</span></label>
+                            <div class="eb-control @(ViewData.ModelState["BrandName"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="eb-prefix"><i class="bi bi-tag"></i></span>
+                                <input asp-for="BrandName" class="eb-inp" placeholder="e.g. Sandoo Coffee, Bake House…" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="BrandName" class="eb-val-msg"></span>
+                        </div>
+
+                        <div class="eb-field">
+                            <label class="eb-label">Description <span class="opt">&nbsp;optional</span></label>
+                            <div class="eb-control textarea-mode">
+                                <span class="eb-prefix"><i class="bi bi-card-text"></i></span>
+                                <textarea asp-for="Description" class="eb-area"
+                                          placeholder="Brief description of this brand…"></textarea>
+                            </div>
+                            <span asp-validation-for="Description" class="eb-val-msg"></span>
+                            <span class="eb-hint"><i class="bi bi-info-circle"></i> Helps team members identify the brand quickly</span>
+                        </div>
+
+                        <!-- Settings section -->
+                        <div class="eb-sec" style="margin-top:8px;"><i class="bi bi-sliders"></i> Settings</div>
+
+                        <div class="eb-field">
+                            <div class="eb-toggle-card">
+                                <div class="eb-toggle-desc">
+                                    <h6><i class="bi bi-toggle-on"></i> Brand Visibility</h6>
+                                    <p>Enable to make this brand active and visible in the system</p>
+                                </div>
+                                <div class="sw-wrap">
+                                    <input asp-for="Status" type="checkbox" id="statusSwitch" />
+                                    <label class="sw-track" for="statusSwitch"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timestamps -->
+                        <div class="eb-ts-grid">
+                            <div class="eb-ts-cell">
+                                <div class="eb-ts-cell-label">Created At</div>
+                                <div class="eb-ts-cell-val">
+                                    <i class="bi bi-calendar-check"></i>
+                                    @Model.CreatedAt.ToString("MMM dd, yyyy")
+                                </div>
+                            </div>
+                            <div class="eb-ts-cell">
+                                <div class="eb-ts-cell-label">Last Updated</div>
+                                <div class="eb-ts-cell-val">
+                                    <i class="bi bi-clock-history" style="color:var(--text-light);"></i>
+                                    @(Model.UpdatedAt?.ToString("MMM dd, yyyy") ?? "Never")
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="eb-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="bi bi-check-circle-fill"></i> Save Changes
+                            </button>
+                            <a asp-controller="Brand" asp-action="Index" class="btn-discard">
+                                <i class="bi bi-x-circle"></i> Discard
+                            </a>
+                        </div>
+
+                    </div>
+                    <!-- ════ END LEFT ════ -->
+
+                    <!-- ════ RIGHT PANEL ════ -->
+                    <div class="eb-right-panel">
+
+                        <div class="eb-logo-heading">
+                            <i class="bi bi-image-fill"></i> Brand Logo
+                        </div>
+
+                        <div class="eb-logo-box" onclick="document.getElementById('logoInput').click();">
+                            <img id="previewImage"
+                                 src="@(string.IsNullOrEmpty(Model.LogoBrandUrl) ? "/no-image.png.jpg" : Url.Content($"~/BrandImage/{Model.LogoBrandUrl}"))"
+                                 alt="@Model.BrandName logo" />
+                            <div class="eb-logo-cover">
+                                <i class="bi bi-camera-fill"></i>
+                                <span>Click to change</span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
+                        {
+                            <div class="eb-logo-badge">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span title="@Model.LogoBrandUrl">@Model.LogoBrandUrl</span>
+                            </div>
+                        }
+
+                        <!-- Hidden inputs -->
+                        <input asp-for="LogoFile" id="logoInput" type="file"
+                               style="display:none;" accept="image/*" onchange="previewLogo(event)" />
+                        <input type="hidden" asp-for="LogoBrandUrl" id="currentLogoUrl" />
+                        <input type="hidden" name="RemoveLogo" id="removeLogoFlag" value="false" />
+
+                        <div class="eb-logo-div"></div>
+
+                        <div class="eb-logo-btns">
+                            <label for="logoInput" class="btn-pick">
+                                <i class="bi bi-cloud-arrow-up-fill"></i> Upload New Logo
+                            </label>
+                            @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
+                            {
+                                <button type="button" class="btn-remove-img" onclick="removeLogo()">
+                                    <i class="bi bi-trash3"></i> Remove Logo
+                                </button>
+                            }
+                        </div>
+
+                        <div class="eb-logo-hints">
+                            <span><i class="bi bi-file-earmark-image"></i> JPG, PNG or GIF · Max 2 MB</span>
+                            <span><i class="bi bi-aspect-ratio"></i> Recommended 500 × 500 px</span>
+                            <span><i class="bi bi-arrow-repeat"></i> Upload to replace current logo</span>
+                        </div>
+
+                        <div class="eb-fname" id="fileNameRow">
+                            <i class="bi bi-paperclip"></i>
+                            <span id="selectedFileName"></span>
+                        </div>
+
+                    </div>
+                    <!-- ════ END RIGHT ════ -->
+
+                </div><!-- /.eb-panels -->
+            </form>
+        </div><!-- /.eb-form-area -->
+
+    </div><!-- /.eb-wrap -->
+
+</div><!-- /.eb-page -->
+
 @section Scripts {
-    <script>
-        function previewFile(event) {
-            const reader = new FileReader();
-            const file = event.target.files[0];
+<script>
+function previewLogo(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('File must be under 2 MB.'); e.target.value = ''; return; }
+    if (!file.type.match('image.*'))  { alert('Please select an image file.'); e.target.value = ''; return; }
+    const r = new FileReader();
+    r.onload = ev => {
+        document.getElementById('previewImage').src = ev.target.result;
+        document.getElementById('selectedFileName').textContent = file.name;
+        document.getElementById('fileNameRow').style.display = 'flex';
+        document.getElementById('removeLogoFlag').value = 'false';
+    };
+    r.readAsDataURL(file);
+}
 
-            if (file) {
-                // Validate file size (max 2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    alert('File size must be less than 2MB');
-                    event.target.value = '';
-                    return;
-                }
+function removeLogo() {
+    if (!confirm('Remove the current logo?')) return;
+    document.getElementById('removeLogoFlag').value = 'true';
+    document.getElementById('logoInput').value = '';
+    document.getElementById('previewImage').src = '/no-image.png.jpg';
+    document.getElementById('fileNameRow').style.display = 'none';
+}
 
-                // Validate file type
-                if (!file.type.match('image.*')) {
-                    alert('Please select an image file');
-                    event.target.value = '';
-                    return;
-                }
+/* Auto-resize textarea */
+const ta = document.querySelector('.eb-area');
+if (ta) {
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 'px';
+    ta.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    });
+}
 
-                reader.onload = function() {
-                    const preview = document.getElementById("previewImage");
-                    preview.src = reader.result;
-                    preview.style.animation = "fadeIn 0.5s";
-                    
-                    // Show file name
-                    document.getElementById("selectedFileName").textContent = file.name;
-                    document.getElementById("fileNameDisplay").style.display = "block";
-                    
-                    // Reset remove flag when new file is selected
-                    document.getElementById('removeLogoFlag').value = 'false';
-                };
-
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function removeLogo() {
-            if (confirm('Are you sure you want to remove the logo?')) {
-                // Set the remove flag to true
-                document.getElementById('removeLogoFlag').value = 'true';
-                
-                // Clear the file input
-                document.getElementById('logoInput').value = '';
-                
-                // Reset preview to default image
-                document.getElementById('previewImage').src = '/no-image.png.jpg';
-                
-                // Hide file name display
-                document.getElementById('fileNameDisplay').style.display = 'none';
-            }
-        }
-
-        // Form validation
-        (function() {
-            'use strict';
-            const forms = document.querySelectorAll('.needs-validation');
-            Array.from(forms).forEach(form => {
-                form.addEventListener('submit', event => {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        })();
-
-        // Auto-resize textarea
-        const textarea = document.querySelector('textarea');
-        if (textarea) {
-            // Set initial height
-            textarea.style.height = 'auto';
-            textarea.style.height = (textarea.scrollHeight) + 'px';
-            
-            // Add input event for dynamic resizing
-            textarea.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        }
-
-        // Warn user if they try to leave without saving
-        let formModified = false;
-        
-        // Mark form as modified when inputs change
-        document.querySelectorAll('input, textarea, select').forEach(element => {
-            element.addEventListener('change', () => formModified = true);
-            element.addEventListener('keyup', () => formModified = true);
-        });
-
-        // Handle remove logo button click
-        document.querySelectorAll('.btn-outline-danger').forEach(btn => {
-            if (btn.textContent.includes('Remove Logo')) {
-                btn.addEventListener('click', () => formModified = true);
-            }
-        });
-
-        // Remove warning when form is submitted
-        document.querySelector('form').addEventListener('submit', function() {
-            formModified = false;
-        });
-    </script>
-
-    <partial name="_ValidationScriptsPartial" />
+/* Native validation */
+document.querySelectorAll('.needs-validation').forEach(form => {
+    form.addEventListener('submit', e => {
+        if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+        form.classList.add('was-validated');
+    }, false);
+});
+</script>
+<partial name="_ValidationScriptsPartial" />
 }

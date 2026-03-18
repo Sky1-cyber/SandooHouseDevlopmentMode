@@ -32,13 +32,14 @@ public class HomeController : Controller
         return View(orders);
     }
     
+    [HttpGet]
     public IActionResult Login()
     {
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(string Email, string Password)
+    public async Task<IActionResult> Login(string Email, string Password, bool rememberMe)
     {
         var admin = _applicationDbContext.Admins
             .FirstOrDefault(x => x.Email == Email);
@@ -49,10 +50,9 @@ public class HomeController : Controller
             return RedirectToAction("Login", "Home");
         }
 
-        // Check account status
         if (admin.Status == Status.Suspended)
         {
-            TempData["ErrorMessage"] = "Your account has been suspended. Please contact administrator.";
+            TempData["ErrorMessage"] = "Your account has been suspended.";
             return RedirectToAction("Login", "Home");
         }
 
@@ -64,11 +64,9 @@ public class HomeController : Controller
             return RedirectToAction("Login", "Home");
         }
 
-        // ✅ Update online status
         admin.Status = Status.Active;
-
-        _applicationDbContext.Admins.Update(admin); // Optional: explicitly mark as updated
-        await _applicationDbContext.SaveChangesAsync(); // <-- THIS IS WHAT WAS MISSING
+        _applicationDbContext.Admins.Update(admin);
+        await _applicationDbContext.SaveChangesAsync();
 
         var claims = new List<Claim>
         {
@@ -78,16 +76,17 @@ public class HomeController : Controller
             new Claim("LastName", admin.LastName ?? ""),
             new Claim(ClaimTypes.MobilePhone, admin.PhoneNumber ?? ""),
             new Claim("ProfileImageFile", admin.ProfileImageFile ?? ""),
-            new Claim(ClaimTypes.Role, admin.Role.ToString()) 
-            
+            new Claim(ClaimTypes.Role, admin.Role.ToString())
         };
 
         var claimIdentity = new ClaimsIdentity(claims, "MyCookieAuthenticationScheme");
 
         var authProperties = new AuthenticationProperties
         {
-            IsPersistent = true,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+            IsPersistent = rememberMe,
+            ExpiresUtc = rememberMe
+                ? DateTimeOffset.UtcNow.AddDays(30)
+                : DateTimeOffset.UtcNow.AddHours(1)
         };
 
         await HttpContext.SignInAsync(
@@ -101,6 +100,7 @@ public class HomeController : Controller
             _ => RedirectToAction("Index", "Home")
         };
     }
+    
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

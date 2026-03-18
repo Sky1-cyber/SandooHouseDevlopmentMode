@@ -1,492 +1,699 @@
 ﻿@model Sandoohouse.Models.ModelViewer.MenuModelViewer.MenuViewerModel
 
 @{
-ViewData["Title"] = "Create Menu";
+    ViewData["Title"] = "Create Menu";
 }
 
-<!-- Add Bootstrap Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-<div class="page-inner">
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Create Menu</h3>
-        <ul class="breadcrumbs mb-3">
-            <li class="nav-home">
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a asp-controller="Menu" asp-action="Index">Menu</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">Create Menu</li>
-        </ul>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-11">
-            <!-- Main Form Card -->
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <!-- Card Header with Gradient -->
-                <div class="card-header bg-gradient-primary text-white border-0 py-4">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
-                            <i class="bi bi-egg-fried fs-3"></i>
-                        </div>
-                        <div>
-                            <h4 class="mb-1 fw-bold">New Menu Item</h4>
-                            <p class="mb-0 small opacity-75">Add a new food item to your menu collection</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-body p-5">
-                    <form asp-controller="Menu" asp-action="CreateMenu" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                        <div class="row">
-                            <!-- Left Column: Form Fields -->
-                            <div class="col-lg-7">
-                                <div class="row g-4">
-                                    <!-- Menu Name -->
-                                    <div class="col-md-12">
-                                        <label class="form-label fw-semibold text-muted">
-                                            Menu Name <span class="text-danger">*</span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-2">
-                                                <i class="bi bi-tag text-primary"></i>
-                                            </span>
-                                            <input asp-for="MenuName"
-                                                   class="form-control form-control-lg border-2 @(ViewData.ModelState["MenuName"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                                   placeholder="e.g., Margherita Pizza" />
-                                        </div>
-                                        <span asp-validation-for="MenuName" class="text-danger small"></span>
-                                    </div>
-
-                                    <!-- Category -->
-                                    <div class="col-md-12">
-                                        <label class="form-label fw-semibold text-muted">
-                                            Category <span class="text-danger">*</span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-2">
-                                                <i class="bi bi-grid text-primary"></i>
-                                            </span>
-                                            <select asp-for="CategoryId"
-                                                    class="form-select form-select-lg border-2 @(ViewData.ModelState["CategoryId"]?.Errors.Any() == true ? "is-invalid" : "")">
-                                                <option value="">-- Select Category --</option>
-                                                @if (ViewBag.Categories != null)
-                                                {
-                                                @foreach (var category in ViewBag.Categories)
-                                                {
-                                                <option value="@category.Id">@category.CategoryName</option>
-                                                }
-                                                }
-                                            </select>
-                                        </div>
-                                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                                    </div>
-
-                                    <!-- Price -->
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold text-muted">
-                                            Regular Price <span class="text-danger">*</span>
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-2">
-                                                <i class="bi bi-currency-dollar text-primary"></i>
-                                            </span>
-                                            <input asp-for="Price"
-                                                   class="form-control form-control-lg border-2 @(ViewData.ModelState["Price"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                                   placeholder="0.00"
-                                                   type="number"
-                                                   step="0.01" />
-                                        </div>
-                                        <span asp-validation-for="Price" class="text-danger small"></span>
-                                        <div class="form-text">
-                                            <i class="bi bi-info-circle me-1"></i>Enter the base price
-                                        </div>
-                                    </div>
-
-                                    <!-- Discount Price -->
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold text-muted">
-                                            Discount Price
-                                        </label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light border-2">
-                                                <i class="bi bi-percent text-primary"></i>
-                                            </span>
-                                            <input asp-for="DiscountPrice"
-                                                   class="form-control form-control-lg border-2"
-                                                   placeholder="0.00"
-                                                   type="number"
-                                                   step="0.01" />
-                                        </div>
-                                        <span asp-validation-for="DiscountPrice" class="text-danger small"></span>
-                                        <div class="form-text">
-                                            <i class="bi bi-info-circle me-1"></i>Optional
-                                        </div>
-                                    </div>
-
-                                    <!-- Price Summary Card -->
-                                    <div class="col-12 mt-3">
-                                        <div class="bg-light rounded-3 p-3">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <span class="small fw-semibold">Price Summary:</span>
-                                                    <div class="mt-2">
-                                                        <span class="text-muted me-3">Regular:</span>
-                                                        <span class="fw-bold" id="regularPriceDisplay">$0.00</span>
-                                                    </div>
-                                                    <div>
-                                                        <span class="text-muted me-3">Discount:</span>
-                                                        <span class="fw-bold text-success" id="discountPriceDisplay">$0.00</span>
-                                                    </div>
-                                                    <div class="mt-2 pt-2 border-top">
-                                                        <span class="text-muted me-3">Final:</span>
-                                                        <span class="fw-bold text-primary" id="finalPriceDisplay">$0.00</span>
-                                                    </div>
-                                                </div>
-                                                <div class="text-end">
-                                                    <span class="badge bg-success bg-opacity-10 px-3 py-2" id="savingsBadge" style="display: none;">
-                                                        <i class="bi bi-tag me-1"></i>Save <span id="savingsAmount">$0.00</span>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Status Toggle -->
-                                    <div class="col-12 mt-4">
-                                        <div class="bg-light rounded-3 p-4">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-grow-1">
-                                                    <h6 class="fw-bold mb-1">
-                                                        <i class="bi bi-toggle-on text-primary me-2"></i>Menu Status
-                                                    </h6>
-                                                    <p class="text-muted small mb-0">Enable to make this item visible and available for orders</p>
-                                                </div>
-                                                <div class="form-check form-switch ms-3">
-                                                    <input asp-for="Status" class="form-check-input" type="checkbox" checked style="width: 3rem; height: 1.5rem;" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Right Column: Image Upload -->
-                            <div class="col-lg-5">
-                                <div class="sticky-top" style="top: 2rem;">
-                                    <div class="card border-0 bg-light rounded-4 p-4">
-                                        <div class="text-center">
-                                            <label class="form-label fw-semibold text-muted mb-3">
-                                                <i class="bi bi-image text-primary me-2"></i>Menu Image
-                                            </label>
-
-                                            <!-- Image Upload Area -->
-                                            <div class="position-relative d-inline-block w-100">
-                                                <div class="menu-image-wrapper rounded-4 border-4 border-primary shadow-lg mx-auto"
-                                                     style="width: 250px; height: 250px; overflow: hidden; cursor: pointer;"
-                                                     onclick="document.getElementById('menuImageInput').click();">
-                                                    <img id="previewImage"
-                                                         src="~/no-image.png.jpg"
-                                                         class="w-100 h-100"
-                                                         alt="Menu Image"
-                                                         style="object-fit: cover;" />
-                                                    <div class="menu-image-overlay">
-                                                        <i class="bi bi-camera-fill text-white fs-1"></i>
-                                                        <span class="d-block text-white mt-2 small">Click to upload</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Image Input -->
-                                            <input asp-for="ImageFile"
-                                                   id="menuImageInput"
-                                                   type="file"
-                                                   class="d-none"
-                                                   accept="image/*"
-                                                   onchange="previewFile(event)" />
-
-                                            <!-- Upload Button -->
-                                            <div class="mt-4">
-                                                <label for="menuImageInput" class="btn btn-outline-primary rounded-pill w-100">
-                                                    <i class="bi bi-cloud-upload me-2"></i>Choose Image
-                                                </label>
-                                                <p class="text-muted small mt-3 mb-0">
-                                                    <i class="bi bi-info-circle me-1"></i>JPG, PNG, GIF up to 2MB
-                                                </p>
-                                                <p class="text-muted small mb-0">
-                                                    <i class="bi bi-arrows-angle-expand me-1"></i>Recommended 500x500px
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="row mt-5 g-3">
-                            <div class="col-md-6">
-                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill shadow-sm hover-scale">
-                                    <i class="bi bi-check-circle me-2"></i>Create Menu Item
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <a asp-controller="Menu" asp-action="Index"
-                                   class="btn btn-outline-danger w-100 py-3 rounded-pill">
-                                    <i class="bi bi-x-circle me-2"></i>Cancel
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-    /* Custom Styles - Matching Account Create */
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+:root {
+    --brand:        #FF6B35;
+    --brand-dark:   #E85520;
+    --brand-light:  #FFF0EA;
+    --brand-mid:    rgba(255,107,53,.13);
+    --accent:       #1C2340;
+    --success:      #00B894;
+    --success-bg:   rgba(0,184,148,.1);
+    --warning:      #F0A500;
+    --warning-bg:   rgba(240,165,0,.1);
+    --danger:       #E84545;
+    --danger-bg:    rgba(232,69,69,.1);
+    --bg:           #F2EFE9;
+    --surface:      #FFFFFF;
+    --surface2:     #FAF8F5;
+    --surface3:     #F4F1EC;
+    --border:       #EAE5DC;
+    --border-s:     #D8D2C8;
+    --text:         #18150F;
+    --text-sub:     #6E685F;
+    --text-light:   #AEA89F;
+    --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+    --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+    --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+    --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+    --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+    --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+    --font: 'Sora', sans-serif;
+}
 
-    .card-body {
-        border: 1px solid #e9ecef;
-        background: #ffffff;
-    }
+*, *::before, *::after { box-sizing: border-box; }
 
-    .menu-image-wrapper {
-        border: 4px solid #0d6efd;
-        transition: all 0.3s ease;
-        position: relative;
-    }
+.cm-page {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+    padding: 28px 24px;
+    color: var(--text);
+}
 
-    .menu-image-wrapper:hover {
-        transform: scale(1.02);
-        border-color: #0b5ed7;
-    }
+/* ── Top bar ── */
+.cm-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+    max-width: 1020px; margin-left: auto; margin-right: auto;
+}
+.cm-topbar-left h1 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 5px; letter-spacing: -.4px; }
+.cm-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+}
+.cm-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+.cm-breadcrumb a:hover { color: var(--brand); }
+.cm-breadcrumb .sep { color: var(--border-s); }
+.cm-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
 
-    .menu-image-wrapper:hover .menu-image-overlay {
-        opacity: 1;
-    }
+/* ── Wrapper ── */
+.cm-wrap { max-width: 1020px; margin: 0 auto; display: flex; flex-direction: column; }
 
-    .menu-image-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        border-radius: 1rem;
-    }
+/* ── Hero ── */
+.cm-hero {
+    background: var(--accent);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    padding: 32px 36px;
+    display: flex; align-items: center; gap: 20px;
+    position: relative; overflow: hidden;
+}
+.cm-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+}
+.cm-hero::after {
+    content: ''; position: absolute;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: rgba(255,107,53,.08); top: -100px; right: -60px; pointer-events: none;
+}
+.cm-hero-circle {
+    position: absolute; width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,.03); bottom: -80px; left: 160px; pointer-events: none;
+}
+.cm-hero-badge {
+    width: 58px; height: 58px; border-radius: 16px; background: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: #fff; flex-shrink: 0; z-index: 1; box-shadow: var(--shadow-brand);
+}
+.cm-hero-text { z-index: 1; flex: 1; }
+.cm-hero-text h2 { font-size: 20px; font-weight: 800; color: #fff; margin: 0 0 5px; letter-spacing: -.3px; line-height: 1.2; }
+.cm-hero-text p  { font-size: 12px; color: rgba(255,255,255,.5); margin: 0; font-weight: 500; }
+.cm-hero-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px; z-index: 1; flex-shrink: 0;
+    font-size: 11px; font-weight: 700;
+    background: var(--brand-mid); color: var(--brand); border: 1px solid rgba(255,107,53,.25);
+}
 
-    .input-group {
-        border: 1px solid #dee2e6;
-        border-radius: 0.6rem;
-    }
+/* ── Form area ── */
+.cm-form-area {
+    background: var(--surface);
+    border: 1.5px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    box-shadow: var(--shadow-md); overflow: hidden;
+}
 
-    .input-group:focus-within {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
-    }
+/* ── Two-panel layout ── */
+.cm-panels { display: grid; grid-template-columns: 1fr 300px; min-height: 520px; }
 
-    .hover-scale:hover {
-        transform: scale(1.02);
-        transition: 0.2s;
-    }
+/* ── Left panel ── */
+.cm-left { padding: 32px 36px; border-right: 1.5px solid var(--border); }
 
-    .border-2 {
-        border-width: 2px !important;
-    }
+.cm-sec {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+    color: var(--text-light); margin: 0 0 18px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+}
+.cm-sec i { font-size: 12px; color: var(--brand); }
 
-    .border-4 {
-        border-width: 4px !important;
-    }
+/* Field */
+.cm-field { margin-bottom: 22px; }
+.cm-label {
+    display: flex; align-items: baseline; gap: 5px;
+    font-size: 11px; font-weight: 700; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
+}
+.cm-label .req { color: var(--brand); font-size: 14px; line-height: .8; text-transform: none; letter-spacing: 0; }
+.cm-label .opt { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: none; letter-spacing: 0; }
 
-    .hover-scale {
-        transition: transform 0.2s;
-    }
+.cm-control {
+    display: flex; align-items: stretch;
+    border: 1.5px solid var(--border); border-radius: var(--r-sm);
+    background: var(--surface2); overflow: hidden;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.cm-control:focus-within {
+    border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-mid); background: var(--surface);
+}
+.cm-control.err { border-color: var(--danger); }
+.cm-control.err:focus-within { box-shadow: 0 0 0 3px var(--danger-bg); }
 
-    .hover-scale:hover {
-        transform: translateY(-2px);
-    }
+.cm-prefix {
+    width: 44px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: var(--text-light);
+    border-right: 1.5px solid var(--border); background: var(--surface);
+    transition: color .15s, border-color .15s;
+}
+.cm-control:focus-within .cm-prefix { color: var(--brand); border-color: var(--brand); }
 
-    .form-control-lg, .input-group-text, .form-select-lg {
-        border-radius: 0.5rem;
-    }
+.cm-inp {
+    flex: 1; height: 46px; padding: 0 14px;
+    border: none; background: none; outline: none;
+    font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+}
+.cm-inp::placeholder { color: var(--text-light); font-weight: 400; }
 
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
+.cm-select {
+    flex: 1; height: 46px; padding: 0 14px;
+    border: none; background: none; outline: none;
+    font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+    appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23AEA89F' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+    padding-right: 36px;
+}
 
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-    }
+.cm-val-msg { font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.cm-hint    { font-size: 11px; color: var(--text-light); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
 
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #5a6fd6 0%, #6a4292 100%);
-    }
+/* Two-col grid */
+.cm-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-    .btn-outline-primary {
-        border: 2px solid #667eea;
-        color: #667eea;
-    }
+/* ── Price summary card ── */
+.cm-price-summary {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 16px 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px;
+}
+.cm-price-rows { display: flex; flex-direction: column; gap: 6px; }
+.cm-price-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.cm-price-row .lbl { color: var(--text-light); font-weight: 500; min-width: 70px; }
+.cm-price-row .val { color: var(--text); font-weight: 700; }
+.cm-price-row .val.discount { color: var(--success); }
+.cm-price-row .val.final { color: var(--brand); font-size: 14px; }
+.cm-price-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.cm-savings-badge {
+    display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    background: var(--success-bg); border: 1px solid rgba(0,184,148,.2);
+    border-radius: var(--r-sm); padding: 10px 14px;
+    text-align: center;
+}
+.cm-savings-badge .save-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--success); }
+.cm-savings-badge .save-val { font-size: 16px; font-weight: 800; color: var(--success); margin-top: 2px; }
 
-    .btn-outline-primary:hover {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-color: transparent;
-        color: white;
-    }
+/* ── Status toggle ── */
+.cm-toggle-card {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 18px;
+    background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+    gap: 16px; transition: border-color .15s;
+}
+.cm-toggle-card:hover { border-color: var(--border-s); }
+.cm-toggle-desc h6 {
+    font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 3px;
+    display: flex; align-items: center; gap: 7px;
+}
+.cm-toggle-desc h6 i { color: var(--brand); }
+.cm-toggle-desc p { font-size: 11px; color: var(--text-light); margin: 0; }
 
-    .btn-outline-danger {
-        border: 2px solid #dc3545;
-    }
+.sw-wrap { flex-shrink: 0; }
+.sw-wrap input[type="checkbox"] { display: none; }
+.sw-track {
+    display: block; width: 52px; height: 28px; border-radius: 14px;
+    background: var(--border-s); cursor: pointer; transition: background .22s; position: relative;
+}
+.sw-track::after {
+    content: ''; position: absolute; top: 4px; left: 4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: var(--shadow-sm); transition: transform .22s, box-shadow .22s;
+}
+.sw-wrap input:checked + .sw-track { background: var(--success); }
+.sw-wrap input:checked + .sw-track::after {
+    transform: translateX(24px); box-shadow: 0 3px 10px rgba(0,184,148,.4);
+}
 
-    .rounded-pill {
-        border-radius: 50rem !important;
-    }
+.cm-status-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; transition: all .2s;
+}
+.cm-status-chip.active   { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.2); }
+.cm-status-chip.inactive { background: var(--surface2);   color: var(--text-sub); border: 1px solid var(--border); }
 
-    .form-check-input:checked {
-        background-color: #667eea;
-        border-color: #667eea;
-    }
+/* ── Actions ── */
+.cm-actions { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
 
-    /* Sticky column */
-    .sticky-top {
-        position: sticky;
-        top: 2rem;
-        z-index: 1;
-    }
+.btn-submit {
+    flex: 1; height: 48px; min-width: 160px;
+    background: var(--brand); color: #fff;
+    border: none; border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 14px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: var(--shadow-brand); transition: all .18s; letter-spacing: .01em;
+}
+.btn-submit:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,53,.4); }
+.btn-submit:active { transform: translateY(0); }
 
-    /* Animation for preview image */
-    #previewImage {
-        transition: all 0.3s ease;
-    }
+.btn-back-list {
+    height: 48px; padding: 0 20px; min-width: 120px;
+    background: var(--surface); color: var(--text-sub);
+    border: 1.5px solid var(--border); border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 14px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    text-decoration: none; transition: all .18s;
+}
+.btn-back-list:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); text-decoration: none; }
 
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
+/* ── Right panel: image ── */
+.cm-right {
+    background: var(--surface3);
+    padding: 32px 28px;
+    display: flex; flex-direction: column; align-items: center;
+    border-left: 1.5px solid var(--border);
+}
+
+.cm-img-heading {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+    color: var(--text-light); margin-bottom: 20px; align-self: flex-start;
+    display: flex; align-items: center; gap: 7px;
+}
+.cm-img-heading i { color: var(--brand); font-size: 12px; }
+
+.cm-img-box {
+    width: 200px; height: 200px; border-radius: var(--r-md);
+    overflow: hidden; cursor: pointer; position: relative;
+    border: 2px dashed var(--border-s);
+    background: var(--surface); transition: all .2s;
+    box-shadow: var(--shadow-xs);
+    display: flex; align-items: center; justify-content: center;
+}
+.cm-img-box:hover { border-color: var(--brand); border-style: solid; box-shadow: var(--shadow-brand); transform: translateY(-2px); }
+.cm-img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.cm-img-empty {
+    display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none;
+}
+.cm-img-empty i    { font-size: 36px; color: var(--text-light); }
+.cm-img-empty span { font-size: 11px; color: var(--text-light); font-weight: 600; }
+
+.cm-img-cover {
+    position: absolute; inset: 0; border-radius: calc(var(--r-md) - 2px);
+    background: rgba(24,21,15,.55);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    opacity: 0; transition: opacity .2s;
+}
+.cm-img-cover i    { font-size: 30px; color: #fff; }
+.cm-img-cover span { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; }
+.cm-img-box:hover .cm-img-cover { opacity: 1; }
+
+.cm-img-div { width: 100%; height: 1px; background: var(--border); margin: 20px 0; }
+
+.cm-img-btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+
+.btn-img-pick {
+    height: 40px; width: 100%;
+    border: 1.5px solid var(--brand); border-radius: var(--r-xl);
+    background: var(--brand-light); color: var(--brand);
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all .16s;
+}
+.btn-img-pick:hover { background: var(--brand); color: #fff; }
+
+.btn-img-remove {
+    height: 40px; width: 100%;
+    border: 1.5px solid var(--border); border-radius: var(--r-xl);
+    background: none; color: var(--text-light);
+    font-family: var(--font); font-size: 12px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all .16s;
+}
+.btn-img-remove:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+
+.cm-img-hints { margin-top: 16px; width: 100%; display: flex; flex-direction: column; gap: 5px; }
+.cm-img-hints span { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 6px; }
+
+.cm-fname {
+    margin-top: 12px; font-size: 11px; color: var(--text-sub);
+    display: none; align-items: center; gap: 5px; width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cm-fname i { color: var(--brand); flex-shrink: 0; }
+
+/* ── Responsive ── */
+@@media (max-width: 820px) {
+    .cm-panels { grid-template-columns: 1fr; }
+    .cm-right { border-left: none; border-top: 1.5px solid var(--border); }
+    .cm-img-box { width: 160px; height: 160px; }
+    .cm-grid-2  { grid-template-columns: 1fr; }
+}
+@@media (max-width: 600px) {
+    .cm-page { padding: 16px 14px; }
+    .cm-hero { padding: 24px 22px; gap: 14px; }
+    .cm-hero-badge { width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
+    .cm-left { padding: 24px 20px; }
+    .cm-right { padding: 24px 20px; }
+    .cm-hero-text h2 { font-size: 17px; }
+    .cm-actions { flex-direction: column; }
+    .btn-submit, .btn-back-list { min-width: unset; }
+}
 </style>
 
+<div class="cm-page">
+
+    <!-- Top bar -->
+    <div class="cm-topbar">
+        <div class="cm-topbar-left">
+            <h1>Create Menu</h1>
+            <nav class="cm-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Menu" asp-action="Index">Menu</a>
+                <span class="sep">›</span>
+                <span class="cur">Create Menu</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="cm-wrap">
+
+        <!-- Hero -->
+        <div class="cm-hero">
+            <div class="cm-hero-circle"></div>
+            <div class="cm-hero-badge">
+                <i class="bi bi-egg-fried"></i>
+            </div>
+            <div class="cm-hero-text">
+                <h2>New Menu Item</h2>
+                <p>Add a new food item to your menu collection</p>
+            </div>
+            <span class="cm-hero-pill">
+                <i class="bi bi-plus-circle-fill" style="font-size:11px;"></i> New Item
+            </span>
+        </div>
+
+        <!-- Form area -->
+        <div class="cm-form-area">
+            <form asp-controller="Menu" asp-action="CreateMenu" method="post"
+                  enctype="multipart/form-data" class="needs-validation" novalidate>
+
+                <div class="cm-panels">
+
+                    <!-- ════ LEFT ════ -->
+                    <div class="cm-left">
+
+                        <div class="cm-sec"><i class="fas fa-utensils"></i> Menu Information</div>
+
+                        <!-- Menu Name -->
+                        <div class="cm-field">
+                            <label class="cm-label">Menu Name <span class="req">*</span></label>
+                            <div class="cm-control @(ViewData.ModelState["MenuName"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="cm-prefix"><i class="fas fa-tag"></i></span>
+                                <input asp-for="MenuName" class="cm-inp"
+                                       placeholder="e.g. Margherita Pizza, Iced Latte…" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="MenuName" class="cm-val-msg"></span>
+                            <span class="cm-hint"><i class="bi bi-info-circle"></i> Choose a clear, appetising name</span>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="cm-field">
+                            <label class="cm-label">Category <span class="req">*</span></label>
+                            <div class="cm-control @(ViewData.ModelState["CategoryId"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="cm-prefix"><i class="fas fa-layer-group"></i></span>
+                                <select asp-for="CategoryId" class="cm-select">
+                                    <option value="">-- Select Category --</option>
+                                    @if (ViewBag.Categories != null)
+                                    {
+                                        @foreach (var category in ViewBag.Categories)
+                                        {
+                                            <option value="@category.Id">@category.CategoryName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <span asp-validation-for="CategoryId" class="cm-val-msg"></span>
+                            <span class="cm-hint"><i class="bi bi-info-circle"></i> Select the category this item belongs to</span>
+                        </div>
+
+                        <!-- Pricing section -->
+                        <div class="cm-sec" style="margin-top:8px;"><i class="fas fa-dollar-sign"></i> Pricing</div>
+
+                        <div class="cm-grid-2">
+                            <!-- Regular Price -->
+                            <div class="cm-field" style="margin-bottom:0;">
+                                <label class="cm-label">Regular Price <span class="req">*</span></label>
+                                <div class="cm-control @(ViewData.ModelState["Price"]?.Errors.Any() == true ? "err" : "")">
+                                    <span class="cm-prefix"><i class="fas fa-dollar-sign"></i></span>
+                                    <input asp-for="Price" class="cm-inp"
+                                           placeholder="0.00" type="number" step="0.01" />
+                                </div>
+                                <span asp-validation-for="Price" class="cm-val-msg"></span>
+                                <span class="cm-hint"><i class="bi bi-info-circle"></i> Base price</span>
+                            </div>
+
+                            <!-- Discount Price -->
+                            <div class="cm-field" style="margin-bottom:0;">
+                                <label class="cm-label">Discount Price <span class="opt">&nbsp;optional</span></label>
+                                <div class="cm-control">
+                                    <span class="cm-prefix"><i class="fas fa-percent"></i></span>
+                                    <input asp-for="DiscountPrice" class="cm-inp"
+                                           placeholder="0.00" type="number" step="0.01" />
+                                </div>
+                                <span asp-validation-for="DiscountPrice" class="cm-val-msg"></span>
+                                <span class="cm-hint"><i class="bi bi-info-circle"></i> Leave blank if none</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Summary -->
+                        <div class="cm-field" style="margin-top: 18px;">
+                            <div class="cm-price-summary">
+                                <div class="cm-price-rows">
+                                    <div class="cm-price-row">
+                                        <span class="lbl">Regular</span>
+                                        <span class="val" id="regularPriceDisplay">$0.00</span>
+                                    </div>
+                                    <div class="cm-price-row">
+                                        <span class="lbl">Discount</span>
+                                        <span class="val discount" id="discountPriceDisplay">No discount</span>
+                                    </div>
+                                    <div class="cm-price-divider"></div>
+                                    <div class="cm-price-row">
+                                        <span class="lbl">Final</span>
+                                        <span class="val final" id="finalPriceDisplay">$0.00</span>
+                                    </div>
+                                </div>
+                                <div class="cm-savings-badge" id="savingsBadge">
+                                    <span class="save-lbl"><i class="bi bi-tag-fill me-1"></i>You Save</span>
+                                    <span class="save-val" id="savingsAmount">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Settings -->
+                        <div class="cm-sec" style="margin-top:8px;"><i class="bi bi-sliders"></i> Settings</div>
+
+                        <!-- Status toggle -->
+                        <div class="cm-field">
+                            <div class="cm-toggle-card">
+                                <div class="cm-toggle-desc">
+                                    <h6><i class="bi bi-toggle-on"></i> Menu Visibility</h6>
+                                    <p>Enable to make this item visible and available for orders</p>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <span class="cm-status-chip active" id="statusChip">Active</span>
+                                    <div class="sw-wrap">
+                                        <input asp-for="Status" type="checkbox" id="statusSwitch" checked />
+                                        <label class="sw-track" for="statusSwitch"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="cm-actions">
+                            <button type="submit" class="btn-submit">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Create Menu Item
+                            </button>
+                            <a asp-controller="Menu" asp-action="Index" class="btn-back-list">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+
+                    </div>
+                    <!-- ════ END LEFT ════ -->
+
+                    <!-- ════ RIGHT: image ════ -->
+                    <div class="cm-right">
+
+                        <div class="cm-img-heading">
+                            <i class="bi bi-image-fill"></i> Menu Image
+                        </div>
+
+                        <div class="cm-img-box" id="imgBox" onclick="document.getElementById('menuImageInput').click();">
+                            <div class="cm-img-empty" id="imgEmpty">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <span>Click to upload</span>
+                            </div>
+                            <img id="imagePreview" src="" alt="Menu image" style="display:none;" />
+                            <div class="cm-img-cover">
+                                <i class="bi bi-camera-fill"></i>
+                                <span>Change image</span>
+                            </div>
+                        </div>
+
+                        <input asp-for="ImageFile" id="menuImageInput" type="file"
+                               style="display:none;" accept="image/*" onchange="previewFile(event)" />
+
+                        <div class="cm-img-div"></div>
+
+                        <div class="cm-img-btns">
+                            <label for="menuImageInput" class="btn-img-pick">
+                                <i class="bi bi-cloud-arrow-up-fill"></i> Choose Image
+                            </label>
+                            <button type="button" class="btn-img-remove" id="removeBtn"
+                                    style="display:none;" onclick="removeImage()">
+                                <i class="bi bi-trash3"></i> Remove Image
+                            </button>
+                        </div>
+
+                        <div class="cm-img-hints">
+                            <span><i class="bi bi-file-earmark-image"></i> JPG, PNG or GIF · Max 2 MB</span>
+                            <span><i class="bi bi-aspect-ratio"></i> Recommended 500 × 500 px</span>
+                            <span><i class="bi bi-info-circle"></i> Image is optional</span>
+                        </div>
+
+                        <div class="cm-fname" id="fileNameRow">
+                            <i class="bi bi-paperclip"></i>
+                            <span id="selectedFileName"></span>
+                        </div>
+
+                    </div>
+                    <!-- ════ END RIGHT ════ -->
+
+                </div><!-- /.cm-panels -->
+            </form>
+        </div><!-- /.cm-form-area -->
+
+    </div><!-- /.cm-wrap -->
+
+</div><!-- /.cm-page -->
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
 <script>
-    function previewFile(event) {
-        const reader = new FileReader();
-        const file = event.target.files[0];
+/* ── Image preview ── */
+function previewFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+        alert('File must be under 2 MB.');
+        e.target.value = '';
+        return;
+    }
+    if (!file.type.match('image.*')) {
+        alert('Please select an image file.');
+        e.target.value = '';
+        return;
+    }
+    const r = new FileReader();
+    r.onload = ev => {
+        const img   = document.getElementById('imagePreview');
+        const empty = document.getElementById('imgEmpty');
+        img.src = ev.target.result;
+        img.style.display = 'block';
+        if (empty) empty.style.display = 'none';
+        document.getElementById('selectedFileName').textContent = file.name;
+        document.getElementById('fileNameRow').style.display = 'flex';
+        document.getElementById('removeBtn').style.display = 'flex';
+    };
+    r.readAsDataURL(file);
+}
 
-        if (file) {
-            // Validate file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size must be less than 2MB');
-                event.target.value = '';
-                return;
-            }
+function removeImage() {
+    const img   = document.getElementById('imagePreview');
+    const empty = document.getElementById('imgEmpty');
+    document.getElementById('menuImageInput').value = '';
+    img.src = '';
+    img.style.display = 'none';
+    if (empty) empty.style.display = 'flex';
+    document.getElementById('fileNameRow').style.display = 'none';
+    document.getElementById('removeBtn').style.display = 'none';
+}
 
-            // Validate file type
-            if (!file.type.match('image.*')) {
-                alert('Please select an image file');
-                event.target.value = '';
-                return;
-            }
+/* ── Status chip live update ── */
+document.addEventListener('DOMContentLoaded', function () {
+    const sw   = document.getElementById('statusSwitch');
+    const chip = document.getElementById('statusChip');
 
-            reader.onload = function() {
-                const preview = document.getElementById("previewImage");
-                preview.src = reader.result;
-                preview.style.animation = "fadeIn 0.5s";
-                document.getElementById("removeImage").style.display = "block";
-            };
+    function updateChip(checked) {
+        chip.textContent = checked ? 'Active' : 'Inactive';
+        chip.className = 'cm-status-chip ' + (checked ? 'active' : 'inactive');
+    }
 
-            reader.readAsDataURL(file);
+    if (sw) {
+        updateChip(sw.checked);
+        sw.addEventListener('change', () => updateChip(sw.checked));
+    }
+
+    /* ── Price calculator ── */
+    const priceInput    = document.querySelector('[name="Price"]');
+    const discountInput = document.querySelector('[name="DiscountPrice"]');
+
+    function updatePrices() {
+        const price    = parseFloat(priceInput?.value)    || 0;
+        const discount = parseFloat(discountInput?.value) || 0;
+        const final    = discount > 0 ? discount : price;
+        const savings  = price - final;
+
+        document.getElementById('regularPriceDisplay').textContent  = '$' + price.toFixed(2);
+        document.getElementById('discountPriceDisplay').textContent = discount > 0 ? '$' + discount.toFixed(2) : 'No discount';
+        document.getElementById('finalPriceDisplay').textContent    = '$' + final.toFixed(2);
+
+        const badge = document.getElementById('savingsBadge');
+        if (discount > 0 && discount < price) {
+            badge.style.display = 'flex';
+            document.getElementById('savingsAmount').textContent = '$' + savings.toFixed(2);
+        } else {
+            badge.style.display = 'none';
         }
     }
 
-    function removeImage() {
-        const preview = document.getElementById("previewImage");
-        preview.src = "~/images/no-image.png";
-        document.getElementById("menuImageInput").value = "";
-        document.getElementById("removeImage").style.display = "none";
-    }
-
-    // Price calculation and display
-    document.addEventListener('DOMContentLoaded', function() {
-        const priceInput = document.querySelector('[name="Price"]');
-        const discountInput = document.querySelector('[name="DiscountPrice"]');
-
-        function updatePriceDisplay() {
-            const price = parseFloat(priceInput.value) || 0;
-            const discount = parseFloat(discountInput.value) || 0;
-            const finalPrice = discount > 0 ? discount : price;
-            const savings = price - finalPrice;
-
-            document.getElementById('regularPriceDisplay').textContent = '$' + price.toFixed(2);
-            document.getElementById('discountPriceDisplay').textContent = discount > 0 ? '$' + discount.toFixed(2) : 'No discount';
-            document.getElementById('finalPriceDisplay').textContent = '$' + finalPrice.toFixed(2);
-
-            const savingsBadge = document.getElementById('savingsBadge');
-            const savingsAmount = document.getElementById('savingsAmount');
-
-            if (discount > 0 && discount < price) {
-                savingsBadge.style.display = 'inline-block';
-                savingsAmount.textContent = '$' + savings.toFixed(2);
-            } else {
-                savingsBadge.style.display = 'none';
-            }
-        }
-
-        if (priceInput) {
-            priceInput.addEventListener('input', updatePriceDisplay);
-            priceInput.addEventListener('blur', function() {
-                if (this.value) {
-                    this.value = parseFloat(this.value).toFixed(2);
-                    updatePriceDisplay();
-                }
-            });
-        }
-
-        if (discountInput) {
-            discountInput.addEventListener('input', updatePriceDisplay);
-            discountInput.addEventListener('blur', function() {
-                if (this.value) {
-                    this.value = parseFloat(this.value).toFixed(2);
-                    updatePriceDisplay();
-                }
-            });
-        }
-
-        // Initial update
-        updatePriceDisplay();
-    });
-
-    // Form validation
-    (function() {
-        'use strict';
-        const forms = document.querySelectorAll('.needs-validation');
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
+    if (priceInput) {
+        priceInput.addEventListener('input', updatePrices);
+        priceInput.addEventListener('blur', function () {
+            if (this.value) { this.value = parseFloat(this.value).toFixed(2); updatePrices(); }
         });
-    })();
+    }
+    if (discountInput) {
+        discountInput.addEventListener('input', updatePrices);
+        discountInput.addEventListener('blur', function () {
+            if (this.value) { this.value = parseFloat(this.value).toFixed(2); updatePrices(); }
+        });
+    }
+
+    updatePrices();
+
+    /* Native validation */
+    document.querySelectorAll('.needs-validation').forEach(form => {
+        form.addEventListener('submit', e => {
+            if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
 </script>
+}

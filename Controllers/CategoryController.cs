@@ -34,8 +34,16 @@ public class CategoryController : Controller
     // GET From to create category
     [HttpGet]
     [Authorize(Roles = "SuperAdmin,Owner")]
-    public IActionResult CreateCategory()
+    public async Task<IActionResult> CreateCategory()  // Make this async
     {
+        var brands = await _applicationDbContext.Brands
+            .Where(b => b.Status)
+            .OrderBy(b => b.BrandName)
+            .ToListAsync();
+    
+        // FIX: Create SelectList for the dropdown
+        ViewBag.Brands = new SelectList(brands, "Id", "BrandName");
+    
         var model = new CategoryViewerModel();
         return View(model);
     }
@@ -45,13 +53,22 @@ public class CategoryController : Controller
     [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> CreateCategory(CategoryViewerModel model)
     {
+        // FIX: Repopulate brands if validation fails
         if (!ModelState.IsValid)
+        {
+            var brands = await _applicationDbContext.Brands
+                .Where(b => b.Status)
+                .OrderBy(b => b.BrandName)
+                .ToListAsync();
+            ViewBag.Brands = new SelectList(brands, "Id", "BrandName", model.BrandId); // Pass selected value
             return View(model);
+        }
 
         string? fileName = null;
 
         // Only handle uploaded file, not string
-        if (model.ImageFile != null) fileName = await FileUploadHelper.UploadImage(model.ImageFile, "Category");
+        if (model.ImageFile != null) 
+            fileName = await FileUploadHelper.UploadImage(model.ImageFile, "Category");
 
         var adminId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
@@ -61,7 +78,8 @@ public class CategoryController : Controller
             Description = model.Description,
             CategoryImageUrl = fileName,
             Status = model.Status,
-            CreatedById = adminId
+            CreatedById = adminId,
+            BrandId = model.BrandId  // FIX: Add this line to save the BrandId
         };
 
         _applicationDbContext.Categories.Add(category);

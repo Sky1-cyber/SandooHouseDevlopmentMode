@@ -2,296 +2,595 @@
 @using Sandoohouse.Models.Enum
 @using System.Globalization
 @{
-    ViewData["Title"] = "Account List";
+ViewData["Title"] = "Account List";
 }
 
-<div class="page-inner">
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h3 class="fw-bold mb-3">Account Management</h3>
-        <ul class="breadcrumbs mb-3">
-            <li class="nav-home">
-                <a asp-controller="Home" asp-action="Index"><i class="icon-home"></i></a>
-            </li>
-            <li class="separator"><i class="icon-arrow-right"></i></li>
-            <li class="nav-item"><a asp-controller="Account" asp-action="ListAccount">Account List</a></li>
-        </ul>
-        <div class="ms-md-auto py-2 py-md-0">
-            <a asp-controller="Account" asp-action="CreateAccount" class="btn btn-primary btn-round">
-                <i class="fas fa-plus me-2"></i>Add Account
-            </a>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    :root {
+        --brand:       #FF6B35;
+        --brand-dark:  #E85520;
+        --brand-light: #FFF0EA;
+        --brand-mid:   rgba(255,107,53,.12);
+        --accent:      #2D3561;
+        --accent-mid:  rgba(45,53,97,.1);
+        --success:     #00B894;
+        --success-bg:  rgba(0,184,148,.1);
+        --warning:     #F0A500;
+        --warning-bg:  rgba(240,165,0,.1);
+        --danger:      #E84545;
+        --danger-bg:   rgba(232,69,69,.1);
+        --bg:          #F7F4F0;
+        --surface:     #FFFFFF;
+        --surface2:    #FAF8F5;
+        --border:      #EDE8E0;
+        --border-s:    #DDD7CE;
+        --text:        #1A1714;
+        --text-sub:    #7A736B;
+        --text-light:  #B5AFA8;
+        --shadow-sm:   0 1px 4px rgba(26,23,20,.06);
+        --shadow-md:   0 4px 20px rgba(26,23,20,.10);
+        --shadow-lg:   0 12px 48px rgba(26,23,20,.14);
+        --r-xs:  6px;
+        --r-sm:  10px;
+        --r-md:  16px;
+        --r-lg:  24px;
+        --r-xl:  32px;
+        --font:  'Sora','Noto Sans Khmer',sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .al-page {
+        font-family: var(--font);
+        background: var(--bg);
+        min-height: 100vh;
+        padding: 28px 24px;
+        color: var(--text);
+    }
+
+    /* ── Top bar ── */
+    .al-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 24px; flex-wrap: wrap; gap: 14px;
+    }
+    .al-topbar-left h1 {
+        font-size: 21px; font-weight: 700; color: var(--text);
+        margin: 0 0 4px; letter-spacing: -.4px;
+    }
+    .al-breadcrumb {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 500;
+        margin: 0; padding: 0; list-style: none;
+    }
+    .al-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .15s; }
+    .al-breadcrumb a:hover { color: var(--brand); }
+    .al-breadcrumb .sep { color: var(--border-s); font-size: 10px; }
+    .al-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+    .btn-add {
+        display: inline-flex; align-items: center; gap: 7px;
+        height: 40px; padding: 0 20px;
+        background: var(--brand); color: #fff;
+        border: none; border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 13px; font-weight: 700;
+        text-decoration: none; cursor: pointer;
+        box-shadow: 0 4px 16px rgba(255,107,53,.3);
+        transition: all .18s; white-space: nowrap;
+    }
+    .btn-add:hover { background: var(--brand-dark); transform: translateY(-1px); color: #fff; text-decoration: none; }
+
+    /* ── KPI Grid ── */
+    .al-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px; margin-bottom: 20px; width: 100%;
+    }
+    .kpi-card {
+        background: var(--surface); border: 1.5px solid var(--border);
+        border-radius: var(--r-md); padding: 18px 20px;
+        display: flex; align-items: center; gap: 14px;
+        transition: all .2s ease; position: relative; overflow: hidden; min-width: 0;
+    }
+    .kpi-card::after {
+        content: ''; position: absolute; bottom: 0; left: 0;
+        height: 3px; width: 100%;
+        background: var(--kc, var(--brand));
+        transform: scaleX(0); transform-origin: left; transition: transform .3s ease;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .kpi-card:hover::after { transform: scaleX(1); }
+    .kpi-icon {
+        width: 44px; height: 44px; border-radius: var(--r-sm);
+        background: var(--ki, var(--brand-light)); color: var(--kc, var(--brand));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; flex-shrink: 0;
+    }
+    .kpi-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .kpi-label { font-size: 11px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+    .kpi-val   { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -.4px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-brand  { --kc: var(--brand);   --ki: var(--brand-light); }
+    .kpi-accent { --kc: var(--accent);  --ki: var(--accent-mid);  }
+    .kpi-green  { --kc: var(--success); --ki: var(--success-bg);  }
+    .kpi-amber  { --kc: var(--warning); --ki: var(--warning-bg);  }
+
+    /* ── Main card ── */
+    .al-card {
+        background: var(--surface); border: 1.5px solid var(--border);
+        border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-md);
+    }
+
+    .al-card-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 22px; border-bottom: 1.5px solid var(--border);
+        flex-wrap: wrap; gap: 12px;
+    }
+    .al-card-title { display: flex; align-items: center; gap: 10px; }
+    .title-bar { width: 4px; height: 20px; background: var(--brand); border-radius: 4px; flex-shrink: 0; }
+    .al-card-title h4 { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; }
+    .al-card-title small { font-size: 12px; color: var(--text-light); }
+
+    .count-pill {
+        font-size: 11px; font-weight: 700;
+        color: var(--brand); background: var(--brand-light);
+        padding: 3px 10px; border-radius: 20px;
+    }
+
+    /* ── Filter bar — matches Dashboard ── */
+    .filter-bar {
+        padding: 14px 22px;
+        border-bottom: 1.5px solid var(--border);
+        display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+        background: var(--surface2);
+    }
+    .filter-field {
+        position: relative; display: flex; align-items: center;
+        flex: 1; min-width: 160px;
+    }
+    .filter-field.wide { flex: 2; min-width: 220px; }
+    .filter-icon {
+        position: absolute; left: 12px;
+        color: var(--text-light); font-size: 12px;
+        pointer-events: none; z-index: 1;
+    }
+    .filter-inp, .filter-sel {
+        width: 100%; height: 38px; padding: 0 14px 0 34px;
+        border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        background: var(--surface); font-family: var(--font);
+        font-size: 13px; color: var(--text); appearance: none; outline: none;
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .filter-inp::placeholder { color: var(--text-light); }
+    .filter-inp:focus, .filter-sel:focus {
+        border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-mid);
+    }
+    .filter-sel {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23B5AFA8' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 12px center;
+        padding-right: 30px; cursor: pointer;
+    }
+    .btn-reset {
+        height: 38px; padding: 0 16px;
+        border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        background: var(--surface); font-family: var(--font);
+        font-size: 12px; font-weight: 600; color: var(--text-sub);
+        cursor: pointer; display: flex; align-items: center; gap: 6px;
+        transition: all .18s; flex-shrink: 0; white-space: nowrap;
+    }
+    .btn-reset:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+
+    /* ── Table ── */
+    .al-table { width: 100%; border-collapse: collapse; }
+    .al-table thead th {
+        padding: 10px 14px; font-size: 10px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        color: var(--text-light); background: var(--surface2);
+        border-bottom: 1.5px solid var(--border); white-space: nowrap;
+    }
+    .al-table thead th:first-child { padding-left: 22px; }
+    .al-table thead th:last-child  { text-align: right; padding-right: 22px; }
+    .al-table tbody tr { transition: background .13s; }
+    .al-table tbody tr:hover { background: var(--brand-light); }
+    .al-table tbody td {
+        padding: 13px 14px; border-bottom: 1px solid var(--border);
+        font-size: 13px; color: var(--text); vertical-align: middle;
+    }
+    .al-table tbody tr:last-child td { border-bottom: none; }
+    .al-table tbody td:first-child { padding-left: 22px; }
+    .al-table tbody td:last-child  { padding-right: 22px; }
+
+    /* Admin cell */
+    .admin-cell { display: flex; align-items: center; gap: 12px; }
+    .admin-avatar {
+        width: 44px; height: 44px; border-radius: 50%;
+        overflow: hidden; border: 2px solid var(--border);
+        flex-shrink: 0; background: var(--surface2);
+    }
+    .admin-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .admin-info { display: flex; flex-direction: column; gap: 2px; }
+    .admin-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .admin-meta { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+
+    /* Contact cell */
+    .contact-cell { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-sub); }
+    .contact-icon {
+        width: 28px; height: 28px; border-radius: var(--r-xs);
+        background: var(--brand-light); color: var(--brand);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; flex-shrink: 0;
+    }
+    .contact-na { font-size: 12px; color: var(--text-light); font-style: italic; }
+
+    /* Status badges */
+    .s-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 12px; border-radius: 20px;
+        font-size: 11px; font-weight: 700; white-space: nowrap;
+    }
+    .s-active    { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.2); }
+    .s-inactive  { background: var(--surface2);   color: var(--text-sub); border: 1px solid var(--border); }
+    .s-suspended { background: var(--danger-bg);  color: var(--danger);   border: 1px solid rgba(232,69,69,.2); }
+
+    /* Date cell */
+    .date-main { font-size: 13px; font-weight: 500; color: var(--text); display: block; }
+    .date-sub  { font-size: 11px; color: var(--text-light); display: block; margin-top: 2px; }
+
+    /* Action buttons */
+    .act-btns { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .act-btn {
+        width: 32px; height: 32px; border-radius: var(--r-xs);
+        border: 1.5px solid var(--border); background: var(--surface);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; cursor: pointer; text-decoration: none; transition: all .15s;
+    }
+    .act-edit { color: var(--brand); }
+    .act-edit:hover { background: var(--brand-light); border-color: var(--brand); color: var(--brand); }
+    .act-del  { color: var(--danger); }
+    .act-del:hover { background: var(--danger-bg); border-color: var(--danger); }
+
+    /* ══════════════════════════════════════
+       TABLE FOOTER + PAGINATION
+       — exact same pattern as Dashboard
+    ══════════════════════════════════════ */
+    .table-footer {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 14px 22px; border-top: 1.5px solid var(--border);
+        flex-wrap: wrap; gap: 10px;
+        background: var(--surface2);
+    }
+    .showing-txt { font-size: 12px; color: var(--text-sub); }
+    .showing-txt strong { color: var(--text); font-weight: 700; }
+
+    /* rows-per-page control */
+    .rows-ctrl { display: flex; align-items: center; gap: 8px; }
+    .rows-ctrl label { font-size: 12px; color: var(--text-light); font-weight: 500; }
+    .rows-sel {
+        height: 32px; padding: 0 28px 0 10px;
+        border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        background: var(--surface);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23B5AFA8' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 8px center;
+        appearance: none; font-family: var(--font); font-size: 13px; color: var(--text);
+        outline: none; cursor: pointer;
+    }
+
+    /* Pager — identical to Dashboard */
+    .pager { list-style: none; display: flex; gap: 4px; margin: 0; padding: 0; }
+    .pg-lnk {
+        display: inline-flex; align-items: center; justify-content: center;
+        height: 30px; min-width: 30px; padding: 0 8px;
+        border-radius: var(--r-xs); border: 1.5px solid var(--border);
+        background: var(--surface); font-size: 12px; font-weight: 600;
+        color: var(--text-sub); text-decoration: none; cursor: pointer;
+        transition: all .15s;
+    }
+    .pg-lnk:hover { border-color: var(--brand); color: var(--brand); }
+    .pg-item.active .pg-lnk {
+        background: var(--brand); border-color: var(--brand);
+        color: #fff; box-shadow: 0 3px 10px rgba(255,107,53,.35);
+    }
+    .pg-item.disabled .pg-lnk { opacity: .45; pointer-events: none; cursor: default; }
+
+    /* ── Card footer summary ── */
+    .al-card-foot {
+        padding: 12px 22px; border-top: 1.5px solid var(--border);
+        background: var(--surface2);
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 10px;
+    }
+    .foot-stat { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-sub); }
+    .foot-stat-item { display: flex; align-items: center; gap: 5px; font-weight: 500; }
+    .foot-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Delete modal ── */
+    .del-modal { border: none; border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-lg); font-family: var(--font); }
+    .del-modal-head { padding: 32px 28px 20px; text-align: center; border-bottom: 1.5px solid var(--border); }
+    .del-icon {
+        width: 60px; height: 60px; border-radius: 50%;
+        background: var(--danger-bg); color: var(--danger); font-size: 22px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 14px; border: 2px solid rgba(232,69,69,.2);
+    }
+    .del-modal-head h5 { font-size: 17px; font-weight: 700; color: var(--text); margin: 0 0 8px; font-family: var(--font); }
+    .del-modal-head p  { font-size: 13px; color: var(--text-sub); margin: 0; line-height: 1.6; }
+    .del-warn { font-size: 12px; color: var(--danger); font-weight: 600; display: block; margin-top: 4px; }
+    .del-modal-foot { display: flex; justify-content: center; gap: 10px; padding: 16px 28px; background: var(--surface2); }
+    .del-cancel {
+        height: 40px; padding: 0 20px; border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        background: var(--surface); color: var(--text-sub);
+        font-family: var(--font); font-size: 13px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .18s;
+    }
+    .del-cancel:hover { border-color: var(--text-sub); color: var(--text); }
+    .del-confirm {
+        height: 40px; padding: 0 20px; border: none; border-radius: var(--r-xl);
+        background: var(--danger); color: #fff;
+        font-family: var(--font); font-size: 13px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; gap: 6px;
+        box-shadow: 0 4px 12px rgba(232,69,69,.3); transition: all .18s;
+    }
+    .del-confirm:hover { background: #cc2929; transform: translateY(-1px); }
+
+    /* ── Responsive ── */
+    @@media (max-width: 1100px) { .al-kpi-grid { grid-template-columns: repeat(2,1fr); } }
+    @@media (max-width: 768px) {
+        .al-page { padding: 16px 14px; }
+        .al-kpi-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+        .kpi-val { font-size: 18px; }
+        .filter-bar { flex-direction: column; }
+        .filter-field, .filter-field.wide { width: 100%; min-width: unset; }
+        .btn-reset { width: 100%; justify-content: center; }
+    }
+    @@media (max-width: 500px) {
+        .al-kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .kpi-card { padding: 14px; }
+        .kpi-icon { width: 38px; height: 38px; font-size: 15px; }
+    }
+</style>
+
+<div class="al-page">
+
+    <!-- ── Top bar ── -->
+    <div class="al-topbar">
+        <div class="al-topbar-left">
+            <h1>Account Management</h1>
+            <nav class="al-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Account" asp-action="ListAccount">Account</a>
+                <span class="sep">›</span>
+                <span class="cur">Account List</span>
+            </nav>
+        </div>
+        <a asp-controller="Account" asp-action="CreateAccount" class="btn-add">
+            <i class="fas fa-plus"></i> Add Account
+        </a>
+    </div>
+
+    <!-- ── KPI Strip ── -->
+    <div class="al-kpi-grid">
+        <div class="kpi-card kpi-brand">
+            <div class="kpi-icon"><i class="fas fa-users"></i></div>
+            <div class="kpi-info">
+                <span class="kpi-label">Employees</span>
+                <span class="kpi-val">@ViewBag.TotalAdminsCount</span>
+            </div>
+        </div>
+        <div class="kpi-card kpi-accent">
+            <div class="kpi-icon"><i class="fas fa-truck"></i></div>
+            <div class="kpi-info">
+                <span class="kpi-label">Suppliers</span>
+                <span class="kpi-val">0</span>
+            </div>
+        </div>
+        <div class="kpi-card kpi-green">
+            <div class="kpi-icon"><i class="fas fa-coins"></i></div>
+            <div class="kpi-info">
+                <span class="kpi-label">Income</span>
+                <span class="kpi-val">@String.Format("{0:N0}", ViewBag.TotalIncome) ៛</span>
+            </div>
+        </div>
+        <div class="kpi-card kpi-amber">
+            <div class="kpi-icon"><i class="fas fa-receipt"></i></div>
+            <div class="kpi-info">
+                <span class="kpi-label">Orders</span>
+                <span class="kpi-val">576</span>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-primary bubble-shadow-small">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Employ User</p>
-                                <h4 class="card-title">@ViewBag.TotalAdminsCount</h4>
-                            </div>
-                        </div>
-                    </div>
+    <!-- ── Main card ── -->
+    <div class="al-card" id="tableCard">
+
+        <!-- Card header -->
+        <div class="al-card-head">
+            <div class="al-card-title">
+                <span class="title-bar"></span>
+                <div>
+                    <h4>Admin Management</h4>
+                    <small>Manage system administrators</small>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <span class="count-pill" id="visibleCount">@Model.Count() total</span>
+                <div class="rows-ctrl">
+                    <label>Rows:</label>
+                    <select class="rows-sel" id="pageSizeSelect">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-info bubble-shadow-small">
-                                <i class="fas fa-user"></i>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+            <div class="filter-field wide">
+                <i class="fas fa-search filter-icon"></i>
+                <input type="text" id="searchInput" class="filter-inp" placeholder="Search by name, email, role…">
+            </div>
+            <div class="filter-field">
+                <i class="fas fa-circle-dot filter-icon"></i>
+                <select id="statusFilter" class="filter-sel">
+                    <option value="">All Statuses</option>
+                    @foreach (var s in Enum.GetValues(typeof(Status)))
+                    {
+                    <option value="@s">@s</option>
+                    }
+                </select>
+            </div>
+            <button class="btn-reset" id="clearFilters">
+                <i class="fas fa-rotate-left"></i> Reset
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="al-table" id="adminTable">
+                <thead>
+                <tr>
+                    <th>Admin</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var admin in Model)
+                {
+                <tr class="admin-row"
+                    data-name="@($"{admin.FirstName} {admin.LastName}".ToLower())"
+                    data-email="@admin.Email.ToLower()"
+                    data-role="@admin.Role.ToString().ToLower()"
+                    data-status="@admin.Status">
+                    <td>
+                        <div class="admin-cell">
+                            <div class="admin-avatar">
+                                <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
+                                     alt="@admin.FirstName @admin.LastName" />
+                            </div>
+                            <div class="admin-info">
+                                <span class="admin-name">@admin.FirstName @admin.LastName</span>
+                                <span class="admin-meta"><i class="fas fa-id-badge" style="font-size:10px;"></i> #@admin.Id</span>
+                                <span class="admin-meta"><i class="fas fa-user-shield" style="font-size:10px;"></i> @admin.Role</span>
                             </div>
                         </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Supplier</p>
-                                <h4 class="card-title">0</h4>
-                            </div>
+                    </td>
+                    <td>
+                        <div class="contact-cell">
+                            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                            @admin.Email
                         </div>
-                    </div>
-                </div>
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(admin.PhoneNumber))
+                        {
+                        <div class="contact-cell">
+                            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                            @admin.PhoneNumber
+                        </div>
+                        }
+                        else { <span class="contact-na">Not provided</span> }
+                    </td>
+                    <td>
+                        @if (admin.Status == Status.Active)
+                        {
+                        <span class="s-badge s-active"><i class="fas fa-circle" style="font-size:7px;"></i> Active</span>
+                        }
+                        else if (admin.Status == Status.Inactive)
+                        {
+                        <span class="s-badge s-inactive"><i class="fas fa-circle" style="font-size:7px;"></i> Inactive</span>
+                        }
+                        else
+                        {
+                        <span class="s-badge s-suspended"><i class="fas fa-circle" style="font-size:7px;"></i> Suspended</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="date-main">@admin.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</span>
+                        <span class="date-sub">@((int)(DateTime.UtcNow - admin.CreatedAt).TotalDays) days ago</span>
+                    </td>
+                    <td>
+                        <div class="act-btns">
+                            <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@admin.Id"
+                               class="act-btn act-edit" title="Edit">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <button type="button" class="act-btn act-del" title="Delete"
+                                    onclick="confirmDelete('@admin.Id','@admin.FirstName @admin.LastName')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ── Table footer: showing text + pager ── -->
+        <div class="table-footer">
+            <span class="showing-txt" id="showingText">Showing <strong>0</strong> of <strong>0</strong> entries</span>
+            <nav><ul class="pager" id="pager"></ul></nav>
+        </div>
+
+        <!-- ── Summary footer ── -->
+        <div class="al-card-foot">
+            <div class="foot-stat">
+                <span class="foot-stat-item">
+                    <span class="foot-dot" style="background:var(--text-light)"></span>
+                    Total: <strong>@Model.Count()</strong>
+                </span>
+            </div>
+            <div class="foot-stat">
+                <span class="foot-stat-item">
+                    <span class="foot-dot" style="background:var(--success)"></span>
+                    Active: <strong>@Model.Count(a => a.Status == Status.Active)</strong>
+                </span>
+                <span class="foot-stat-item">
+                    <span class="foot-dot" style="background:var(--text-light)"></span>
+                    Inactive: <strong>@Model.Count(a => a.Status == Status.Inactive)</strong>
+                </span>
+                <span class="foot-stat-item">
+                    <span class="foot-dot" style="background:var(--danger)"></span>
+                    Suspended: <strong>@Model.Count(a => a.Status == Status.Suspended)</strong>
+                </span>
             </div>
         </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div
-                                class="icon-big text-center icon-success bubble-shadow-small"
-                            >
-                                <i class="fas fa-luggage-cart"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Income</p>
-                                <h4 class="card-title">@String.Format("{0:N0}", ViewBag.TotalIncome) ៛</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div
-                                class="icon-big text-center icon-secondary bubble-shadow-small"
-                            >
-                                <i class="far fa-check-circle"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Order</p>
-                                <h4 class="card-title">576</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-12">
 
-                <!-- Accounts Card -->
-                <div class="card shadow-lg rounded-4 overflow-hidden">
+    </div><!-- /.al-card -->
 
-                    <!-- Card Header -->
-                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center p-4">
-                        <div>
-                            <h4 class="fw-bold mb-1">Admin Management</h4>
-                            <small class="text-muted">Manage system administrators</small>
-                        </div>
-                    </div>
+</div><!-- /.al-page -->
 
-                    <!-- Table Section -->
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table id="adminTable" class="table table-hover align-middle mb-0">
-                                <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-4">Admin</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th class="text-center pe-4">Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach (var admin in Model)
-                                {
-                                    <tr>
-                                        <!-- Profile -->
-                                        <td class="ps-4">
-                                            <div class="d-flex align-items-center">
-        
-                                                <!-- Profile Image -->
-                                                <div class="avatar avatar-md rounded-circle overflow-hidden border shadow-sm me-3">
-                                                    <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
-                                                         alt="@admin.FirstName @admin.LastName"
-                                                         class="img-fluid"
-                                                         style="width:50px;height:50px;object-fit:cover;">
-                                                </div>
-
-                                                <!-- Admin Info -->
-                                                <div class="d-flex flex-column">
-                                                    <span class="fw-semibold text-dark">
-                                                        @admin.FirstName @admin.LastName
-                                                    </span>
-
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-id-badge me-1"></i> ID: #@admin.Id
-                                                    </small>
-
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-user-shield me-1"></i> @admin.Role
-                                                    </small>
-                                                </div>
-
-                                            </div>
-                                        </td>
-
-                                        <!-- Email -->
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-envelope text-primary me-2" style="font-size: 14px;"></i>
-                                                <span class="text-muted">@admin.Email</span>
-                                            </div>
-                                        </td>
-
-                                        <!-- Phone -->
-                                        <td>
-                                            @if (!string.IsNullOrEmpty(admin.PhoneNumber))
-                                            {
-                                                <div class="d-flex align-items-center">
-                                                    <i class="fas fa-phone text-primary me-2" style="font-size: 14px;"></i>
-                                                    <span class="text-muted">@admin.PhoneNumber</span>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted fst-italic">Not provided</span>
-                                            }
-                                        </td>
-
-                                        <!-- Status -->
-                                        <td>
-                                            @if (admin.Status == Status.Active)
-                                            {
-                                                <span class="badge rounded-pill px-3 py-2"
-                                                      style="background-color: rgba(40, 167, 69, 0.1); color: #28a745;">
-                                                    <i class="fas fa-check-circle me-1"></i> Active
-                                                </span>
-                                            }
-                                            else if (admin.Status == Status.Inactive)
-                                            {
-                                                <span class="badge rounded-pill px-3 py-2"
-                                                      style="background-color: rgba(108, 117, 125, 0.1); color: #6c757d;">
-                                                    <i class="fas fa-user-clock me-1"></i> Inactive
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge rounded-pill px-3 py-2"
-                                                      style="background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
-                                                    <i class="fas fa-ban me-1"></i> Suspended
-                                                </span>
-                                            }
-                                        </td>
-
-                                        <!-- Created -->
-                                        <td>
-                                            <div class="fw-semibold">@admin.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
-                                            <small class="text-muted">@((int)(DateTime.UtcNow - admin.CreatedAt).TotalDays) days ago</small>
-                                        </td>
-
-                                        <!-- Actions -->
-                                        <td class="text-center pe-4">
-                                            <!-- Desktop & Mobile Unified Actions -->
-                                            <div class="d-flex gap-2 justify-content-center">
-                                                <a asp-controller="Account"
-                                                   asp-action="EditAccount"
-                                                   asp-route-id="@admin.Id"
-                                                   class="btn btn-sm btn-outline-primary"
-                                                   title="Edit admin">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-
-                                                <button type="button"
-                                                        class="btn btn-sm btn-outline-danger"
-                                                        title="Delete admin"
-                                                        onclick="confirmDelete('@admin.Id', '@admin.FirstName @admin.LastName')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Footer with Summary -->
-                    <div class="card-footer bg-white border-0 p-3 d-flex justify-content-between align-items-center">
-                        <div class="text-muted">
-                            <small><i class="fas fa-users me-1"></i>Total administrators: @Model.Count()</small>
-                        </div>
-                        <div class="text-muted">
-                            <small>
-                                <i class="fas fa-check-circle text-success me-1"></i>Active: @Model.Count(a => a.Status == Status.Active) |
-                                <i class="fas fa-user-clock text-secondary me-1"></i>Inactive: @Model.Count(a => a.Status == Status.Inactive) |
-                                <i class="fas fa-ban text-danger me-1"></i>Suspended: @Model.Count(a => a.Status == Status.Suspended)
-                            </small>
-                        </div>
-                    </div>
-
-                </div> <!-- End Accounts Card -->
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<!-- ── Delete modal ── -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteModalLabel">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content del-modal">
+            <div class="del-modal-head">
+                <div class="del-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                <h5>Delete Account</h5>
+                <p>
+                    Are you sure you want to delete <strong id="adminNameDisplay"></strong>?
+                    <span class="del-warn">This action cannot be undone.</span>
+                </p>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="adminNameDisplay"></strong>?</p>
-                <p class="text-danger small"><i class="fas fa-info-circle me-1"></i>This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>Cancel
+            <div class="del-modal-foot">
+                <button type="button" class="del-cancel" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
                 </button>
-                <form id="deleteForm" method="post" asp-controller="Account" asp-action="Delete">
+                <form method="post" asp-controller="Account" asp-action="Delete" style="display:contents;">
                     <input type="hidden" name="id" id="adminIdToDelete" />
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash me-2"></i>Delete
+                    <button type="submit" class="del-confirm">
+                        <i class="fas fa-trash"></i> Delete
                     </button>
                 </form>
             </div>
@@ -299,76 +598,134 @@
     </div>
 </div>
 
-<!-- Styles -->
-<style>
-    .table td, .table th {
-        vertical-align: middle;
-    }
-    
-    .table-hover tbody tr:hover {
-        background-color: #f8fafc;
-    }
-    
-    .badge {
-        font-weight: 500;
-        font-size: 13px;
-    }
-    
-    .btn-outline-primary, .btn-outline-danger, .btn-outline-info {
-        border-width: 1px;
-        padding: 0.375rem 0.75rem;
-    }
-    
-    .btn-outline-primary:hover {
-        background-color: #0d6efd;
-        color: white;
-    }
-    
-    .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: white;
-    }
-    
-    .btn-outline-info:hover {
-        background-color: #0dcaf0;
-        color: white;
-    }
-    
-    .card-footer {
-        border-top: 1px solid rgba(0,0,0,0.05);
-    }
-</style>
-<!-- jQuery & DataTables -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#adminTable').DataTable({
-            pageLength: 10,
-            lengthChange: true,
-            searching: true,
-            ordering: true,
-            info: true,
-            language: {
-                search: "<i class='fas fa-search'></i> Search",
-                searchPlaceholder: "Search administrators...",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ administrators",
-                infoEmpty: "Showing 0 to 0 of 0 administrators",
-                infoFiltered: "(filtered from _MAX_ total administrators)"
+
+        /* ════════════════════════════════════════
+           STATE
+        ════════════════════════════════════════ */
+        let PAGE_SIZE    = 20;
+        let currentPage  = 1;
+        let filteredRows = [];
+        const allRows    = $('#adminTable tbody tr').toArray();
+
+        /* ════════════════════════════════════════
+           FILTER
+        ════════════════════════════════════════ */
+        function applyFilters() {
+            const search = $('#searchInput').val().toLowerCase().trim();
+            const status = $('#statusFilter').val().toLowerCase().trim();
+
+            filteredRows = allRows.filter(function (row) {
+                const $r = $(row);
+                if (search && !($r.data('name') + ' ' + $r.data('email') + ' ' + $r.data('role')).includes(search)) return false;
+                if (status && $r.data('status').toString().toLowerCase() !== status) return false;
+                return true;
+            });
+
+            currentPage = 1;
+            renderPage();
+        }
+
+        /* ════════════════════════════════════════
+           RENDER PAGE
+        ════════════════════════════════════════ */
+        function renderPage() {
+            const total      = filteredRows.length;
+            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            currentPage      = Math.min(currentPage, totalPages);
+            const start      = (currentPage - 1) * PAGE_SIZE;
+            const end        = Math.min(start + PAGE_SIZE, total);
+
+            // Show/hide rows
+            allRows.forEach(r => $(r).hide());
+            filteredRows.slice(start, end).forEach(r => $(r).show());
+
+            // Update count pill & showing text — same pattern as Dashboard
+            $('#visibleCount').text(total + ' total');
+            $('#showingText').html(
+                total === 0
+                    ? 'No entries found'
+                    : 'Showing <strong>' + (start + 1) + '–' + end + '</strong> of <strong>' + total + '</strong> entries'
+            );
+
+            buildPager(totalPages);
+        }
+
+        /* ════════════════════════════════════════
+           PAGER — exact same logic as Dashboard
+        ════════════════════════════════════════ */
+        function buildPager(totalPages) {
+            const $p = $('#pager').empty();
+
+            $p.append(mkPage('‹ Prev', currentPage - 1, currentPage === 1));
+
+            const maxV  = 5;
+            let   sP    = Math.max(1, currentPage - Math.floor(maxV / 2));
+            let   eP    = Math.min(totalPages, sP + maxV - 1);
+            if (eP - sP + 1 < maxV) sP = Math.max(1, eP - maxV + 1);
+
+            if (sP > 1) {
+                $p.append(mkPage('1', 1, false));
+                if (sP > 2) $p.append('<li class="pg-item disabled"><span class="pg-lnk">…</span></li>');
             }
+
+            for (let p = sP; p <= eP; p++) {
+                $p.append(mkPage(String(p), p, false, p === currentPage));
+            }
+
+            if (eP < totalPages) {
+                if (eP < totalPages - 1) $p.append('<li class="pg-item disabled"><span class="pg-lnk">…</span></li>');
+                $p.append(mkPage(String(totalPages), totalPages, false));
+            }
+
+            $p.append(mkPage('Next ›', currentPage + 1, currentPage === totalPages));
+        }
+
+        function mkPage(label, target, disabled, isActive) {
+            const $li = $('<li class="pg-item"></li>');
+            if (disabled) $li.addClass('disabled');
+            if (isActive) $li.addClass('active');
+
+            const $a = $('<a class="pg-lnk" href="#">' + label + '</a>');
+
+            if (!disabled && !isActive) {
+                $a.on('click', function (e) {
+                    e.preventDefault();
+                    currentPage = target;
+                    renderPage();
+                    document.querySelector('.al-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            } else {
+                $a.on('click', function (e) { e.preventDefault(); });
+            }
+
+            $li.append($a);
+            return $li;
+        }
+
+        /* ════════════════════════════════════════
+           EVENTS
+        ════════════════════════════════════════ */
+        let timer;
+        $('#searchInput').on('input', function () { clearTimeout(timer); timer = setTimeout(applyFilters, 250); });
+        $('#statusFilter').on('change', applyFilters);
+        $('#pageSizeSelect').on('change', function () { PAGE_SIZE = parseInt(this.value); applyFilters(); });
+        $('#clearFilters').on('click', function () {
+            $('#searchInput').val('');
+            $('#statusFilter').val('');
+            applyFilters();
         });
+
+        // Init
+        applyFilters();
     });
 
-    // Delete confirmation function
+    /* ── Delete modal ── */
     function confirmDelete(adminId, adminName) {
-        // Set the admin name in the modal
         document.getElementById('adminNameDisplay').textContent = adminName;
-        // Set the admin ID in the hidden input
         document.getElementById('adminIdToDelete').value = adminId;
-        
-        // Show the modal
-        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        deleteModal.show();
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
     }
 </script>

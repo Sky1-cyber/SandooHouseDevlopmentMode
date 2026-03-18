@@ -4,173 +4,459 @@
 @{
     ViewData["Title"] = "Account Profile";
 }
-<div class="page-inner">
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Profile</h3>
-        <ul class="breadcrumbs mb-3">
-            <li class="nav-home">
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a asp-controller="Account" asp-action="Index">Admin</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a asp-controller="Account" asp-action="Index">Account Details</a>
-            </li>
-        </ul>
-    </div>
-    <div class="container py-5">
-        <div class="row justify-content-center ">
-            <div class="col-lg-8 ">
 
-                <!-- Profile Card -->
-                <div class="card shadow-lg rounded-4 overflow-hidden">
-                    <div class="row g-0">
-
-                        <!-- Left Column: Avatar & Status -->
-                        <div class="col-md-4 text-center bg-gradient-primary position-relative d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 250px;">
-                            <!-- Avatar -->
-                            <div class="position-relative mt-4">
-                                <div
-                                    class="rounded-circle border border-4 border-white shadow-lg overflow-hidden bg-white"
-                                    style="width: 130px; height: 130px;">
-                                    <img
-                                        src="@Url.Content(Model.ProfileImageFile != null ? $"~/Admin/{Model.ProfileImageFile}" : "~/l60Hf.png")"
-                                        alt="@Model.FirstName @Model.LastName"
-                                        class="w-100 h-100" style="object-fit: cover;"/>
-                                </div>
-                                <!-- Status Dot -->
-                                <span
-                                    class="position-absolute bottom-0 end-0 rounded-circle border border-2 border-white"
-                                    style="width: 20px; height: 20px; background-color:@(Model.Status == Status.Active ? "#28a745" : "#6c757d")"
-                                    title="@Model.Status"></span>
-                            </div>
-
-                            <!-- Name & Role -->
-                            <h3 class="text-white mt-3 mb-1">@Model.FirstName @Model.LastName</h3>
-                            <span class="badge text-white px-3 py-2 rounded-pill bg-opacity-50"
-                                  style="background-color: rgba(255,255,255,0.2);">
-                            <i class="bi bi-shield-check me-1"></i>Administrator
-                        </span>
-                        </div>
-
-                        <!-- Right Column: Info -->
-                        <div class="col-md-8">
-                            <div class="card-body p-4">
-
-                                <!-- Contact Info -->
-                                <h5 class="fw-bold mb-3">Contact Information</h5>
-                                <div class="mb-3 d-flex align-items-center">
-                                    <i class="bi bi-envelope-fill text-primary me-2 fs-5"></i>
-                                    <div class="flex-grow-1">@Model.Email</div>
-                                    <button class="btn btn-sm btn-outline-primary"
-                                            onclick="copyToClipboard('@Model.Email')" title="Copy email">
-                                        <i class="bi bi-files"></i>
-                                    </button>
-                                </div>
-                                <div class="mb-3 d-flex align-items-center">
-                                    <i class="bi bi-telephone-fill text-primary me-2 fs-5"></i>
-                                    <div
-                                        class="flex-grow-1">
-                                        @(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
-                                    {
-                                        <button class="btn btn-sm btn-outline-primary"
-                                                onclick="copyToClipboard('@Model.PhoneNumber')" title="Copy phone">
-                                            <i class="bi bi-files"></i>
-                                        </button>
-                                    }
-                                </div>
-
-                                <hr/>
-
-                                <!-- Account Stats -->
-                                <h5 class="fw-bold mb-3">Account Information</h5>
-                                <div class="row text-center text-md-start">
-                                    <div class="col-md-6 mb-2">
-                                        <div class="text-muted small">Profile ID</div>
-                                        <div class="fw-semibold">ADS00-@Model.Id-88</div>
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <div class="text-muted small">Status</div>
-                                        <div class="fw-semibold"
-                                             style="color:@(Model.Status == Status.Active ? "#28a745" : "#6c757d")">@Model.Status</div>
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <div class="text-muted small">Created At</div>
-                                        <div
-                                            class="fw-semibold">@Model.CreatedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)</div>
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <div class="text-muted small">Last Updated</div>
-                                        <div
-                                            class="fw-semibold">
-                                            @(Model.UpdatedAt == DateTime.MinValue ? "Never" : Model.UpdatedAt.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture))
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mb-2">
-                                        <div class="text-muted small">Account Age</div>
-                                        <div
-                                            class="fw-semibold">@((int)(DateTime.UtcNow - Model.CreatedAt).TotalDays) days
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="d-flex gap-2 mt-4 flex-wrap">
-                                    <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@Model.Id" class="btn btn-primary flex-grow-1">
-                                        <i class="bi bi-pencil-square me-2"></i>Edit Profile
-                                    </a>
-                                    <a asp-action="Index" asp-controller="Home"
-                                       class="btn btn-outline-secondary flex-grow-1">
-                                        <i class="bi bi-arrow-left me-2"></i>Dashboard
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div> <!-- End row -->
-                </div> <!-- End card -->
-
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Copy to Clipboard JS -->
-<!-- Single Toast Container for Copy Notifications -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
-    <div id="copyToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                Copied to clipboard!
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-<script>
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            // Show toast
-            var toastEl = document.getElementById('copyToast');
-            var toast = new bootstrap.Toast(toastEl, { delay: 2000 });
-            toast.show();
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            alert('Failed to copy!');
-        });
-    }
-</script>
-
-<!-- Bootstrap Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+:root {
+    --brand:       #FF6B35;
+    --brand-dark:  #E85520;
+    --brand-light: #FFF0EA;
+    --brand-mid:   rgba(255,107,53,.12);
+    --accent:      #2D3561;
+    --accent-mid:  rgba(45,53,97,.1);
+    --success:     #00B894;
+    --success-bg:  rgba(0,184,148,.1);
+    --danger:      #E84545;
+    --danger-bg:   rgba(232,69,69,.1);
+    --bg:          #F7F4F0;
+    --surface:     #FFFFFF;
+    --surface2:    #FAF8F5;
+    --border:      #EDE8E0;
+    --text:        #1A1714;
+    --text-sub:    #7A736B;
+    --text-light:  #B5AFA8;
+    --shadow-sm:   0 1px 4px rgba(26,23,20,.06);
+    --shadow-md:   0 4px 20px rgba(26,23,20,.10);
+    --shadow-lg:   0 12px 48px rgba(26,23,20,.14);
+    --r-sm:  10px;
+    --r-md:  16px;
+    --r-lg:  24px;
+    --r-xl:  32px;
+    --font:  'Sora','Noto Sans Khmer',sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.ap-page {
+    font-family: var(--font);
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 32px 20px;
+    color: var(--text);
+}
+
+/* ── Breadcrumb ── */
+.ap-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500;
+    margin-bottom: 28px; flex-wrap: wrap;
+}
+.ap-breadcrumb a {
+    color: var(--text-light); text-decoration: none;
+    transition: color .15s;
+}
+.ap-breadcrumb a:hover { color: var(--brand); }
+.ap-breadcrumb .sep { color: var(--border); font-size: 10px; }
+.ap-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+/* ── Page title ── */
+.ap-page-title {
+    font-size: 22px; font-weight: 700;
+    color: var(--text); margin: 0 0 6px;
+    letter-spacing: -.4px;
+}
+.ap-page-sub {
+    font-size: 12px; color: var(--text-light);
+    font-weight: 500; margin: 0 0 28px;
+}
+
+/* ── Profile card ── */
+.ap-card {
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+/* ── Left panel ── */
+.ap-left {
+    background: var(--accent);
+    padding: 44px 28px 36px;
+    display: flex; flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* decorative circles */
+.ap-left::before,
+.ap-left::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+    pointer-events: none;
+}
+.ap-left::before { width: 260px; height: 260px; top: -80px; right: -80px; }
+.ap-left::after  { width: 180px; height: 180px; bottom: -60px; left: -60px; }
+
+.ap-avatar-wrap { position: relative; z-index: 1; }
+
+.ap-avatar {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.25);
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+.ap-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.ap-status-dot {
+    position: absolute;
+    bottom: 4px; right: 4px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2.5px solid var(--accent);
+}
+.dot-active   { background: var(--success); }
+.dot-inactive { background: var(--text-light); }
+
+.ap-name {
+    font-size: 18px; font-weight: 700;
+    color: #fff; margin: 18px 0 6px;
+    text-align: center; z-index: 1;
+    letter-spacing: -.3px;
+}
+
+.ap-role-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,.9);
+    z-index: 1;
+}
+
+.ap-status-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    z-index: 1;
+}
+.ap-status-chip.active   { background: var(--success-bg); color: var(--success); }
+.ap-status-chip.inactive { background: rgba(255,255,255,.08); color: rgba(255,255,255,.6); }
+
+.ap-left-divider {
+    width: 40px; height: 2px;
+    background: rgba(255,255,255,.15);
+    border-radius: 2px;
+    margin: 20px 0; z-index: 1;
+}
+
+.ap-id-block {
+    text-align: center; z-index: 1;
+}
+.ap-id-label { font-size: 10px; color: rgba(255,255,255,.45); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
+.ap-id-val   { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.75); margin-top: 3px; font-family: monospace; }
+
+/* ── Right panel ── */
+.ap-right { padding: 36px 36px 32px; }
+
+.ap-section-title {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: var(--text-light);
+    margin: 0 0 16px;
+    display: flex; align-items: center; gap: 8px;
+}
+.ap-section-title::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: var(--border);
+}
+
+/* Contact rows */
+.ap-contact-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    margin-bottom: 10px;
+    transition: border-color .15s;
+}
+.ap-contact-row:hover { border-color: var(--brand); }
+
+.ap-contact-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    background: var(--brand-light);
+    color: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+}
+
+.ap-contact-text {
+    flex: 1;
+    font-size: 13px; font-weight: 500;
+    color: var(--text);
+    min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ap-contact-text.muted { color: var(--text-light); font-weight: 400; }
+
+.btn-copy {
+    width: 30px; height: 30px;
+    border-radius: var(--r-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; cursor: pointer;
+    transition: all .15s; flex-shrink: 0;
+}
+.btn-copy:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+
+/* Info grid */
+.ap-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.ap-info-cell {
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+}
+.ap-info-cell.full { grid-column: 1 / -1; }
+
+.ap-info-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-light); margin-bottom: 4px;
+}
+
+.ap-info-val {
+    font-size: 13px; font-weight: 600;
+    color: var(--text);
+}
+.ap-info-val.success { color: var(--success); }
+.ap-info-val.muted   { color: var(--text-sub); }
+
+/* Action buttons */
+.ap-actions {
+    display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap;
+}
+
+.btn-edit {
+    flex: 1;
+    height: 42px; padding: 0 20px;
+    background: var(--brand); color: #fff;
+    border: none; border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    text-decoration: none; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,107,53,.3);
+    transition: all .18s;
+}
+.btn-edit:hover { background: var(--brand-dark); transform: translateY(-1px); color: #fff; text-decoration: none; }
+
+.btn-back {
+    flex: 1;
+    height: 42px; padding: 0 20px;
+    background: var(--surface); color: var(--text-sub);
+    border: 1.5px solid var(--border); border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    text-decoration: none; cursor: pointer;
+    transition: all .18s;
+}
+.btn-back:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+/* ── Toast ── */
+.ap-toast-wrap {
+    position: fixed; bottom: 24px; right: 24px;
+    z-index: 9999; pointer-events: none;
+}
+.ap-toast {
+    background: var(--success);
+    color: #fff;
+    border-radius: var(--r-sm);
+    padding: 12px 18px;
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: var(--shadow-md);
+    opacity: 0; transform: translateY(12px);
+    transition: opacity .2s, transform .2s;
+    pointer-events: auto;
+}
+.ap-toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── Responsive ── */
+@@media (max-width: 680px) {
+    .ap-card { grid-template-columns: 1fr; }
+    .ap-left { padding: 36px 20px 28px; }
+    .ap-right { padding: 24px 20px; }
+    .ap-info-grid { grid-template-columns: 1fr; }
+    .ap-info-cell.full { grid-column: 1; }
+}
+</style>
+
+<div class="ap-page">
+    <h1 class="ap-page-title">Account Profile</h1>
+    <p class="ap-page-sub">View and manage your account information</p>
+    <!-- Breadcrumb -->
+    <nav class="ap-breadcrumb">
+        <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+        <span class="sep">›</span>
+        <a asp-controller="Account" asp-action="Index">Admin</a>
+        <span class="sep">›</span>
+        <span class="cur">Account Profile</span>
+    </nav>
+    <div class="ap-card">
+
+        <!-- ── Left: avatar & identity ── -->
+        <div class="ap-left">
+
+            <div class="ap-avatar-wrap">
+                <div class="ap-avatar">
+                    <img src="@Url.Content(Model.ProfileImageFile != null ? $"~/Admin/{Model.ProfileImageFile}" : "~/l60Hf.png")"
+                         alt="@Model.FirstName @Model.LastName" />
+                </div>
+                <span class="ap-status-dot @(Model.Status == Status.Active ? "dot-active" : "dot-inactive")"
+                      title="@Model.Status"></span>
+            </div>
+
+            <div class="ap-name">@Model.FirstName @Model.LastName</div>
+
+            <span class="ap-role-badge">
+                <i class="bi bi-shield-check"></i> Administrator
+            </span>
+
+            <span class="ap-status-chip @(Model.Status == Status.Active ? "active" : "inactive")">
+                @if (Model.Status == Status.Active)
+                {
+                    <i class="bi bi-circle-fill" style="font-size:7px;"></i>
+                }
+                else
+                {
+                    <i class="bi bi-circle" style="font-size:7px;"></i>
+                }
+                @Model.Status
+            </span>
+
+            <div class="ap-left-divider"></div>
+
+            <div class="ap-id-block">
+                <div class="ap-id-label">Profile ID</div>
+                <div class="ap-id-val">ADS00-@Model.Id-88</div>
+            </div>
+
+        </div>
+
+        <!-- ── Right: details ── -->
+        <div class="ap-right">
+
+            <!-- Contact -->
+            <div class="ap-section-title">Contact Information</div>
+
+            <div class="ap-contact-row">
+                <div class="ap-contact-icon"><i class="bi bi-envelope-fill"></i></div>
+                <div class="ap-contact-text">@Model.Email</div>
+                <button class="btn-copy" onclick="copyText('@Model.Email')" title="Copy email">
+                    <i class="bi bi-copy"></i>
+                </button>
+            </div>
+
+            <div class="ap-contact-row">
+                <div class="ap-contact-icon"><i class="bi bi-telephone-fill"></i></div>
+                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                {
+                    <div class="ap-contact-text">@Model.PhoneNumber</div>
+                    <button class="btn-copy" onclick="copyText('@Model.PhoneNumber')" title="Copy phone">
+                        <i class="bi bi-copy"></i>
+                    </button>
+                }
+                else
+                {
+                    <div class="ap-contact-text muted">Not provided</div>
+                }
+            </div>
+
+            <!-- Account info -->
+            <div class="ap-section-title" style="margin-top:24px;">Account Information</div>
+
+            <div class="ap-info-grid">
+                <div class="ap-info-cell">
+                    <div class="ap-info-label">Status</div>
+                    <div class="ap-info-val @(Model.Status == Status.Active ? "success" : "muted")">
+                        @Model.Status
+                    </div>
+                </div>
+                <div class="ap-info-cell">
+                    <div class="ap-info-label">Account Age</div>
+                    <div class="ap-info-val">@((int)(DateTime.UtcNow - Model.CreatedAt).TotalDays) days</div>
+                </div>
+                <div class="ap-info-cell">
+                    <div class="ap-info-label">Created At</div>
+                    <div class="ap-info-val">@Model.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
+                </div>
+                <div class="ap-info-cell">
+                    <div class="ap-info-label">Last Updated</div>
+                    <div class="ap-info-val @(Model.UpdatedAt == DateTime.MinValue ? "muted" : "")">
+                        @(Model.UpdatedAt == DateTime.MinValue
+                            ? "Never"
+                            : Model.UpdatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture))
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="ap-actions">
+                <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@Model.Id" class="btn-edit">
+                    <i class="bi bi-pencil-square"></i> Edit Profile
+                </a>
+                <a asp-action="Index" asp-controller="Home" class="btn-back">
+                    <i class="bi bi-arrow-left"></i> Dashboard
+                </a>
+            </div>
+
+        </div><!-- /.ap-right -->
+
+    </div><!-- /.ap-card -->
+
+</div><!-- /.ap-page -->
+
+<!-- Toast -->
+<div class="ap-toast-wrap">
+    <div class="ap-toast" id="apToast">
+        <i class="bi bi-check-circle-fill"></i> Copied to clipboard!
+    </div>
+</div>
+
+<script>
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const t = document.getElementById('apToast');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
+    }).catch(() => alert('Failed to copy!'));
+}
+</script>

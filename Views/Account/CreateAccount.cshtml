@@ -1,510 +1,212 @@
 ﻿@model Sandoohouse.Models.ModelViewer.AdminModelViewer.RegisterViewModel
-
 @{
-ViewData["Title"] = "Create Account";
+    ViewData["Title"] = "Create Account";
 }
 
-<!-- Add Bootstrap Icons if not already included -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="~/css/CreateAccount.css"/>
 
-<div class="page-inner">
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Create Account</h3>
-        <ul class="breadcrumbs mb-3">
-            <li class="nav-home">
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
+<div class="ca-page">
+    <!-- ── Top bar ── -->
+    <div class="ca-topbar">
+        <div>
+            <h1>Create Account</h1>
+            <nav class="ca-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
                 <a asp-controller="Account" asp-action="ListAccount">Account</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">Create Account</li>
-        </ul>
+                <span class="sep">›</span>
+                <span class="cur">Create Account</span>
+            </nav>
+        </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Main Form Card -->
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <!-- Card Header with Gradient -->
-                <div class="card-header bg-gradient-primary text-white border-0 py-4">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
-                            <i class="bi bi-person-plus-fill fs-3"></i>
+    <!-- ── Card ── -->
+    <div class="ca-card">
+
+        <!-- Header -->
+        <div class="ca-card-head">
+            <div class="ca-head-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <div class="ca-head-text">
+                <h4>New Account Registration</h4>
+                <p>Fill in the information below to create a new administrator account</p>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="ca-body">
+            <form asp-controller="Account" asp-action="CreateAccount"
+                  method="post" enctype="multipart/form-data"
+                  class="needs-validation" novalidate>
+
+                <!-- ── Avatar upload ── -->
+                <div class="ca-avatar-section">
+                    <div class="ca-avatar-wrap" onclick="document.getElementById('profileImageInput').click();">
+                        <div class="ca-avatar">
+                            <img id="previewImage" src="~/l60Hf.png" alt="Profile" />
                         </div>
-                        <div>
-                            <h4 class="mb-1 fw-bold">New Account Registration</h4>
-                            <p class="mb-0 small opacity-75">Fill in the information below to create a new user account</p>
+                        <div class="ca-avatar-overlay">
+                            <i class="bi bi-camera-fill"></i>
+                            <span>Change</span>
+                        </div>
+                    </div>
+                    <div class="ca-avatar-hint">
+                        <label for="profileImageInput" class="btn-photo">
+                            <i class="bi bi-camera"></i> Upload Photo
+                        </label>
+                        <input asp-for="ProfileImageUrl"
+                               id="profileImageInput"
+                               type="file"
+                               style="display:none;"
+                               accept="image/*"
+                               onchange="previewFile(event)" />
+                        <p><i class="bi bi-info-circle"></i> JPG, PNG or GIF · Max 2 MB</p>
+                    </div>
+                </div>
+
+                <!-- ── Personal info ── -->
+                <div class="ca-section-title">Personal Information</div>
+
+                <div class="ca-grid">
+                    <!-- First name -->
+                    <div class="ca-field">
+                        <label class="ca-label">
+                            First Name <span class="req">*</span>
+                        </label>
+                        <div class="ca-input-wrap @(ViewData.ModelState["FirstName"]?.Errors.Any() == true ? "has-error" : "")">
+                            <span class="ca-input-icon"><span class="fas fa-user"></span></span>
+                            <input asp-for="FirstName" class="ca-input" placeholder="Enter first name" />
+                        </div>
+                        <span asp-validation-for="FirstName" class="ca-error"></span>
+                    </div>
+
+                    <!-- Last name -->
+                    <div class="ca-field">
+                        <label class="ca-label">
+                            Last Name <span class="req">*</span>
+                        </label>
+                        <div class="ca-input-wrap @(ViewData.ModelState["LastName"]?.Errors.Any() == true ? "has-error" : "")">
+                            <span class="ca-input-icon"><i class="bi bi-person"></i></span>
+                            <input asp-for="LastName" class="ca-input" placeholder="Enter last name" />
+                        </div>
+                        <span asp-validation-for="LastName" class="ca-error"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="ca-field">
+                        <label class="ca-label">
+                            Email Address <span class="req">*</span>
+                        </label>
+                        <div class="ca-input-wrap @(ViewData.ModelState["Email"]?.Errors.Any() == true ? "has-error" : "")">
+                            <span class="ca-input-icon"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="ca-input" placeholder="name@example.com" type="email" />
+                        </div>
+                        <span asp-validation-for="Email" class="ca-error"></span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="ca-field">
+                        <label class="ca-label">
+                            Phone Number <span class="req">*</span>
+                        </label>
+                        <div class="ca-input-wrap @(ViewData.ModelState["PhoneNumber"]?.Errors.Any() == true ? "has-error" : "")">
+                            <span class="ca-input-icon"><i class="bi bi-telephone"></i></span>
+                            <input asp-for="PhoneNumber" class="ca-input" placeholder="+855 000 000 000" type="tel" />
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="ca-error"></span>
+                    </div>
+                </div>
+
+                <!-- ── Security ── -->
+                <div class="ca-section-title" style="margin-top:8px;">Security</div>
+
+                <div class="ca-grid">
+                    <!-- Password -->
+                    <div class="ca-field">
+                        <label class="ca-label">
+                            Password <span class="req">*</span>
+                        </label>
+                        <div class="ca-input-wrap @(ViewData.ModelState["Password"]?.Errors.Any() == true ? "has-error" : "")">
+                            <span class="ca-input-icon"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" type="password" id="passwordInput"
+                                   class="ca-input" placeholder="Create a password" />
+                            <button type="button" class="ca-eye-btn"
+                                    onclick="togglePwd('passwordInput','eyeIcon1')">
+                                <i class="bi bi-eye" id="eyeIcon1"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="ca-error"></span>
+                        <span class="ca-hint"><i class="bi bi-shield-lock"></i> At least 8 characters</span>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="ca-field">
+                        <label class="ca-label">
+                            Confirm Password <span class="req">*</span>
+                        </label>
+                        <div class="ca-input-wrap @(ViewData.ModelState["ConfirmPassword"]?.Errors.Any() == true ? "has-error" : "")">
+                            <span class="ca-input-icon"><i class="bi bi-lock-fill"></i></span>
+                            <input asp-for="ConfirmPassword" type="password" id="confirmInput"
+                                   class="ca-input" placeholder="Re-enter password" />
+                            <button type="button" class="ca-eye-btn"
+                                    onclick="togglePwd('confirmInput','eyeIcon2')">
+                                <i class="bi bi-eye" id="eyeIcon2"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="ca-error"></span>
+                    </div>
+
+                    <!-- Password strength — full width -->
+                    <div class="ca-field full">
+                        <div class="ca-strength-box">
+                            <div class="ca-strength-top">
+                                <span class="ca-strength-label">Password strength</span>
+                                <span class="ca-strength-badge" id="strengthBadge">Not entered</span>
+                            </div>
+                            <div class="ca-strength-track">
+                                <div class="ca-strength-bar" id="strengthBar"></div>
+                            </div>
+                            <div class="ca-checks">
+                                <div class="ca-check-item" id="chk-len">
+                                    <i class="bi bi-circle"></i> At least 8 characters
+                                </div>
+                                <div class="ca-check-item" id="chk-upper">
+                                    <i class="bi bi-circle"></i> Uppercase letter
+                                </div>
+                                <div class="ca-check-item" id="chk-lower">
+                                    <i class="bi bi-circle"></i> Lowercase letter
+                                </div>
+                                <div class="ca-check-item" id="chk-num">
+                                    <i class="bi bi-circle"></i> Number
+                                </div>
+                                <div class="ca-check-item" id="chk-special">
+                                    <i class="bi bi-circle"></i> Special character
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-body p-5">
-                    <form asp-controller="Account" asp-action="CreateAccount" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                        <!-- Profile Image Section -->
-                        <div class="text-center mb-5">
-                            <div class="position-relative d-inline-block">
-                                <div class="profile-image-wrapper rounded-circle border-4 border-primary shadow-lg"
-                                     style="width: 130px; height: 130px; overflow: hidden; cursor: pointer;"
-                                     onclick="document.getElementById('profileImageInput').click();">
-                                    <img id="previewImage"
-                                         src="~/l60Hf.png"
-                                         class="w-100 h-100"
-                                         alt="Profile Image"
-                                         style="object-fit: cover;" />
-                                    <div class="profile-image-overlay">
-                                        <i class="bi bi-camera-fill text-white"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <label for="profileImageInput" class="btn btn-outline-primary rounded-pill btn-sm">
-                                    <i class="bi bi-camera me-2"></i>Change Photo
-                                </label>
-                                <input asp-for="ProfileImageUrl"
-                                       id="profileImageInput"
-                                       type="file"
-                                       class="d-none"
-                                       accept="image/*"
-                                       onchange="previewFile(event)" />
-                                <p class="text-muted small mt-2 mb-0">
-                                    <i class="bi bi-info-circle me-1"></i>Allowed JPG, PNG, GIF. Max 2MB
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Form Fields -->
-                        <div class="row g-4">
-                            <!-- First Name -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">
-                                    First Name <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-2">
-                                        <i class="bi bi-person text-primary"></i>
-                                    </span>
-                                    <input asp-for="FirstName" class="form-control form-control-lg border-2 @(ViewData.ModelState["FirstName"]?.Errors.Any() == true ? "is-invalid" : "")" placeholder="Enter first name" />
-                                </div>
-                                <span asp-validation-for="FirstName" class="text-danger small"></span>
-                            </div>
-
-                            <!-- Last Name -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">
-                                    Last Name <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-2">
-                                        <i class="bi bi-person text-primary"></i>
-                                    </span>
-                                    <input asp-for="LastName"
-                                           class="form-control form-control-lg border-2 @(ViewData.ModelState["LastName"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                           placeholder="Enter last name" />
-                                </div>
-                                <span asp-validation-for="LastName" class="text-danger small"></span>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">
-                                    Email Address <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-2">
-                                        <i class="bi bi-envelope text-primary"></i>
-                                    </span>
-                                    <input asp-for="Email"
-                                           class="form-control form-control-lg border-2 @(ViewData.ModelState["Email"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                           placeholder="name@example.com"
-                                           type="email" />
-                                </div>
-                                <span asp-validation-for="Email" class="text-danger small"></span>
-                            </div>
-
-                            <!-- Phone -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">
-                                    Phone Number <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-2">
-                                        <i class="bi bi-telephone text-primary"></i>
-                                    </span>
-                                    <input asp-for="PhoneNumber"
-                                           class="form-control form-control-lg border-2 @(ViewData.ModelState["PhoneNumber"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                           placeholder="+1 (555) 000-0000"
-                                           type="tel" />
-                                </div>
-                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
-                            </div>
-
-                            <!-- Password -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">
-                                    Password <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-2">
-                                        <i class="bi bi-lock text-primary"></i>
-                                    </span>
-                                    <input asp-for="Password"
-                                           type="password"
-                                           id="password"
-                                           class="form-control form-control-lg border-2 @(ViewData.ModelState["Password"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                           placeholder="Create a password" />
-                                    <button class="btn btn-outline-secondary border-2"
-                                            type="button"
-                                            onclick="togglePassword('password', 'toggleIcon')"
-                                            style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
-                                        <i class="bi bi-eye" id="toggleIcon"></i>
-                                    </button>
-                                </div>
-                                <span asp-validation-for="Password" class="text-danger small"></span>
-                                <div class="form-text">
-                                    <i class="bi bi-shield-lock me-1"></i>Password must be at least 8 characters
-                                </div>
-                            </div>
-
-                            <!-- Confirm Password -->
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-muted">
-                                    Confirm Password <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-2">
-                                        <i class="bi bi-lock-fill text-primary"></i>
-                                    </span>
-                                    <input asp-for="ConfirmPassword"
-                                           type="password"
-                                           id="confirmPassword"
-                                           class="form-control form-control-lg border-2 @(ViewData.ModelState["ConfirmPassword"]?.Errors.Any() == true ? "is-invalid" : "")"
-                                           placeholder="Re-enter password" />
-                                    <button class="btn btn-outline-secondary border-2"
-                                            type="button"
-                                            onclick="togglePassword('confirmPassword', 'toggleConfirmIcon')"
-                                            style="border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
-                                        <i class="bi bi-eye" id="toggleConfirmIcon"></i>
-                                    </button>
-                                </div>
-                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                            </div>
-
-                            <!-- Password Strength Indicator -->
-                            <div class="col-12 mt-3">
-                                <div class="bg-light rounded-3 p-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="small fw-semibold">Password Strength:</span>
-                                        <span class="badge bg-secondary" id="passwordStrength">Not entered</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div id="passwordStrengthBar"
-                                             class="progress-bar"
-                                             role="progressbar"
-                                             style="width: 0%;"
-                                             aria-valuenow="0"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                    <ul class="list-unstyled mt-3 mb-0 small text-muted row g-2">
-                                        <li class="col-md-6"><i class="bi bi-dot me-1" id="lengthCheck"></i> At least 8 characters</li>
-                                        <li class="col-md-6"><i class="bi bi-dot me-1" id="upperCheck"></i> Uppercase letter</li>
-                                        <li class="col-md-6"><i class="bi bi-dot me-1" id="lowerCheck"></i> Lowercase letter</li>
-                                        <li class="col-md-6"><i class="bi bi-dot me-1" id="numberCheck"></i> Number</li>
-                                        <li class="col-md-6"><i class="bi bi-dot me-1" id="specialCheck"></i> Special character</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="row mt-5 g-3">
-                            <div class="col-md-6">
-                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill shadow-sm hover-scale">
-                                    <i class="bi bi-check-circle me-2"></i>Create Account
-                                </button>
-                            </div>
-                            <div class="col-md-6">
-                                <a asp-controller="Account" asp-action="ListAccount"
-                                   class="btn btn-outline-danger w-100 py-3 rounded-pill">
-                                    <i class="bi bi-x-circle me-2"></i>Cancel
-                                </a>
-                            </div>
-                        </div>
-                    </form>
+                <!-- ── Action buttons ── -->
+                <div class="ca-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle"></i> Create Account
+                    </button>
+                    <a asp-controller="Account" asp-action="ListAccount" class="btn-cancel">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<style>
-    /* Custom Styles */
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+            </form>
+        </div><!-- /.ca-body -->
+    </div><!-- /.ca-card -->
 
-    .card-body {
-        border: 1px solid #e9ecef;
-        background: #ffffff;
-    }
+</div><!-- /.ca-page -->
 
-    .profile-image-wrapper {
-        border: 4px solid #0d6efd;
-        transition: all 0.3s ease;
-    }
-
-    .profile-image-wrapper:hover {
-        transform: scale(1.05);
-        border-color: #0b5ed7;
-    }
-
-    .input-group {
-        border: 1px solid #dee2e6;
-        border-radius: 0.6rem;
-    }
-
-    .input-group:focus-within {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.15rem rgba(13,110,253,.15);
-    }
-
-    .hover-scale:hover {
-        transform: scale(1.02);
-        transition: 0.2s;
-    }
-    
-    .border-2 {
-        border-width: 2px !important;
-    }
-
-    .border-4 {
-        border-width: 4px !important;
-    }
-
-    .hover-scale {
-        transition: transform 0.2s;
-    }
-
-    .hover-scale:hover {
-        transform: translateY(-2px);
-    }
-
-    .profile-image-wrapper {
-        position: relative;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .profile-image-wrapper:hover .profile-image-overlay {
-        opacity: 1;
-    }
-
-    .profile-image-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        border-radius: 50%;
-    }
-
-    .form-control-lg, .input-group-text {
-        border-radius: 0.5rem;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-    }
-
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #5a6fd6 0%, #6a4292 100%);
-    }
-
-    .btn-outline-primary {
-        border: 2px solid #667eea;
-        color: #667eea;
-    }
-
-    .btn-outline-primary:hover {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-color: transparent;
-        color: white;
-    }
-
-    .btn-outline-danger {
-        border: 2px solid #dc3545;
-    }
-
-    .rounded-pill {
-        border-radius: 50rem !important;
-    }
-
-    /* Animation for preview image */
-    #previewImage {
-        transition: all 0.3s ease;
-    }
-
-    /* Password strength indicator */
-    .progress {
-        border-radius: 3px;
-    }
-</style>
-
-<script>
-    function previewFile(event) {
-        const reader = new FileReader();
-        const file = event.target.files[0];
-
-        if (file) {
-            // Validate file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size must be less than 2MB');
-                event.target.value = '';
-                return;
-            }
-
-            // Validate file type
-            if (!file.type.match('image.*')) {
-                alert('Please select an image file');
-                event.target.value = '';
-                return;
-            }
-
-            reader.onload = function() {
-                const preview = document.getElementById("previewImage");
-                preview.src = reader.result;
-                preview.style.animation = "fadeIn 0.5s";
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function togglePassword(inputId, iconId) {
-        const input = document.getElementById(inputId);
-        const icon = document.getElementById(iconId);
-
-        if (input.type === "password") {
-            input.type = "text";
-            icon.classList.replace("bi-eye", "bi-eye-slash");
-        } else {
-            input.type = "password";
-            icon.classList.replace("bi-eye-slash", "bi-eye");
-        }
-    }
-
-    // Password strength checker
-    document.addEventListener('DOMContentLoaded', function() {
-        const password = document.getElementById('password');
-
-        if (password) {
-            password.addEventListener('input', checkPasswordStrength);
-        }
-
-        // Form validation
-        const forms = document.querySelectorAll('.needs-validation');
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    });
-
-    function checkPasswordStrength() {
-        const password = document.getElementById('password').value;
-        const strengthText = document.getElementById('passwordStrength');
-        const strengthBar = document.getElementById('passwordStrengthBar');
-
-        // Check criteria
-        const hasLength = password.length >= 8;
-        const hasUpper = /[A-Z]/.test(password);
-        const hasLower = /[a-z]/.test(password);
-        const hasNumber = /[0-9]/.test(password);
-        const hasSpecial = /[!@@#$%^&*(),.?":{}|<>]/.test(password);
-
-        // Update check marks
-        updateCheckMark('lengthCheck', hasLength);
-        updateCheckMark('upperCheck', hasUpper);
-        updateCheckMark('lowerCheck', hasLower);
-        updateCheckMark('numberCheck', hasNumber);
-        updateCheckMark('specialCheck', hasSpecial);
-
-        // Calculate strength
-        const criteria = [hasLength, hasUpper, hasLower, hasNumber, hasSpecial];
-        const strength = criteria.filter(Boolean).length;
-
-        // Update UI
-        let strengthLevel = 'Weak';
-        let strengthPercent = 0;
-        let bgColor = 'bg-danger';
-
-        if (password.length === 0) {
-            strengthLevel = 'Not entered';
-            strengthPercent = 0;
-        } else if (strength <= 2) {
-            strengthLevel = 'Weak';
-            strengthPercent = 20;
-            bgColor = 'bg-danger';
-        } else if (strength <= 3) {
-            strengthLevel = 'Fair';
-            strengthPercent = 40;
-            bgColor = 'bg-warning';
-        } else if (strength <= 4) {
-            strengthLevel = 'Good';
-            strengthPercent = 60;
-            bgColor = 'bg-info';
-        } else if (strength === 5) {
-            strengthLevel = 'Strong';
-            strengthPercent = 100;
-            bgColor = 'bg-success';
-        }
-
-        strengthText.textContent = strengthLevel;
-        strengthBar.style.width = strengthPercent + '%';
-        strengthBar.className = 'progress-bar ' + bgColor;
-    }
-
-    function updateCheckMark(elementId, condition) {
-        const element = document.getElementById(elementId);
-        if (condition) {
-            element.className = 'bi bi-check-circle-fill text-success me-1';
-        } else {
-            element.className = 'bi bi-dot me-1';
-        }
-    }
-
-    // Add animation style
-    const style = document.createElement('style');
-    style.textContent = `
-    @@keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
-`;
-    document.head.appendChild(style);
-</script>
+<script src="~/js/CreateAccount.js"></script>

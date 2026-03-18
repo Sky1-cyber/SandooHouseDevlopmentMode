@@ -36,6 +36,9 @@ public class Admin
     
     public Status Status { get; set; } = Status.Active;
 
+    public string? ResetToken { get; set; }
+    public DateTime? ResetTokenExpires { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; }
     

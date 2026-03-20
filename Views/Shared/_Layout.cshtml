@@ -117,25 +117,25 @@
             <h4 class="text-section">Components</h4>
           </li>
           
-          <!-- Sale for management  -->
-          <li class="nav-item @(currentController == "Report" ? "active" : "")">
+          <!-- Sale for management -->
+          <li class="nav-item @(currentController == "Sale" ? "active" : "")">
     
-            <a data-bs-toggle="collapse" href="#brandMenu">
+            <a data-bs-toggle="collapse" href="#SaleReport">
               <i class="fas fa-layer-group"></i>
               <p>Sale Report</p>
               <span class="caret"></span>
             </a>
 
-            <div class="collapse @(currentController == "Brand" || currentController == "Category" || currentController == "Menu" ? "show" : "")" id="brandMenu">
+            <div class="collapse @(currentController == "Sale" ? "show" : "")" id="SaleReport">
               <ul class="nav nav-collapse">
 
-                <!-- Brand -->
-                <li class="@(currentController == "Brand" ? "active" : "")">
-                  <a asp-controller="Brand" asp-action="Index">
-                    <span class="sub-item"></span>
+                <!-- Sale Report -->
+                <li class="@(currentController == "Sale" ? "active" : "")">
+                  <a asp-controller="Sale" asp-action="Index">
+                    <span class="sub-item">Sale Report</span>
                   </a>
                 </li>
-                
+
               </ul>
             </div>
           </li>

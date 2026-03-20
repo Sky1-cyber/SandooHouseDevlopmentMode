@@ -104,6 +104,22 @@ public class MenuController : Controller
 
     [HttpGet]
     [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> ViewMenu(int? id)
+    {
+        if (id == null || id <= 0)
+            return NotFound();
+        var menu = await _applicationDbContext.Menus
+            .Include(m => m.Category)
+            .ThenInclude(c => c.Brand)
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (menu == null)
+            return NotFound();
+        
+        return View(menu);
+    }
+    
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditMenu(int? id)
     {
         if (id == null)

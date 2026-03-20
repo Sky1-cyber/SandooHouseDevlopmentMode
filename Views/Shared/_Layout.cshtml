@@ -116,6 +116,31 @@
             </span>
             <h4 class="text-section">Components</h4>
           </li>
+          
+          <!-- Sale for management  -->
+          <li class="nav-item @(currentController == "Report" ? "active" : "")">
+    
+            <a data-bs-toggle="collapse" href="#brandMenu">
+              <i class="fas fa-layer-group"></i>
+              <p>Sale Report</p>
+              <span class="caret"></span>
+            </a>
+
+            <div class="collapse @(currentController == "Brand" || currentController == "Category" || currentController == "Menu" ? "show" : "")" id="brandMenu">
+              <ul class="nav nav-collapse">
+
+                <!-- Brand -->
+                <li class="@(currentController == "Brand" ? "active" : "")">
+                  <a asp-controller="Brand" asp-action="Index">
+                    <span class="sub-item"></span>
+                  </a>
+                </li>
+                
+              </ul>
+            </div>
+          </li>
+          
+          <!-- Catalog for management  -->
           <li class="nav-item @(currentController == "Brand" || currentController == "Category" || currentController == "Menu" ? "active" : "")">
     
             <a data-bs-toggle="collapse" href="#brandMenu">
@@ -147,7 +172,7 @@
                     <span class="sub-item">Menu Table</span>
                   </a>
                 </li>
-
+                
               </ul>
             </div>
           </li>

@@ -87,7 +87,22 @@ public class CategoryController : Controller
 
         return RedirectToAction("Index", "Category");
     }
-
+    
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> ViewCategory(int? id)
+    {
+        if (id <= 0)
+            return NotFound();
+        var category = await  _applicationDbContext.Categories
+            .Include(b => b.Brand)
+            .Include(m => m.Menus)
+            .FirstOrDefaultAsync(c => c.Id == id);
+        if (category == null)
+            return NotFound();
+        return View(category);
+    }
+    
     [HttpGet]
     [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditCategory(int id)

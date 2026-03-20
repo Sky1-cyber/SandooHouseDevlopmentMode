@@ -61,6 +61,21 @@ public class BrandController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner")]
+    public async Task<IActionResult> ViewBrand(int? id)
+    {
+        if (id <= 0)
+            return NotFound();
+        var brand = await _applicationDbContext.Brands
+            .Include(c => c.Categories)!
+            .ThenInclude(m => m.Menus)
+            .FirstOrDefaultAsync(b => b.Id == id);
+        if (brand == null)
+            return NotFound();
+        return View(brand);
+    }
+    
+    [HttpGet]
     [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditBrand(int? id)
     {

@@ -1020,12 +1020,42 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         }
 
         /* ════════════════════════════════════════════════════════
-           KHQR FLOW — QR opens in a NEW BROWSER WINDOW
+           KHQR DUAL-SCREEN FLOW
+           ──────────────────────────────────────────────────────
+           • Detects whether a second / extended screen exists.
+           • If EXTENDED  → opens QR fullscreen on screen 2 (left
+             offset = screen 1 width so it lands on screen 2).
+           • If SINGLE    → shows a friendly "no second screen"
+             modal that guides the cashier to enable extend mode,
+             then re-tries automatically when they close it.
         ════════════════════════════════════════════════════════ */
-        let khqrTimer = null;
-        let qrWindow  = null;  /* reference to the popup window */
+        let khqrTimer    = null;
+        let qrWindow     = null;   /* popup reference */
+        let _pendingQrUsd = null;  /* amount held while waiting for screen setup */
 
-        /* Build HTML for the standalone QR window */
+        /* ── Detect extended display ─────────────────────────── */
+        function hasSecondScreen() {
+            /* window.screen.isExtended is the modern API (Chrome 100+, Edge) */
+            if (typeof window.screen.isExtended !== 'undefined') {
+                return window.screen.isExtended;
+            }
+            /*
+             * Legacy fallback: if the screen object reports dimensions
+             * larger than the browser window's screen (availWidth covers
+             * both monitors in extended mode on some browsers/OS combos),
+             * or if screenX/screenLeft suggests the window is not at origin,
+             * we can make a best-effort guess.
+             * NOTE: This is heuristic only — the modern API is preferred.
+             */
+            try {
+                return window.screen.availWidth > window.screen.width ||
+                    window.screen.width > window.innerWidth + 200;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        /* ── Build the full-screen QR page HTML ─────────────── */
         function buildQrWindowHtml(totalUsd) {
             const totalKhrStr = fmtKhr(roundKhr100(toKhr(totalUsd)));
             const amountStr   = fmtUsd(totalUsd);
@@ -1039,59 +1069,48 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;}
 body{
     font-family:'Sora','Noto Sans Khmer',sans-serif;
-    background:#0C1118;
-    color:#E8F0F8;
-    min-height:100vh;
+    background:#0C1118;color:#E8F0F8;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:18px;padding:24px;
-    -webkit-font-smoothing:antialiased;
+    gap:16px;padding:24px;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(ellipse at 50% 0%,rgba(255,107,53,.07) 0%,transparent 65%);
 }
-.logo-area{display:flex;align-items:center;gap:9px;margin-bottom:2px;}
-.logo-dot{width:10px;height:10px;background:#FF6B35;border-radius:50%;box-shadow:0 0 12px rgba(255,107,53,.8);animation:pulse 2s infinite;}
-@@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 10px rgba(255,107,53,.7);}50%{opacity:.65;box-shadow:0 0 22px rgba(255,107,53,1);}}
-.logo-text{font-size:15px;font-weight:800;color:#E8F0F8;letter-spacing:.3px;}
+.logo-area{display:flex;align-items:center;gap:9px;}
+.logo-dot{width:11px;height:11px;background:#FF6B35;border-radius:50%;box-shadow:0 0 14px rgba(255,107,53,.9);animation:pulse 2s infinite;}
+@@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 12px rgba(255,107,53,.7);}50%{opacity:.6;box-shadow:0 0 26px rgba(255,107,53,1);}}
+.logo-text{font-size:17px;font-weight:900;color:#E8F0F8;letter-spacing:.3px;}
 .logo-text span{color:#FF6B35;}
-.title{font-size:20px;font-weight:900;color:#E8F0F8;letter-spacing:-.4px;}
-.subtitle{font-size:12px;font-weight:600;color:#6B7F96;margin-top:-6px;}
+.title{font-size:26px;font-weight:900;color:#E8F0F8;letter-spacing:-.5px;}
+.subtitle{font-size:13px;font-weight:600;color:#6B7F96;margin-top:-8px;}
 .qr-frame{
-    position:relative;
-    width:220px;height:220px;
-    background:#fff;border-radius:16px;padding:12px;
-    border:2.5px solid #FF6B35;
-    box-shadow:0 0 0 4px rgba(255,107,53,.12),0 12px 32px rgba(0,0,0,.25);
+    position:relative;width:260px;height:260px;
+    background:#fff;border-radius:18px;padding:14px;
+    border:3px solid #FF6B35;
+    box-shadow:0 0 0 5px rgba(255,107,53,.12),0 16px 48px rgba(0,0,0,.35);
+    flex-shrink:0;
 }
-.qr-corner{position:absolute;width:22px;height:22px;border-color:#FF6B35;border-style:solid;}
-.qr-corner.tl{top:-2px;left:-2px;border-width:4px 0 0 4px;border-radius:5px 0 0 0;}
-.qr-corner.tr{top:-2px;right:-2px;border-width:4px 4px 0 0;border-radius:0 5px 0 0;}
-.qr-corner.bl{bottom:-2px;left:-2px;border-width:0 0 4px 4px;border-radius:0 0 0 5px;}
-.qr-corner.br{bottom:-2px;right:-2px;border-width:0 4px 4px 0;border-radius:0 0 5px 0;}
-.qr-inner{width:192px;height:192px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.qr-inner img{width:100%;height:100%;object-fit:contain;display:block;}
-.qr-inner canvas{display:block;}
-.pulse-ring{
-    position:absolute;inset:-12px;border-radius:22px;
-    border:2px solid rgba(255,107,53,.2);
-    animation:ringPulse 2.5s ease-in-out infinite;pointer-events:none;
-}
-@@keyframes ringPulse{0%,100%{opacity:.5;transform:scale(1);}50%{opacity:.1;transform:scale(1.04);}}
-.amount{font-size:32px;font-weight:900;color:#FF6B35;letter-spacing:-.8px;}
-.amount-khr{font-size:13px;font-weight:600;color:#6B7F96;margin-top:-8px;}
-.merchant-row{display:flex;flex-direction:column;align-items:center;gap:3px;}
-.merchant{font-size:13px;font-weight:700;color:#E8F0F8;}
-.bank{font-size:11px;font-weight:500;color:#6B7F96;}
-.scan-badge{
-    display:flex;align-items:center;gap:7px;
-    background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);
-    border-radius:24px;padding:6px 16px;
-    font-size:11.5px;font-weight:700;color:#FF6B35;
-}
-.timer-wrap{width:100%;max-width:260px;}
-.timer-bar{background:rgba(255,255,255,.06);border-radius:20px;height:5px;overflow:hidden;}
-.timer-fill{height:100%;background:linear-gradient(90deg,#FF6B35,#E85520);border-radius:20px;width:100%;transition:width 120s linear;}
-.timer-label{font-size:10.5px;font-weight:600;color:#6B7F96;text-align:center;margin-top:5px;}
-.timer-label span{font-weight:800;color:#FF6B35;}
+.qr-corner{position:absolute;width:26px;height:26px;border-color:#FF6B35;border-style:solid;}
+.qr-corner.tl{top:-3px;left:-3px;border-width:5px 0 0 5px;border-radius:6px 0 0 0;}
+.qr-corner.tr{top:-3px;right:-3px;border-width:5px 5px 0 0;border-radius:0 6px 0 0;}
+.qr-corner.bl{bottom:-3px;left:-3px;border-width:0 0 5px 5px;border-radius:0 0 0 6px;}
+.qr-corner.br{bottom:-3px;right:-3px;border-width:0 5px 5px 0;border-radius:0 0 6px 0;}
+.qr-inner{width:228px;height:228px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.pulse-ring{position:absolute;inset:-14px;border-radius:24px;border:2px solid rgba(255,107,53,.2);animation:pring 2.5s ease-in-out infinite;pointer-events:none;}
+@@keyframes pring{0%,100%{opacity:.5;transform:scale(1);}50%{opacity:.08;transform:scale(1.05);}}
+.scan-line{position:absolute;left:14px;right:14px;height:2.5px;background:linear-gradient(90deg,transparent,#FF6B35,transparent);animation:scanAnim 2.2s linear infinite;opacity:.85;}
+@@keyframes scanAnim{0%{top:14px;}100%{top:calc(100% - 16px);}}
+.amount{font-size:40px;font-weight:900;color:#FF6B35;letter-spacing:-.8px;line-height:1;}
+.amount-khr{font-size:15px;font-weight:600;color:#6B7F96;margin-top:-4px;}
+.merchant{font-size:14px;font-weight:800;color:#E8F0F8;}
+.bank{font-size:11.5px;font-weight:500;color:#6B7F96;margin-top:2px;}
+.scan-badge{display:flex;align-items:center;gap:8px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.22);border-radius:28px;padding:7px 18px;font-size:12.5px;font-weight:700;color:#FF6B35;}
+.timer-wrap{width:100%;max-width:280px;}
+.timer-bar{background:rgba(255,255,255,.07);border-radius:20px;height:6px;overflow:hidden;}
+.timer-fill{height:100%;background:linear-gradient(90deg,#FF6B35,#E85520);border-radius:20px;width:100%;transition:width linear;}
+.timer-label{font-size:11px;font-weight:600;color:#6B7F96;text-align:center;margin-top:6px;}
+.timer-label span{font-weight:900;color:#FF6B35;}
 </style>
 </head>
 <body>
@@ -1102,25 +1121,19 @@ body{
 <div class="title">ទូទាត់តាម KHQR</div>
 <div class="subtitle">ស្កែ QR Code ខាងក្រោម ដើម្បីធ្វើការបង់ប្រាក់</div>
 <div class="qr-frame">
-    <span class="qr-corner tl"></span>
-    <span class="qr-corner tr"></span>
-    <span class="qr-corner bl"></span>
-    <span class="qr-corner br"></span>
+    <span class="qr-corner tl"></span><span class="qr-corner tr"></span>
+    <span class="qr-corner bl"></span><span class="qr-corner br"></span>
     <div class="pulse-ring"></div>
-    <div class="qr-inner">
-        <canvas id="qrCanvas" width="192" height="192"></canvas>
-    </div>
+    <div class="scan-line"></div>
+    <div class="qr-inner"><canvas id="qrCanvas" width="228" height="228"></canvas></div>
 </div>
 <div class="amount" id="amountDisplay">${amountStr}</div>
 <div class="amount-khr">${totalKhrStr}</div>
-<div class="merchant-row">
+<div style="text-align:center;">
     <div class="merchant">ផ្ទះបាយសេនឌូ</div>
-    <div class="bank">ABA Bank · 0000123456</div>
+    <div class="bank">🏦 ABA Bank · 0000123456</div>
 </div>
-<div class="scan-badge">
-    <span>📱</span>
-    <span>ស្កែ QR ដោយ ABA / ACLEDA / Wing</span>
-</div>
+<div class="scan-badge">📱 ស្កែន QR ដោយ ABA / ACLEDA / Wing</div>
 <div class="timer-wrap">
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
     <div class="timer-label">ផុតកំណត់ក្នុង <span id="timerLabel">2:00</span></div>
@@ -1129,58 +1142,205 @@ body{
 <script>
 (function(){
     const qrText='KHQR|SandooHouse|ABA|0000123456|USD|${totalUsd.toFixed(2)}|'+Date.now();
-    QRCode.toCanvas(document.getElementById('qrCanvas'),qrText,{width:192,margin:1,color:{dark:'#12100D',light:'#ffffff'},errorCorrectionLevel:'H'},function(){});
+    QRCode.toCanvas(document.getElementById('qrCanvas'),qrText,
+        {width:228,margin:1,color:{dark:'#12100D',light:'#ffffff'},errorCorrectionLevel:'H'},
+        function(){});
+    /* timer */
     const fill=document.getElementById('timerFill');
     const label=document.getElementById('timerLabel');
     void fill.offsetWidth;
+    fill.style.transition='width 120s linear';
     fill.style.width='0%';
     let secs=120;
     const iv=setInterval(function(){
         secs--;
-        const m=Math.floor(secs/60), s=String(secs%60).padStart(2,'0');
+        const m=Math.floor(secs/60),s=String(secs%60).padStart(2,'0');
         label.textContent=m+':'+s;
-        if(secs<=0){clearInterval(iv);label.textContent='ផុតកំណត់!';label.style.color='#EF4444';window.close();}
+        if(secs<=30)document.querySelector('.timer-label span').style.color='#EF4444';
+        if(secs<=0){clearInterval(iv);label.textContent='ផុតកំណត់!';window.close();}
     },1000);
+    /* allow parent to close us cleanly */
+    window.addEventListener('beforeunload',function(){clearInterval(iv);});
 })();
 <\/script>
 </body>
 </html>`;
         }
 
-        /* Open QR in new window */
-        function openQrInNewWindow(totalUsd) {
-            const w = 420, h = 720;
-            const left = Math.round((screen.width - w) / 2);
-            const top  = Math.round((screen.height - h) / 2);
-            qrWindow = window.open('', 'SandooKHQR',
-                `width=${w},height=${h},left=${left},top=${top},resizable=no,scrollbars=no,toolbar=no,menubar=no,location=no,status=no`
+        /* ── Open QR popup on second screen ─────────────────── */
+        function openQrOnSecondScreen(totalUsd) {
+            /*
+             * Strategy: open a borderless window positioned at
+             * (screen.width, 0) — i.e., just past the right edge of
+             * screen 1 — and immediately request fullscreen inside it.
+             * The browser places it on screen 2 in an extended setup.
+             */
+            const sw = window.screen.width;   /* width of primary screen */
+            const sh = window.screen.height;
+            qrWindow = window.open(
+                '',
+                'SandooKHQR_Display',
+                `width=${sw},height=${sh},left=${sw},top=0,` +
+                `resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no`
             );
             if (!qrWindow) {
-                notify('បើក popup ត្រូវបានរារាំង! សូម allow popup ហើយព្យាយាមម្ដងទៀត', 'error');
+                /* Popup blocker fired */
+                showNoScreenModal(totalUsd, 'popup_blocked');
                 return false;
             }
             qrWindow.document.open();
             qrWindow.document.write(buildQrWindowHtml(totalUsd));
             qrWindow.document.close();
+
+            /* Ask the new window to go fullscreen after a short delay */
+            qrWindow.addEventListener('load', function () {
+                try { qrWindow.document.documentElement.requestFullscreen(); } catch(e) {}
+            });
+            /* Fallback: try after 400 ms */
+            setTimeout(function () {
+                try {
+                    if (qrWindow && !qrWindow.closed)
+                        qrWindow.document.documentElement.requestFullscreen();
+                } catch(e) {}
+            }, 400);
+
             return true;
         }
 
-        function updateQrWindow(totalUsd) {
-            /* optionally update amount display in the QR window */
-            if (qrWindow && !qrWindow.closed) {
-                try {
-                    const el = qrWindow.document.getElementById('amountDisplay');
-                    if (el) el.textContent = fmtUsd(totalUsd);
-                } catch(e) {}
-            }
+        /* ── "No second screen" guidance modal ──────────────── */
+        /* (injected into the page body once; toggled via class) */
+        (function injectNoScreenModal() {
+            if (document.getElementById('noScreenModal')) return;
+            $('body').append(`
+<div id="noScreenModal" style="
+    display:none;position:fixed;inset:0;z-index:19000;
+    background:rgba(12,10,8,.78);backdrop-filter:blur(10px);
+    align-items:center;justify-content:center;padding:16px;">
+  <div style="
+      background:#fff;border-radius:24px;max-width:480px;width:100%;
+      box-shadow:0 24px 64px rgba(0,0,0,.22);border:1px solid #E0DAD3;
+      overflow:hidden;animation:slideUp .3s cubic-bezier(.34,1.2,.64,1);">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1C2340,#2D3561);padding:22px 24px 18px;text-align:center;">
+      <div style="width:56px;height:56px;background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.35);
+          border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+        <i class="fas fa-desktop" style="font-size:22px;color:#FCA5A5;"></i>
+      </div>
+      <h3 style="font-size:17px;font-weight:800;color:#fff;margin:0 0 4px;">គ្មានអេក្រង់ទី 2!</h3>
+      <p style="font-size:12px;color:rgba(255,255,255,.45);font-weight:500;margin:0;">
+        ត្រូវការ Extended Display ដើម្បីបង្ហាញ KHQR ដល់អតិថិជន
+      </p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:20px 24px;">
+
+      <!-- Status indicator -->
+      <div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:12px;padding:12px 14px;
+          display:flex;align-items:center;gap:11px;margin-bottom:16px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#FEE2E2;
+            display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fas fa-times-circle" style="color:#EF4444;font-size:16px;"></i>
+        </div>
+        <div>
+          <div style="font-size:12.5px;font-weight:700;color:#7F1D1D;margin-bottom:2px;"> អេក្រង់តែមួយ (Single Display)</div>
+          <div style="font-size:11px;font-weight:500;color:#991B1B;">QR មិនអាចបង្ហាញដល់អតិថិជន</div>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9C9189;margin-bottom:8px;">
+        វិធីបើក Extended Display
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;border:1px solid #E0DAD3;">
+          <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">1</div>
+          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">
+            <strong style="color:#1A1714;">Windows:</strong> ចុច <kbd style="background:#E0DAD3;padding:1px 5px;border-radius:4px;font-size:10px;">Win + P</kbd>
+            → ជ្រើស <strong>Extend</strong>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;border:1px solid #E0DAD3;">
+          <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">2</div>
+          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">
+            <strong style="color:#1A1714;">Mac:</strong> System Settings → Displays → Use as <strong>Extended Display</strong>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;border:1px solid #E0DAD3;">
+          <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">3</div>
+          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">
+            បន្ទាប់មក ចុច <strong style="color:#FF6B35;">«ព្យាយាមម្ដងទៀត»</strong> ខាងក្រោម
+          </div>
+        </div>
+      </div>
+
+      <!-- Tip -->
+      <div style="background:#FFF3EE;border:1px solid rgba(255,107,53,.2);border-radius:10px;padding:9px 12px;
+          display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <i class="fas fa-lightbulb" style="color:#FF6B35;font-size:13px;flex-shrink:0;"></i>
+        <div style="font-size:11px;font-weight:600;color:#7A3A00;line-height:1.6;">
+          ភ្ជាប់ម៉ូនីទ័រ (Monitor) ឬ TV សម្រាប់ Customer Display រួចបើក Extend mode
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="display:flex;gap:8px;padding:0 24px 20px;">
+      <button id="noScreenRetryBtn" style="
+          flex:2;height:46px;background:linear-gradient(135deg,#FF6B35,#E85520);color:#fff;
+          border:none;border-radius:11px;font-family:var(--font);font-size:13px;font-weight:800;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+          box-shadow:0 5px 16px rgba(255,107,53,.32);transition:all .16s;">
+        <i class="fas fa-redo"></i> ព្យាយាមម្ដងទៀត
+      </button>
+      <button id="noScreenCancelBtn" style="
+          flex:1;height:46px;background:#F4F1ED;color:#574F47;
+          border:1.5px solid #E0DAD3;border-radius:11px;font-family:var(--font);
+          font-size:12px;font-weight:700;cursor:pointer;display:flex;
+          align-items:center;justify-content:center;gap:6px;transition:all .16s;">
+        <i class="fas fa-times"></i> បោះបង់
+      </button>
+    </div>
+  </div>
+</div>`);
+            /* Retry button */
+            $('#noScreenRetryBtn').on('click', function () {
+                hideNoScreenModal();
+                /* Re-check and try again */
+                if (_pendingQrUsd !== null) {
+                    setTimeout(function () { openKhqrFlow(_pendingQrUsd); }, 200);
+                }
+            });
+            /* Cancel button */
+            $('#noScreenCancelBtn').on('click', function () {
+                _pendingQrUsd = null;
+                hideNoScreenModal();
+                notify('បោះបង់ KHQR — ភ្ជាប់ Monitor ហើយព្យាយាមម្ដងទៀត', 'warning');
+            });
+        })();
+
+        function showNoScreenModal(totalUsd, reason) {
+            _pendingQrUsd = totalUsd;
+            $('#noScreenModal').css('display', 'flex');
+        }
+        function hideNoScreenModal() {
+            $('#noScreenModal').css('display', 'none');
         }
 
+        /* ── Main entry point ───────────────────────────────── */
         function openKhqrFlow(totalUsd) {
-            /* 1. Open QR in a new browser window */
-            const opened = openQrInNewWindow(totalUsd);
-            if (!opened) return;
+            /* 1. Check for extended / second screen */
+            if (!hasSecondScreen()) {
+                showNoScreenModal(totalUsd);
+                return;
+            }
 
-            /* 2. Also update inline customer panel QR overlay */
+            /* 2. Open QR fullscreen on screen 2 */
+            const opened = openQrOnSecondScreen(totalUsd);
+            if (!opened) return;   /* popup blocked — modal already shown */
+
+            /* 3. Update inline customer panel QR overlay (fallback / mirror) */
             $('#cdQrAmount').text(fmtUsd(totalUsd));
             $('#cdQrKhr').text(fmtKhr(toKhr(totalUsd)));
             const cdFill = document.getElementById('cdQrTimerFill');
@@ -1189,7 +1349,7 @@ body{
             cdFill.style.transition = 'width 120s linear'; cdFill.style.width = '0%';
             $('#cdQrOverlay').addClass('show');
 
-            /* 3. Show cashier waiting modal */
+            /* 4. Show cashier waiting modal */
             $('#cqrAmount').text(fmtUsd(totalUsd));
             $('#cqrKhr').text(fmtKhr(toKhr(totalUsd)));
             const cFill = document.getElementById('cqrTimerFill');
@@ -1199,13 +1359,13 @@ body{
 
             startKhqrCountdown(120);
             $('#cashierQrModal').addClass('show');
+            _pendingQrUsd = null;
         }
 
         function closeKhqrFlow() {
             clearInterval(khqrTimer);
             $('#cashierQrModal').removeClass('show');
             $('#cdQrOverlay').removeClass('show');
-            /* Close the QR popup window if still open */
             if (qrWindow && !qrWindow.closed) { qrWindow.close(); qrWindow = null; }
         }
 

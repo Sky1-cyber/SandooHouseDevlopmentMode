@@ -1,0 +1,525 @@
+﻿@using Sandoohouse.Models.Enum
+@model Sandoohouse.Models.ModelViewer.SupplierModelViewer.SupplierViewModel
+
+@{
+ViewData["Title"] = "Edit Supplier";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --brand:        #FF6B35;
+        --brand-dark:   #E85520;
+        --brand-light:  #FFF0EA;
+        --brand-mid:    rgba(255,107,53,.13);
+        --accent:       #1C2340;
+        --success:      #00B894;
+        --success-bg:   rgba(0,184,148,.1);
+        --warning:      #F0A500;
+        --warning-bg:   rgba(240,165,0,.1);
+        --danger:       #E84545;
+        --danger-bg:    rgba(232,69,69,.1);
+        --bg:           #F2EFE9;
+        --surface:      #FFFFFF;
+        --surface2:     #FAF8F5;
+        --surface3:     #F4F1EC;
+        --border:       #EAE5DC;
+        --border-s:     #D8D2C8;
+        --text:         #18150F;
+        --text-sub:     #6E685F;
+        --text-light:   #AEA89F;
+        --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+        --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+        --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+        --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+        --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+        --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+        --font: 'Sora', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .es-page {
+        font-family: var(--font);
+        background: var(--bg);
+        background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+        background-size: 28px 28px;
+        min-height: 100vh;
+        padding: 28px 24px;
+        color: var(--text);
+    }
+
+    /* ── Topbar ── */
+    .es-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+        max-width: 900px; margin-left: auto; margin-right: auto;
+    }
+    .es-topbar h1 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 5px; letter-spacing: -.4px; }
+    .es-breadcrumb {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+    }
+    .es-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+    .es-breadcrumb a:hover { color: var(--brand); }
+    .es-breadcrumb .sep { color: var(--border-s); }
+    .es-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+    /* ── Wrapper ── */
+    .es-wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; }
+
+    /* ── Hero ── */
+    .es-hero {
+        background: var(--accent);
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+        padding: 30px 36px;
+        display: flex; align-items: center; gap: 20px;
+        position: relative; overflow: hidden;
+    }
+    .es-hero::before {
+        content: ''; position: absolute; inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+    .es-hero::after {
+        content: ''; position: absolute; width: 280px; height: 280px; border-radius: 50%;
+        background: rgba(255,107,53,.08); top: -100px; right: -60px; pointer-events: none;
+    }
+    .es-hero-circle {
+        position: absolute; width: 200px; height: 200px; border-radius: 50%;
+        background: rgba(255,255,255,.03); bottom: -80px; left: 200px; pointer-events: none;
+    }
+    .es-hero-badge {
+        width: 56px; height: 56px; border-radius: 15px; background: var(--brand);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: #fff; flex-shrink: 0; z-index: 1; box-shadow: var(--shadow-brand);
+    }
+    .es-hero-text { z-index: 1; flex: 1; min-width: 0; }
+    .es-hero-text h2 { font-size: 19px; font-weight: 800; color: #fff; margin: 0 0 5px; letter-spacing: -.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .es-hero-text p  { font-size: 12px; color: rgba(255,255,255,.5); margin: 0; font-weight: 500; }
+    .es-hero-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 14px; border-radius: 20px; z-index: 1; flex-shrink: 0;
+        background: var(--success-bg); color: var(--success);
+        border: 1px solid rgba(0,184,148,.25); font-size: 11px; font-weight: 700;
+    }
+
+    /* ── Form area ── */
+    .es-form-area {
+        background: var(--surface);
+        border: 1.5px solid var(--border); border-top: none;
+        border-radius: 0 0 var(--r-lg) var(--r-lg);
+        box-shadow: var(--shadow-md); overflow: hidden;
+    }
+    .es-body { padding: 32px 36px 28px; }
+
+    /* ── Logo upload ── */
+    .es-logo-section {
+        display: flex; align-items: center; gap: 24px;
+        padding: 20px 24px; margin-bottom: 28px;
+        background: var(--surface2); border: 1.5px solid var(--border);
+        border-radius: var(--r-md);
+    }
+    .es-logo-wrap { position: relative; cursor: pointer; flex-shrink: 0; }
+    .es-logo-img {
+        width: 90px; height: 90px; border-radius: var(--r-md);
+        overflow: hidden; border: 2px solid var(--border);
+        background: var(--surface); box-shadow: var(--shadow-sm); transition: border-color .2s;
+    }
+    .es-logo-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .es-logo-overlay {
+        position: absolute; inset: 0; border-radius: var(--r-md);
+        background: rgba(24,21,15,.55);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        opacity: 0; transition: opacity .2s;
+    }
+    .es-logo-overlay i    { font-size: 20px; color: #fff; }
+    .es-logo-overlay span { font-size: 10px; color: rgba(255,255,255,.85); font-weight: 700; }
+    .es-logo-wrap:hover .es-logo-img { border-color: var(--brand); }
+    .es-logo-wrap:hover .es-logo-overlay { opacity: 1; }
+
+    .es-logo-info { flex: 1; }
+    .es-logo-info h5 { font-size: 14px; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+    .es-logo-info p  { font-size: 12px; color: var(--text-light); margin: 0 0 12px; }
+
+    .btn-pick-logo {
+        display: inline-flex; align-items: center; gap: 6px;
+        height: 36px; padding: 0 16px;
+        border: 1.5px solid var(--brand); border-radius: var(--r-xl);
+        background: var(--brand-light); color: var(--brand);
+        font-family: var(--font); font-size: 12px; font-weight: 700;
+        cursor: pointer; transition: all .16s;
+    }
+    .btn-pick-logo:hover { background: var(--brand); color: #fff; }
+
+    /* ── Section heading ── */
+    .es-sec {
+        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+        color: var(--text-light); margin: 0 0 16px; padding-bottom: 10px;
+        border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+    }
+    .es-sec i { font-size: 12px; color: var(--brand); }
+
+    /* ── Grid ── */
+    .es-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+    .es-grid .full { grid-column: 1 / -1; }
+
+    /* ── Field ── */
+    .es-field { display: flex; flex-direction: column; gap: 6px; }
+    .es-label {
+        font-size: 11px; font-weight: 700; color: var(--text-sub);
+        text-transform: uppercase; letter-spacing: .05em;
+        display: flex; align-items: baseline; gap: 4px;
+    }
+    .es-label .req { color: var(--brand); font-size: 14px; line-height: .8; text-transform: none; letter-spacing: 0; }
+    .es-label .opt { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+    .es-control {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        background: var(--surface2); overflow: hidden;
+        transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .es-control:focus-within {
+        border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-mid); background: var(--surface);
+    }
+    .es-control.err { border-color: var(--danger); }
+    .es-control.err:focus-within { box-shadow: 0 0 0 3px var(--danger-bg); }
+    .es-control.readonly { background: var(--surface3); }
+    .es-control.readonly:focus-within { border-color: var(--border); box-shadow: none; }
+    .es-control.textarea-mode { align-items: flex-start; }
+    .es-control.textarea-mode .es-prefix { padding-top: 13px; align-self: flex-start; }
+
+    .es-prefix {
+        width: 44px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; color: var(--text-light);
+        border-right: 1.5px solid var(--border); background: var(--surface);
+        transition: color .15s, border-color .15s;
+    }
+    .es-control:focus-within .es-prefix { color: var(--brand); border-color: var(--brand); }
+    .es-control.readonly .es-prefix { background: var(--surface3); color: var(--text-light); }
+
+    .es-inp {
+        flex: 1; height: 46px; padding: 0 14px;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+    }
+    .es-inp::placeholder { color: var(--text-light); font-weight: 400; }
+    .es-inp[readonly] { color: var(--text-sub); cursor: default; }
+
+    .es-select {
+        flex: 1; height: 46px; padding: 0 38px 0 14px;
+        border: none; outline: none;
+        background-color: transparent;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23AEA89F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 14px center; background-size: 14px 14px;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        cursor: pointer; width: 100%;
+    }
+    .es-control:focus-within .es-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23FF6B35' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    }
+    .es-select:focus { outline: none; box-shadow: none; border: none; }
+    .es-select option { font-family: var(--font); color: var(--text); background: var(--surface); }
+
+    .es-area {
+        flex: 1; padding: 13px 14px; min-height: 100px; resize: vertical;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text);
+        line-height: 1.65; font-weight: 500;
+    }
+    .es-area::placeholder { color: var(--text-light); font-weight: 400; }
+
+    .es-val-msg { font-size: 11px; color: var(--danger); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .es-hint    { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+
+    /* ── Timestamps ── */
+    .es-ts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .es-ts-cell {
+        padding: 13px 15px;
+        background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        position: relative; overflow: hidden;
+    }
+    .es-ts-cell::before {
+        content: ''; position: absolute; top: 0; left: 0;
+        width: 3px; height: 100%; background: var(--brand); border-radius: 0 2px 2px 0;
+    }
+    .es-ts-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--text-light); margin-bottom: 5px; }
+    .es-ts-val   { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .es-ts-val i { font-size: 12px; color: var(--brand); }
+
+    /* ── Actions ── */
+    .es-actions { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+
+    .btn-update-sup {
+        flex: 1; height: 48px; min-width: 160px;
+        background: var(--brand); color: #fff;
+        border: none; border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: var(--shadow-brand); transition: all .18s; letter-spacing: .01em;
+    }
+    .btn-update-sup:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,53,.4); }
+    .btn-update-sup:active { transform: translateY(0); }
+
+    .btn-cancel-sup {
+        height: 48px; padding: 0 22px;
+        background: var(--surface); color: var(--text-sub);
+        border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        text-decoration: none; transition: all .18s;
+    }
+    .btn-cancel-sup:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); text-decoration: none; }
+
+    /* ── Responsive ── */
+    @@media (max-width: 680px) {
+        .es-grid { grid-template-columns: 1fr; }
+        .es-grid .full { grid-column: 1; }
+        .es-ts-grid { grid-template-columns: 1fr; }
+        .es-body { padding: 24px 20px; }
+        .es-hero { padding: 24px 22px; gap: 14px; }
+        .es-hero-badge { width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
+        .es-hero-text h2 { font-size: 17px; }
+        .es-logo-section { flex-direction: column; align-items: flex-start; gap: 16px; }
+        .es-actions { flex-direction: column; }
+        .btn-update-sup, .btn-cancel-sup { min-width: unset; width: 100%; }
+    }
+</style>
+
+<div class="es-page">
+
+    <!-- Topbar -->
+    <div class="es-topbar">
+        <div>
+            <h1>Edit Supplier</h1>
+            <nav class="es-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-action="Index">Suppliers</a>
+                <span class="sep">›</span>
+                <span class="cur">Edit · @Model.CompanyName</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="es-wrap">
+
+        <!-- ── Hero ── -->
+        <div class="es-hero">
+            <div class="es-hero-circle"></div>
+            <div class="es-hero-badge"><i class="bi bi-pencil-square"></i></div>
+            <div class="es-hero-text">
+                <h2>@Model.CompanyName</h2>
+                <p>Edit supplier details · ID #@Model.SupplierId</p>
+            </div>
+            <span class="es-hero-pill">
+                <i class="bi bi-pencil-fill" style="font-size:10px;"></i> Editing
+            </span>
+        </div>
+
+        <!-- ── Form area ── -->
+        <div class="es-form-area">
+            <div class="es-body">
+                <form asp-action="EditSupplier" method="post" enctype="multipart/form-data"
+                      class="needs-validation" novalidate>
+
+                    <input type="hidden" asp-for="SupplierId" />
+
+                    <!-- ── Logo upload ── -->
+                    <div class="es-logo-section">
+                        <div class="es-logo-wrap" onclick="document.getElementById('companyImageInput').click();">
+                            <div class="es-logo-img">
+                                <img id="previewImage"
+                                     src="@(!string.IsNullOrEmpty(Model.CompanyProfile) ? Url.Content($"~/uploads/suppliers/{Model.CompanyProfile}") : "~/images/default-company.png")"
+                                     onerror="this.src='https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.CompanyName ?? "Co")&background=FF6B35&color=fff&size=90'"
+                                     alt="@Model.CompanyName" />
+                            </div>
+                            <div class="es-logo-overlay">
+                                <i class="bi bi-camera-fill"></i>
+                                <span>Change</span>
+                            </div>
+                        </div>
+                        <div class="es-logo-info">
+                            <h5>Company Logo</h5>
+                            <p>Upload a new logo to replace the current one. JPG, PNG or GIF · Max 2 MB</p>
+                            <label for="companyImageInput" class="btn-pick-logo">
+                                <i class="bi bi-cloud-arrow-up-fill"></i> Change Logo
+                            </label>
+                            <input asp-for="CompanyProfileFile" id="companyImageInput" type="file"
+                                   style="display:none;" accept="image/*" onchange="previewLogo(event)" />
+                        </div>
+                    </div>
+
+                    <!-- ── Company information ── -->
+                    <div class="es-sec"><i class="bi bi-building-fill"></i> Company Information</div>
+
+                    <div class="es-grid">
+
+                        <div class="es-field">
+                            <label class="es-label">Company Name <span class="req">*</span></label>
+                            <div class="es-control @(ViewData.ModelState["CompanyName"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-building"></i></span>
+                                <input asp-for="CompanyName" class="es-inp" placeholder="Enter company name" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="CompanyName" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field">
+                            <label class="es-label">Contact Person <span class="req">*</span></label>
+                            <div class="es-control @(ViewData.ModelState["ContactPerson"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-person"></i></span>
+                                <input asp-for="ContactPerson" class="es-inp" placeholder="Enter contact person name" />
+                            </div>
+                            <span asp-validation-for="ContactPerson" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field">
+                            <label class="es-label">Phone Number <span class="req">*</span></label>
+                            <div class="es-control @(ViewData.ModelState["Phone"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="Phone" class="es-inp" placeholder="+855 000 000 000" type="tel" />
+                            </div>
+                            <span asp-validation-for="Phone" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field">
+                            <label class="es-label">Email Address <span class="opt">&nbsp;optional</span></label>
+                            <div class="es-control @(ViewData.ModelState["Email"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="es-inp" placeholder="supplier@example.com" type="email" />
+                            </div>
+                            <span asp-validation-for="Email" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field">
+                            <label class="es-label">Status <span class="req">*</span></label>
+                            <div class="es-control @(ViewData.ModelState["Status"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-toggle-on"></i></span>
+                                <select asp-for="Status" class="es-select"
+                                        asp-items="Html.GetEnumSelectList<SupplierStatus>()">
+                                </select>
+                            </div>
+                            <span asp-validation-for="Status" class="es-val-msg"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- ── Address ── -->
+                    <div class="es-sec" style="margin-top:4px;"><i class="bi bi-geo-alt-fill"></i> Address Details</div>
+
+                    <div class="es-grid">
+
+                        <div class="es-field full">
+                            <label class="es-label">Street Address <span class="opt">&nbsp;optional</span></label>
+                            <div class="es-control @(ViewData.ModelState["Address"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-geo-alt"></i></span>
+                                <input asp-for="Address" class="es-inp" placeholder="Enter street address" />
+                            </div>
+                            <span asp-validation-for="Address" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field">
+                            <label class="es-label">City <span class="opt">&nbsp;optional</span></label>
+                            <div class="es-control @(ViewData.ModelState["City"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-pin-map"></i></span>
+                                <input asp-for="City" class="es-inp" placeholder="City" />
+                            </div>
+                            <span asp-validation-for="City" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field">
+                            <label class="es-label">State / Province <span class="opt">&nbsp;optional</span></label>
+                            <div class="es-control @(ViewData.ModelState["State"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-map"></i></span>
+                                <input asp-for="State" class="es-inp" placeholder="State or Province" />
+                            </div>
+                            <span asp-validation-for="State" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field">
+                            <label class="es-label">Country <span class="opt">&nbsp;optional</span></label>
+                            <div class="es-control @(ViewData.ModelState["Country"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-globe"></i></span>
+                                <input asp-for="Country" class="es-inp" placeholder="Country" />
+                            </div>
+                            <span asp-validation-for="Country" class="es-val-msg"></span>
+                        </div>
+
+                        <div class="es-field full">
+                            <label class="es-label">Notes <span class="opt">&nbsp;optional</span></label>
+                            <div class="es-control textarea-mode @(ViewData.ModelState["Notes"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="es-prefix"><i class="bi bi-chat-left-text"></i></span>
+                                <textarea asp-for="Notes" class="es-area" rows="4"
+                                          placeholder="Additional notes about this supplier…"></textarea>
+                            </div>
+                            <span asp-validation-for="Notes" class="es-val-msg"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- ── Timestamps ── -->
+                    <div class="es-sec"><i class="bi bi-clock-history"></i> Timestamps</div>
+                    <div class="es-ts-grid">
+                        <div class="es-ts-cell">
+                            <div class="es-ts-label">Created At</div>
+                            <div class="es-ts-val">
+                                <i class="bi bi-calendar-check"></i>
+                                @Model.CreatedAt.ToString("MMM dd, yyyy · hh:mm tt")
+                            </div>
+                        </div>
+                        <div class="es-ts-cell">
+                            <div class="es-ts-label">Last Updated</div>
+                            <div class="es-ts-val">
+                                <i class="bi bi-clock-history" style="color:var(--text-light);"></i>
+                                @(Model.UpdatedAt == default || Model.UpdatedAt == DateTime.MinValue
+                                ? "Never"
+                                : Model.UpdatedAt.ToString("MMM dd, yyyy · hh:mm tt"))
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Actions ── -->
+                    <div class="es-actions">
+                        <button type="submit" class="btn-update-sup">
+                            <i class="bi bi-check-circle-fill"></i> Save Changes
+                        </button>
+                        <a asp-action="Index" class="btn-cancel-sup">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div><!-- /.es-wrap -->
+</div><!-- /.es-page -->
+
+@section Scripts {
+<script>
+    function previewLogo(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { alert('File must be under 2 MB.'); e.target.value = ''; return; }
+        if (!file.type.match('image.*'))  { alert('Please select an image file.'); e.target.value = ''; return; }
+        const r = new FileReader();
+        r.onload = ev => { document.getElementById('previewImage').src = ev.target.result; };
+        r.readAsDataURL(file);
+    }
+
+    document.querySelectorAll('.needs-validation').forEach(form => {
+        form.addEventListener('submit', e => {
+            if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+            form.classList.add('was-validated');
+        }, false);
+    });
+</script>
+<partial name="_ValidationScriptsPartial" />
+}

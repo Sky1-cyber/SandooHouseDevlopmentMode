@@ -33,9 +33,12 @@ public class Order
     [Required]
     public OrderStatus OrderStatus { get; set; } = OrderStatus.Paid;
 
+    public int? ShiftId { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime? UpdatedAt { get; set; }
 
     // Navigation: One order has many order items
+    public virtual Shift? Shift { get; set; }
     public virtual ICollection<OrderItem>? OrderItems { get; set; }
 }

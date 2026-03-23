@@ -444,7 +444,7 @@
                                 <span class="em-prefix"><i class="bi bi-tag"></i></span>
                                 <input asp-for="MenuName" class="em-inp" placeholder="e.g. Iced Latte, Caesar Salad…" autocomplete="off" />
                             </div>
-                            <span asp-validation-for="MenuName" class="em-val-msg"><i class="bi bi-exclamation-circle"></i></span>
+                            <span asp-validation-for="MenuName" class="em-val-msg"></span>
                         </div>
 
                         <!-- Category -->
@@ -463,7 +463,7 @@
                                     }
                                 </select>
                             </div>
-                            <span asp-validation-for="CategoryId" class="em-val-msg"><i class="bi bi-exclamation-circle"></i></span>
+                            <span asp-validation-for="CategoryId" class="em-val-msg"></span>
                         </div>
 
                         <!-- Price section -->
@@ -477,7 +477,7 @@
                                     <span class="em-prefix"><i class="bi bi-currency-dollar"></i></span>
                                     <input asp-for="Price" class="em-inp" type="number" step="0.01" placeholder="0.00" id="priceInput" />
                                 </div>
-                                <span asp-validation-for="Price" class="em-val-msg"><i class="bi bi-exclamation-circle"></i></span>
+                                <span asp-validation-for="Price" class="em-val-msg"></span>
                                 <span class="em-hint"><i class="bi bi-info-circle"></i> Base selling price</span>
                             </div>
 

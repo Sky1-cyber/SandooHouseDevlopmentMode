@@ -130,9 +130,16 @@
               <ul class="nav nav-collapse">
 
                 <!-- Sale Report -->
-                <li class="@(currentController == "Sale" ? "active" : "")">
+                <li class="@(currentController == "Sale" && currentAction == "Index" ? "active" : "")">
                   <a asp-controller="Sale" asp-action="Index">
                     <span class="sub-item">Sale Report</span>
+                  </a>
+                </li>
+            
+                <!-- Shift Report -->
+                <li class="@(currentController == "Sale" && currentAction == "ShiftTable" ? "active" : "")">
+                  <a asp-controller="Sale" asp-action="ShiftTable">
+                    <span class="sub-item">Shift Report</span>
                   </a>
                 </li>
 

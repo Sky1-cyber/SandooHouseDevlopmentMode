@@ -57,10 +57,14 @@ public class OrderController : Controller
     {
         try
         {
+            var shift = await _applicationDbContext.Shifts
+                .FirstOrDefaultAsync(s => !s.IsClosed);
+            if (shift == null)
+                return BadRequest(new { error = "Shift not found." });
             var items = request.Items;
             var cashReceived = request.CashReceived;
             var discountAmount = request.DiscountAmount;
-
+            
             if (items == null || !items.Any())
             {
                 Console.WriteLine("No items in order");
@@ -106,6 +110,7 @@ public class OrderController : Controller
                 OrderStatus = OrderStatus.Paid,
                 OrderDate = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
+                ShiftId = shift.Id,
                 OrderItems = orderItems // Add items directly to the order
             };
 

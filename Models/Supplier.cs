@@ -13,19 +13,18 @@ public class Supplier
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int SupplierId { get; set; }
-    public int Id { get; set; }
 
     [Required, MaxLength(100)]
     public required string CompanyName { get; set; }
-    public string? CompanyProfile { get; set; }
-    
+
+    public string? CompanyProfile { get; set; } // image path or description
+
     [Required, MaxLength(50)]
     public required string ContactPerson { get; set; }
 
     [Required, Phone]
     public required string Phone { get; set; }
 
-    [EmailAddress]
     public string? Email { get; set; }
 
     public string? Address { get; set; }

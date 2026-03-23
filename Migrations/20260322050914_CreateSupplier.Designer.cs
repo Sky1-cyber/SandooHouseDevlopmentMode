@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sandoohouse.ApplicationProgram;
@@ -11,9 +12,11 @@ using Sandoohouse.ApplicationProgram;
 namespace Sandoohouse.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260322050914_CreateSupplier")]
+    partial class CreateSupplier
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -245,9 +248,6 @@ namespace Sandoohouse.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ShiftId")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(10,2)");
 
@@ -258,8 +258,6 @@ namespace Sandoohouse.Migrations
 
                     b.HasIndex("OrderNumber")
                         .IsUnique();
-
-                    b.HasIndex("ShiftId");
 
                     b.ToTable("Orders");
                 });
@@ -299,45 +297,6 @@ namespace Sandoohouse.Migrations
                     b.HasIndex("PosOrderId");
 
                     b.ToTable("OrderItems");
-                });
-
-            modelBuilder.Entity("Sandoohouse.Models.Shift", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CashierName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("ClosedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsClosed")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("OpeningCash")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("TotalOrders")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalSales")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Shifts");
                 });
 
             modelBuilder.Entity("Sandoohouse.Models.Supplier", b =>
@@ -439,15 +398,6 @@ namespace Sandoohouse.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Sandoohouse.Models.Order", b =>
-                {
-                    b.HasOne("Sandoohouse.Models.Shift", "Shift")
-                        .WithMany("Orders")
-                        .HasForeignKey("ShiftId");
-
-                    b.Navigation("Shift");
-                });
-
             modelBuilder.Entity("Sandoohouse.Models.OrderItem", b =>
                 {
                     b.HasOne("Sandoohouse.Models.Brand", "Brand")
@@ -495,11 +445,6 @@ namespace Sandoohouse.Migrations
             modelBuilder.Entity("Sandoohouse.Models.Order", b =>
                 {
                     b.Navigation("OrderItems");
-                });
-
-            modelBuilder.Entity("Sandoohouse.Models.Shift", b =>
-                {
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

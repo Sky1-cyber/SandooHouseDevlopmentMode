@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<Shift> Shifts { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

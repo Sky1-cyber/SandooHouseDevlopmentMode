@@ -22,7 +22,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
     <!-- ── TOP BAR ── -->
     <header class="topbar">
-        <img src="~/assets/img/kaiadmin/SandooHouse.ico" alt="Logo" class="topbar-logo"
+        <img src="~/assets/img/kaiadmin/SandooHouse.ico" alt="Logo" height="33"
              onerror="this.src='https://via.placeholder.com/100x32?text=POS'">
         <div class="topbar-divider"></div>
         <div class="topbar-info">
@@ -41,6 +41,10 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             <i class="fas fa-user-circle"></i>
             <span>@firstName @lastName</span>
         </div>
+        <button class="shift-btn" id="shiftBtn" onclick="showShiftModal(); return false;" title="Shift">
+            <i class="fas fa-clock"></i>
+            <span class="topbar-hide-sm">Shift</span>
+        </button>
         <a href="#" class="logout-btn" onclick="showLogoutModal(); return false;" title="Logout">
             <i class="fas fa-sign-out-alt"></i>
             <span class="topbar-hide-sm">Logout</span>
@@ -346,36 +350,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                     <canvas id="cqrFallbackCanvas" width="174" height="174" style="display:none;width:100%;height:100%;border-radius:7px;"></canvas>
                 </div>
-                <div style="display:flex;align-items:center;gap:5px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.18);border-radius:20px;padding:4px 12px;">
-                    <i class="fas fa-mobile-alt" style="color:#FF6B35;font-size:11px;"></i>
-                    <span style="font-size:10.5px;font-weight:700;color:#FF6B35;">ស្កែន QR ដោយ ABA / ACLEDA / Wing</span>
-                </div>
-            </div>
-
-            <div class="cashier-qr-status">
-                <div class="cashier-qr-status-icon"><i class="fas fa-spinner fa-spin"></i></div>
-                <div class="cashier-qr-status-text">
-                    <div class="cashier-qr-status-title">កំពុងរង់ចាំការស្កែ...</div>
-                    <div class="cashier-qr-status-sub">អតិថិជនកំពុងស្កែ QR នៅ Screen ផ្ទាល់ខ្លួន</div>
-                </div>
-                <div class="cashier-qr-countdown" id="cqrCountdown">2:00</div>
-            </div>
-
-            <div style="width:100%;">
-                <div style="background:var(--surface-3);border-radius:20px;height:5px;overflow:hidden;border:1px solid var(--border);">
-                    <div id="cqrTimerFill" style="height:100%;background:linear-gradient(90deg,#FF6B35,#E85520);border-radius:20px;width:100%;transition:width 120s linear;"></div>
-                </div>
-                <div style="font-size:10.5px;font-weight:600;color:var(--text-muted);text-align:center;margin-top:4px;" id="cqrTimerText">
-                    QR នឹងផុតកំណត់ក្នុង <span id="cqrCountdownSub">2:00</span>
-                </div>
-            </div>
-
-            <div style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:11px 13px;">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-muted);margin-bottom:7px;">ការណែនាំ</div>
-                <div style="font-size:11.5px;font-weight:600;color:var(--text-sub);line-height:1.75;">
-                    <i class="fas fa-check-circle" style="color:var(--success);margin-right:5px;"></i>ចុច <strong>«បង្ហាញបានទូទាត់»</strong> ប្រសិនបើអតិថិជនទូទាត់ជោគជ័យ<br>
-                    <i class="fas fa-times-circle" style="color:var(--danger);margin-right:5px;"></i>ចុច <strong>«បោះបង់»</strong> ប្រសិនបើការស្កែបរាជ័យ
-                </div>
             </div>
         </div>
         <div class="cashier-qr-footer">
@@ -458,7 +432,101 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
     </div>
 </div>
 
-<!-- LOGOUT MODAL -->
+<!-- ══ SHIFT MODAL ══ -->
+<div id="shiftModal" class="shift-modal">
+    <div class="shift-box">
+        <div class="shift-head">
+            <div class="shift-head-icon"><i class="fas fa-clock"></i></div>
+            <div>
+                <h3>វេនការងារ</h3>
+                <p>Shift Management · <span id="shiftCurrentDate">@DateTime.Now.ToString("dd MMM yyyy")</span></p>
+            </div>
+        </div>
+
+        <!-- NO SHIFT OPEN state -->
+        <div id="shiftClosedView">
+            <div class="shift-body">
+                <div class="shift-note">
+                    <i class="fas fa-info-circle"></i>
+                    <span>មិនទាន់មានវេនការងារបើក។ បញ្ចូលប្រាក់ចំណូលដំបូង ហើយចុច <strong>«ចាប់ផ្តើម»</strong> ដើម្បីបើកវេន។</span>
+                </div>
+                <div class="shift-cash-row">
+                    <div class="shift-cash-label"><i class="fas fa-dollar-sign" style="margin-right:5px;color:var(--warning);"></i>ប្រាក់ក្នុងកន្ត្រក (Opening Cash)</div>
+                    <div class="shift-cash-input-wrap">
+                        <span class="shift-cash-prefix">$</span>
+                        <input type="number" id="shiftOpeningCash" class="shift-cash-input" placeholder="0.00" min="0" step="0.01" value="0">
+                    </div>
+                </div>
+                <div class="shift-stats">
+                    <div class="shift-stat-card">
+                        <div class="shift-stat-label">Cashier</div>
+                        <div class="shift-stat-val" style="font-size:14px;">@firstName @lastName</div>
+                        <div class="shift-stat-sub">អ្នកគ្រប់គ្រង</div>
+                    </div>
+                    <div class="shift-stat-card">
+                        <div class="shift-stat-label">ម៉ោង</div>
+                        <div class="shift-stat-val" id="shiftCurrentTime">@DateTime.Now.ToString("hh:mm tt")</div>
+                        <div class="shift-stat-sub">ពេលចាប់ផ្ដើម</div>
+                    </div>
+                </div>
+            </div>
+            <div class="shift-footer">
+                <button class="shift-btn-start" id="shiftStartBtn">
+                    <i class="fas fa-play-circle"></i> ចាប់ផ្ដើមវេន
+                </button>
+                <button class="shift-btn-close" onclick="hideShiftModal()">
+                    <i class="fas fa-times"></i> បិទ
+                </button>
+            </div>
+        </div>
+
+        <!-- SHIFT OPEN state -->
+        <div id="shiftOpenView" style="display:none;">
+            <div class="shift-body">
+                <div class="shift-status-card">
+                    <div class="shift-status-dot"></div>
+                    <div>
+                        <div class="shift-status-label">វេនការងារកំពុងដំណើរការ</div>
+                        <div class="shift-status-time" id="shiftStartedTime">ចាប់ផ្ដើម — —</div>
+                    </div>
+                    <div class="shift-status-hrs" id="shiftElapsed">0:00</div>
+                </div>
+                <div class="shift-stats">
+                    <div class="shift-stat-card">
+                        <div class="shift-stat-label">ការកម្មង់</div>
+                        <div class="shift-stat-val brand" id="shiftOrderCount">0</div>
+                        <div class="shift-stat-sub">ការលក់</div>
+                    </div>
+                    <div class="shift-stat-card">
+                        <div class="shift-stat-label">ចំណូលរួម</div>
+                        <div class="shift-stat-val brand" id="shiftRevenue">$0.00</div>
+                        <div class="shift-stat-sub">USD</div>
+                    </div>
+                    <div class="shift-stat-card">
+                        <div class="shift-stat-label">ប្រាក់ចំណូលដំបូង</div>
+                        <div class="shift-stat-val" id="shiftOpenCashDisplay">$0.00</div>
+                        <div class="shift-stat-sub">Opening cash</div>
+                    </div>
+                    <div class="shift-stat-card">
+                        <div class="shift-stat-label">សរុបក្នុងកន្ត្រក</div>
+                        <div class="shift-stat-val brand" id="shiftTotalCash">$0.00</div>
+                        <div class="shift-stat-sub">Est. cash in drawer</div>
+                    </div>
+                </div>
+            </div>
+            <div class="shift-footer">
+                <button class="shift-btn-end" id="shiftEndBtn">
+                    <i class="fas fa-stop-circle"></i> បញ្ចប់វេន
+                </button>
+                <button class="shift-btn-close" onclick="hideShiftModal()">
+                    <i class="fas fa-times"></i> បិទ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── LOGOUT MODAL ── -->
 <div id="logoutModal" onclick="if(event.target===this)this.style.display='none'"
      style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:16px;overflow:hidden;width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
@@ -497,6 +565,9 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
+    /* ── exposed so shift observer can read it ── */
+    window.lastOrder = null;
+
     function showLogoutModal() {
         document.getElementById('logoutModal').style.display = 'flex';
     }
@@ -506,12 +577,12 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         /* ═══════════════════════════════════════════════
            RATES & HELPERS
         ═══════════════════════════════════════════════ */
-        const EXCHANGE_RATE = 4100;
+        const EXCHANGE_RATE        = 4100;
         const CHANGE_RATE_CUSTOMER = 4000;
 
-        const toKhr    = usd => Math.round(usd * EXCHANGE_RATE);
-        const fmtKhr   = n   => Math.round(n).toLocaleString() + ' ៛';
-        const fmtUsd   = n   => '$' + parseFloat(n).toFixed(2);
+        const toKhr       = usd => Math.round(usd * EXCHANGE_RATE);
+        const fmtKhr      = n   => Math.round(n).toLocaleString() + ' ៛';
+        const fmtUsd      = n   => '$' + parseFloat(n).toFixed(2);
         const roundKhr100 = khr => Math.round(khr / 100) * 100;
 
         function customerChangeKhr(changeUsd, changeKhr, payCurrency) {
@@ -522,10 +593,10 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         /* ── Live clocks ── */
         function updateClocks() {
             const now = new Date();
-            const h  = now.getHours() % 12 || 12;
-            const m  = String(now.getMinutes()).padStart(2, '0');
-            const s  = String(now.getSeconds()).padStart(2, '0');
-            const ap = now.getHours() >= 12 ? 'PM' : 'AM';
+            const h   = now.getHours() % 12 || 12;
+            const m   = String(now.getMinutes()).padStart(2, '0');
+            const s   = String(now.getSeconds()).padStart(2, '0');
+            const ap  = now.getHours() >= 12 ? 'PM' : 'AM';
             $('#liveClock').text(`${h}:${m} ${ap}`);
             $('#cdClock').text(`${String(now.getHours()).padStart(2,'0')}:${m}:${s}`);
         }
@@ -565,7 +636,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         ];
 
         const categoriesByBrand = {};
-        const allCategories = [];
+        const allCategories     = [];
         products.forEach(p => {
             if (!categoriesByBrand[p.brand]) categoriesByBrand[p.brand] = new Set();
             categoriesByBrand[p.brand].add(p.category);
@@ -574,7 +645,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
         let cart = [], currentPaymentMethod = 'cash', displayCurrency = 'usd', paymentCurrency = 'usd';
         let discountAmount = 0, discountType = 'fixed';
-        let orderCounter = 4580, lastOrder = null;
+        let orderCounter = 4580, lastOrderLocal = null;
         let currentBrand = 'all', currentCategory = 'all';
 
         function calcDiscount(sub) {
@@ -590,7 +661,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             const pill = document.getElementById('cdPayCurrencyPill');
             if (pill) {
                 pill.textContent = paymentCurrency === 'usd' ? 'USD' : 'KHR ៛';
-                pill.className = 'cd-pay-currency-pill ' + paymentCurrency;
+                pill.className   = 'cd-pay-currency-pill ' + paymentCurrency;
             }
             $('#cdIdle').toggle(isEmpty);
             $('#cdOrderArea').toggle(!isEmpty);
@@ -604,7 +675,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             let html = '';
             cart.forEach(item => {
                 const lineTotal = item.price * item.quantity;
-                const imgHtml = item.icon
+                const imgHtml   = item.icon
                     ? `<img src="${item.icon}" alt="${item.name}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                     : '<i class="fas fa-utensils"></i>';
                 html += `
@@ -623,7 +694,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             $('#cdItemsList').html(html);
 
             const cdKhrRate = paymentCurrency === 'khr' ? CHANGE_RATE_CUSTOMER : EXCHANGE_RATE;
-            const toKhrCd = usd => roundKhr100(usd * cdKhrRate);
+            const toKhrCd   = usd => roundKhr100(usd * cdKhrRate);
 
             $('#cdSubtotal').text(fmtUsd(sub));
             $('#cdSubtotalKhr').text(fmtKhr(toKhrCd(sub)));
@@ -639,10 +710,18 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             $('#cdTotal').text(fmtUsd(total));
             $('#cdTotalKhr').text(fmtKhr(toKhrCd(total)));
 
-            /* Also update external QR window if open */
-            if (qrWindow && !qrWindow.closed) {
-                updateQrWindow(total);
-            }
+            if (qrWindow && !qrWindow.closed) updateQrWindow(total);
+        }
+
+        function updateQrWindow(totalUsd) {
+            if (!qrWindow || qrWindow.closed) return;
+            try {
+                qrWindow.postMessage({
+                    type: 'KHQR_UPDATE_AMOUNT',
+                    usd:  fmtUsd(totalUsd),
+                    khr:  fmtKhr(roundKhr100(toKhr(totalUsd)))
+                }, '*');
+            } catch(e) { console.warn('KHQR postMessage:', e.message); }
         }
 
         /* ════ CUSTOMER THANK-YOU ════ */
@@ -664,7 +743,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         /* ── Category tabs ── */
         function updateCategoryTabs(brand) {
             const cats = brand === 'all' ? allCategories : Array.from(categoriesByBrand[brand] || []);
-            let html = '<button class="tab-pill active" data-category="all">ទាំងអស់</button>';
+            let html   = '<button class="tab-pill active" data-category="all">ទាំងអស់</button>';
             cats.forEach(c => { html += `<button class="tab-pill" data-category="${c}">${c}</button>`; });
             $('#categoryTabs').html(html);
             currentCategory = 'all';
@@ -676,9 +755,9 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 $('#productsGrid').html('<div class="state-placeholder"><i class="fas fa-box-open"></i><p>មិនមានផលិតផល</p></div>');
                 return;
             }
-            const q = $('#productSearch').val().toLowerCase();
+            const q        = $('#productSearch').val().toLowerCase();
             const filtered = products.filter(p =>
-                (currentBrand === 'all' || p.brand === currentBrand) &&
+                (currentBrand    === 'all' || p.brand    === currentBrand)    &&
                 (currentCategory === 'all' || p.category === currentCategory) &&
                 p.name.toLowerCase().includes(q)
             );
@@ -698,7 +777,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
      data-icon="${p.icon||''}" data-color="${p.color}">
     <div class="prod-img" style="background:linear-gradient(160deg,${p.color},#2D3561)">${imgHtml}</div>
     <div class="prod-price">${p.name}</div>
-    <div class="prod-price-khr">${fmtKhr(roundKhr100(parseFloat(p.priceUsd) * (paymentCurrency==='khr'?CHANGE_RATE_CUSTOMER:EXCHANGE_RATE)))}</div>
+    <div class="prod-price-khr">${p.priceUsd}$ = ${fmtKhr(roundKhr100(parseFloat(p.priceUsd) * (paymentCurrency==='khr'?CHANGE_RATE_CUSTOMER:EXCHANGE_RATE)))}</div>
     <button class="prod-add-btn"><i class="fas fa-plus"></i></button>
 </div>`;
             });
@@ -736,15 +815,16 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         $(document).on('click', '.prod-add-btn', function (e) { e.stopPropagation(); addToCart($(this).closest('.product-card')[0]); });
 
         function addToCart(el) {
-            const $el = $(el);
+            const $el  = $(el);
             $el.addClass('pulse');
             setTimeout(() => $el.removeClass('pulse'), 300);
             const item = {
-                id: $el.data('id'), name: $el.data('name'),
-                price: parseFloat($el.data('price')),
+                id:      $el.data('id'),
+                name:    $el.data('name'),
+                price:   parseFloat($el.data('price')),
                 brandId: $el.data('brand-id') || 0,
-                icon: $el.data('icon') || '',
-                color: $el.data('color') || 'var(--brand)'
+                icon:    $el.data('icon') || '',
+                color:   $el.data('color') || 'var(--brand)'
             };
             const existing = cart.find(i => i.id === item.id);
             if (existing) { existing.quantity++; notify(`+1 ${item.name}`, 'info'); }
@@ -758,7 +838,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 html = `<div class="empty-cart"><i class="fas fa-utensils"></i><p>ថ្ងៃសួស្ដី! ជ្រើសអាហារ</p><small>ចុចលើផលិតផលដើម្បីបន្ថែម</small></div>`;
             } else {
                 cart.forEach((item, idx) => {
-                    const tot = item.price * item.quantity;
+                    const tot     = item.price * item.quantity;
                     const imgHtml = item.icon
                         ? `<img src="${item.icon}" alt="${item.name}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                         : '<i class="fas fa-utensils"></i>';
@@ -785,23 +865,27 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             syncCustomerDisplay();
         }
 
-        $(document).on('click', '.increase-qty', function () { const idx=$(this).closest('.cart-item').data('index'); cart[idx].quantity++; renderCart(); });
+        $(document).on('click', '.increase-qty', function () {
+            const idx = $(this).closest('.cart-item').data('index');
+            cart[idx].quantity++;
+            renderCart();
+        });
         $(document).on('click', '.decrease-qty', function () {
-            const idx=$(this).closest('.cart-item').data('index');
+            const idx = $(this).closest('.cart-item').data('index');
             if (cart[idx].quantity > 1) { cart[idx].quantity--; }
-            else { notify(`លុប ${cart[idx].name}`, 'warning'); cart.splice(idx,1); }
+            else { notify(`លុប ${cart[idx].name}`, 'warning'); cart.splice(idx, 1); }
             renderCart();
         });
         $(document).on('click', '.ci-remove', function () {
-            const idx=$(this).closest('.cart-item').data('index');
+            const idx = $(this).closest('.cart-item').data('index');
             notify(`លុប ${cart[idx].name}`, 'warning');
-            cart.splice(idx,1);
+            cart.splice(idx, 1);
             renderCart();
         });
 
         function updateSummary() {
-            const sub  = cart.reduce((s,i)=>s+i.price*i.quantity,0);
-            const disc = calcDiscount(sub);
+            const sub   = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const disc  = calcDiscount(sub);
             const total = sub - disc;
             $('#subtotal').text(fmtUsd(sub));
             $('#subtotalKhr').text(fmtKhr(roundKhr100(toKhr(sub))));
@@ -812,19 +896,19 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 $('#discountValue').text('-' + fmtUsd(disc));
                 $('#discountKhr').text(fmtKhr(roundKhr100(toKhr(disc))));
             } else { $('#discountDisplay').hide(); }
-            const cnt = cart.reduce((s,i)=>s+i.quantity,0);
+            const cnt = cart.reduce((s, i) => s + i.quantity, 0);
             $('#cartCount').text(cnt + ' មុខ');
             updatePayState();
         }
 
         function updatePayState() {
-            const sub     = cart.reduce((s,i)=>s+i.price*i.quantity,0);
+            const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const totalUsd = sub - calcDiscount(sub);
             const totalKhr = roundKhr100(toKhr(totalUsd));
-            const cash    = parseFloat($('#cashReceived').val()) || 0;
+            const cash     = parseFloat($('#cashReceived').val()) || 0;
 
-            if (cart.length === 0) { $('#payBtn').prop('disabled',true); $('#changeDisplay').removeClass('show'); return; }
-            if (currentPaymentMethod !== 'cash') { $('#payBtn').prop('disabled',false); $('#changeDisplay').removeClass('show'); return; }
+            if (cart.length === 0) { $('#payBtn').prop('disabled', true); $('#changeDisplay').removeClass('show'); return; }
+            if (currentPaymentMethod !== 'cash') { $('#payBtn').prop('disabled', false); $('#changeDisplay').removeClass('show'); return; }
 
             const needed = paymentCurrency === 'usd' ? totalUsd : totalKhr;
             $('#payBtn').prop('disabled', cash < needed);
@@ -840,7 +924,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         }
 
         function updateFab() {
-            const cnt = cart.reduce((s,i)=>s+i.quantity,0);
+            const cnt = cart.reduce((s, i) => s + i.quantity, 0);
             $('#fabBadge').text(cnt);
         }
 
@@ -853,8 +937,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         $(document).on('click', '[data-pay-currency]', function () {
             $('[data-pay-currency]').removeClass('active'); $(this).addClass('active');
             paymentCurrency = $(this).data('pay-currency');
-            if (paymentCurrency === 'usd') { $('.usd-amt').show(); $('.khr-amt').hide(); $('#cashReceived').attr('placeholder','ទទួលប្រាក់ (USD)').val(''); }
-            else { $('.usd-amt').hide(); $('.khr-amt').show(); $('#cashReceived').attr('placeholder','ទទួលប្រាក់ (រៀល)').val(''); }
+            if (paymentCurrency === 'usd') { $('.usd-amt').show(); $('.khr-amt').hide(); $('#cashReceived').attr('placeholder', 'ទទួលប្រាក់ (USD)').val(''); }
+            else { $('.usd-amt').hide(); $('.khr-amt').show(); $('#cashReceived').attr('placeholder', 'ទទួលប្រាក់ (រៀល)').val(''); }
             loadProducts();
             syncCustomerDisplay();
             updatePayState();
@@ -871,49 +955,52 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         $(document).on('click', '.exact-btn, .quick-btn', function () {
             const amt = $(this).data('amount');
             if (amt === 'exact') {
-                const sub = cart.reduce((s,i)=>s+i.price*i.quantity,0);
+                const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
                 const tot = sub - calcDiscount(sub);
-                $('#cashReceived').val(paymentCurrency==='usd' ? tot.toFixed(2) : toKhr(tot));
+                $('#cashReceived').val(paymentCurrency === 'usd' ? tot.toFixed(2) : toKhr(tot));
             } else { $('#cashReceived').val(amt); }
             updatePayState();
         });
         $('#discountAmount').on('input', function () {
-            discountAmount = Math.max(parseFloat($(this).val())||0, 0);
+            discountAmount = Math.max(parseFloat($(this).val()) || 0, 0);
             updateSummary(); syncCustomerDisplay();
         });
         $('#discountTypeSelect').on('change', function () {
             discountType = $(this).val();
-            $('#discountTypeBadge').text(discountType==='fixed'?'ដុល្លារ':'ភាគរយ');
+            $('#discountTypeBadge').text(discountType === 'fixed' ? 'ដុល្លារ' : 'ភាគរយ');
             updateSummary(); syncCustomerDisplay();
         });
 
         /* Cancel / Hold */
         $('#cancelOrderBtn').click(function () {
             if (!cart.length) return;
-            if (confirm('បោះបង់ការកម្មង់?')) { resetCart(); notify('បោះបង់ការកម្មង់','warning'); }
+            if (confirm('បោះបង់ការកម្មង់?')) { resetCart(); notify('បោះបង់ការកម្មង់', 'warning'); }
         });
         $('#holdOrderBtn').click(function () {
-            if (!cart.length) { notify('គ្មានទំនិញ','warning'); return; }
-            const sub  = cart.reduce((s,i)=>s+i.price*i.quantity,0);
+            if (!cart.length) { notify('គ្មានទំនិញ', 'warning'); return; }
+            const sub  = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const disc = calcDiscount(sub);
-            const held = JSON.parse(localStorage.getItem('heldOrders')||'[]');
-            held.push({ id:'HOLD'+Date.now(), items:cart, discount:{amount:discountAmount,type:discountType,value:disc}, total:sub-disc });
+            const held = JSON.parse(localStorage.getItem('heldOrders') || '[]');
+            held.push({ id: 'HOLD' + Date.now(), items: cart, discount: { amount: discountAmount, type: discountType, value: disc }, total: sub - disc });
             localStorage.setItem('heldOrders', JSON.stringify(held));
             resetCart();
-            notify('ផ្អាកការកម្មង់','success');
+            notify('ផ្អាកការកម្មង់', 'success');
         });
 
         /* ════ PAY BUTTON ════ */
-        $('#payBtn').on('click', function () {
-            const sub      = cart.reduce((s,i)=>s+i.price*i.quantity,0);
+        $('#payBtn').on('click', async function () {
+            const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const totalUsd = sub - calcDiscount(sub);
-            if (currentPaymentMethod === 'qr') openKhqrFlow(totalUsd);
-            else openCashConfirm();
+            if (currentPaymentMethod === 'qr') {
+                await openKhqrFlow(totalUsd);
+            } else {
+                openCashConfirm();
+            }
         });
 
         /* ════ CASH CONFIRM MODAL ════ */
         function openCashConfirm() {
-            const sub      = cart.reduce((s,i)=>s+i.price*i.quantity,0);
+            const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const disc     = calcDiscount(sub);
             const totalUsd = sub - disc;
             const totalKhr = roundKhr100(toKhr(totalUsd));
@@ -933,23 +1020,23 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
             let sumHtml = `<div class="cc-sum-row"><span>សរុប</span><span>${fmtUsd(sub)}<span class="cc-sum-khr">${fmtKhr(roundKhr100(toKhr(sub)))}</span></span></div>`;
             if (disc > 0) {
-                const dLabel = discountType==='percentage' ? `បញ្ចុះ ${discountAmount}%` : 'បញ្ចុះ';
+                const dLabel = discountType === 'percentage' ? `បញ្ចុះ ${discountAmount}%` : 'បញ្ចុះ';
                 sumHtml += `<div class="cc-sum-row" style="color:#92400E;"><span>${dLabel}</span><span>-${fmtUsd(disc)}</span></div>`;
             }
             sumHtml += `<div class="cc-sum-row total"><span><i class="fas fa-calculator" style="margin-right:4px;"></i>សរុបទាំងអស់</span><span>${fmtUsd(totalUsd)}<span class="cc-sum-khr">${fmtKhr(totalKhr)}</span></span></div>`;
             $('#ccSummary').html(sumHtml);
 
             if (currentPaymentMethod === 'cash') {
-                const cashDisp  = paymentCurrency==='usd' ? fmtUsd(cash) : fmtKhr(cash);
-                const cashKhr   = paymentCurrency==='usd' ? fmtKhr(roundKhr100(toKhr(cash))) : '';
-                const chDisp    = paymentCurrency==='usd' ? fmtUsd(changeUsd) : fmtKhr(changeKhr);
-                const chKhrD    = paymentCurrency==='usd' ? fmtKhr(changeKhr) : '';
+                const cashDisp = paymentCurrency === 'usd' ? fmtUsd(cash) : fmtKhr(cash);
+                const cashKhr  = paymentCurrency === 'usd' ? fmtKhr(roundKhr100(toKhr(cash))) : '';
+                const chDisp   = paymentCurrency === 'usd' ? fmtUsd(changeUsd) : fmtKhr(changeKhr);
+                const chKhrD   = paymentCurrency === 'usd' ? fmtKhr(changeKhr) : '';
                 $('#ccCashVal').text(cashDisp); $('#ccCashKhr').text(cashKhr);
-                $('#ccChangeVal').text(chDisp); $('#ccChangeKhr').text(chKhrD);
+                $('#ccChangeVal').text(chDisp);  $('#ccChangeKhr').text(chKhrD);
                 $('#ccPaymentBox').show();
             } else {
                 $('#ccCashVal').text('Card'); $('#ccCashKhr').text('');
-                $('#ccChangeVal').text('—'); $('#ccChangeKhr').text('');
+                $('#ccChangeVal').text('—');   $('#ccChangeKhr').text('');
                 $('#ccPaymentBox').hide();
             }
             $('#cashConfirmModal').addClass('show');
@@ -960,9 +1047,9 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
         /* ════ ACTUAL PAY ════ */
         async function runPayFlow() {
-            const $btn = $('#payBtn').prop('disabled',true).html('<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...');
+            const $btn = $('#payBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...');
             try {
-                const sub      = cart.reduce((s,i)=>s+i.price*i.quantity,0);
+                const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
                 const disc     = calcDiscount(sub);
                 const totalUsd = sub - disc;
                 const totalKhr = roundKhr100(toKhr(totalUsd));
@@ -970,44 +1057,58 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
                 let changeUsd = 0, changeKhr = 0;
                 if (currentPaymentMethod === 'cash') {
-                    if (paymentCurrency === 'usd') { changeUsd = Math.max(0, cash-totalUsd); changeKhr = roundKhr100(toKhr(changeUsd)); }
-                    else { changeKhr = roundKhr100(Math.max(0, cash-totalKhr)); changeUsd = changeKhr/EXCHANGE_RATE; }
+                    if (paymentCurrency === 'usd') { changeUsd = Math.max(0, cash - totalUsd); changeKhr = roundKhr100(toKhr(changeUsd)); }
+                    else { changeKhr = roundKhr100(Math.max(0, cash - totalKhr)); changeUsd = changeKhr / EXCHANGE_RATE; }
                 }
 
-                const items   = cart.map(i=>({menuItemId:i.id,brandId:i.brandId||0,quantity:i.quantity,price:i.price,subtotal:i.price*i.quantity}));
-                const cashUsd = paymentCurrency==='usd' ? cash : cash/EXCHANGE_RATE;
+                const items   = cart.map(i => ({ menuItemId: i.id, brandId: i.brandId || 0, quantity: i.quantity, price: i.price, subtotal: i.price * i.quantity }));
+                const cashUsd = paymentCurrency === 'usd' ? cash : cash / EXCHANGE_RATE;
 
                 const res = await fetch('/Order/CreateOrder', {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({items, cashReceived:cashUsd, discountAmount:disc})
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ items, cashReceived: cashUsd, discountAmount: disc })
                 });
-                if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error||`Server ${res.status}`); }
+                if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Server ${res.status}`); }
                 const result = await res.json();
 
                 orderCounter++;
-                const orderNum = result.orderNumber || 'ORD'+orderCounter;
-                const pmLabel  = currentPaymentMethod==='cash' ? 'សាច់ប្រាក់' : currentPaymentMethod==='card' ? 'Card' : 'KHQR';
+                const orderNum = result.orderNumber || 'ORD' + orderCounter;
+                const pmLabel  = currentPaymentMethod === 'cash' ? 'សាច់ប្រាក់' : currentPaymentMethod === 'card' ? 'Card' : 'KHQR';
 
-                lastOrder = {
-                    number:orderNum, date:new Date(), items:[...cart],
-                    subtotal:sub, discount:disc, discountType, discountAmount,
-                    total:totalUsd, totalKhr,
-                    paymentMethod:pmLabel,
-                    paymentCurrency:paymentCurrency==='usd'?'ដុល្លារ':'រៀល',
-                    cashReceived:cash, changeUsd, changeKhr,
-                    cashier:'@firstName @lastName'
+                /* Build lastOrder BEFORE resetCart so the shift observer can read it */
+                const completedOrder = {
+                    number:          orderNum,
+                    date:            new Date(),
+                    items:           [...cart],
+                    subtotal:        sub,
+                    discount:        disc,
+                    discountType,
+                    discountAmount,
+                    total:           totalUsd,
+                    totalKhr,
+                    paymentMethod:   pmLabel,
+                    paymentCurrency: paymentCurrency === 'usd' ? 'ដុល្លារ' : 'រៀល',
+                    cashReceived:    cash,
+                    changeUsd,
+                    changeKhr,
+                    cashier:         '@firstName @lastName'
                 };
 
-                showCustomerThankYou(lastOrder);
-                showInvoice(lastOrder);
+                /* Expose globally so the shift MutationObserver can read it */
+                window.lastOrder = completedOrder;
+                lastOrderLocal   = completedOrder;
+
+                showCustomerThankYou(completedOrder);
+                showInvoice(completedOrder);
                 addRecentChip(orderNum, totalUsd);
                 resetCart();
-                notify('ការទូទាត់បានជោគជ័យ! ✓','success');
+                notify('ការទូទាត់បានជោគជ័យ! ✓', 'success');
+
             } catch(err) {
-                notify('មានបញ្ហា: '+err.message,'error');
+                notify('មានបញ្ហា: ' + err.message, 'error');
             } finally {
-                $btn.prop('disabled',false).html('<i class="fas fa-check-circle"></i> បញ្ចប់ការទូទាត់ <span class="shortcut-tag">F8</span>');
+                $btn.prop('disabled', false).html('<i class="fas fa-check-circle"></i> បញ្ចប់ការទូទាត់ <span class="shortcut-tag">F8</span>');
                 updatePayState();
             }
         }
@@ -1021,44 +1122,32 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
         /* ════════════════════════════════════════════════════════
            KHQR DUAL-SCREEN FLOW
-           ──────────────────────────────────────────────────────
-           • Detects whether a second / extended screen exists.
-           • If EXTENDED  → opens QR fullscreen on screen 2 (left
-             offset = screen 1 width so it lands on screen 2).
-           • If SINGLE    → shows a friendly "no second screen"
-             modal that guides the cashier to enable extend mode,
-             then re-tries automatically when they close it.
         ════════════════════════════════════════════════════════ */
-        let khqrTimer    = null;
-        let qrWindow     = null;   /* popup reference */
-        let _pendingQrUsd = null;  /* amount held while waiting for screen setup */
+        let qrWindow      = null;
+        let _pendingQrUsd = null;
+        let _khqrActive   = false;
 
-        /* ── Detect extended display ─────────────────────────── */
-        function hasSecondScreen() {
-            /* window.screen.isExtended is the modern API (Chrome 100+, Edge) */
-            if (typeof window.screen.isExtended !== 'undefined') {
-                return window.screen.isExtended;
+        async function getScreenDetails() {
+            if (window.getScreenDetails) {
+                try { return await window.getScreenDetails(); } catch(e) { return null; }
             }
-            /*
-             * Legacy fallback: if the screen object reports dimensions
-             * larger than the browser window's screen (availWidth covers
-             * both monitors in extended mode on some browsers/OS combos),
-             * or if screenX/screenLeft suggests the window is not at origin,
-             * we can make a best-effort guess.
-             * NOTE: This is heuristic only — the modern API is preferred.
-             */
+            return null;
+        }
+
+        async function hasSecondScreen() {
+            const details = await getScreenDetails();
+            if (details) return details.screens.length > 1;
             try {
                 return window.screen.availWidth > window.screen.width ||
                     window.screen.width > window.innerWidth + 200;
-            } catch(e) {
-                return false;
-            }
+            } catch(e) { return false; }
         }
 
-        /* ── Build the full-screen QR page HTML ─────────────── */
         function buildQrWindowHtml(totalUsd) {
             const totalKhrStr = fmtKhr(roundKhr100(toKhr(totalUsd)));
             const amountStr   = fmtUsd(totalUsd);
+            const qrImgUrl    = window.location.origin + '/khqr-code.png';
+
             return `<!DOCTYPE html>
 <html lang="km">
 <head>
@@ -1070,70 +1159,51 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;}
-body{
-    font-family:'Sora','Noto Sans Khmer',sans-serif;
-    background:#0C1118;color:#E8F0F8;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:16px;padding:24px;-webkit-font-smoothing:antialiased;
-    background-image:radial-gradient(ellipse at 50% 0%,rgba(255,107,53,.07) 0%,transparent 65%);
-}
+body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E8F0F8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:32px;-webkit-font-smoothing:antialiased;background-image:radial-gradient(ellipse at 50% 0%,rgba(255,107,53,.07) 0%,transparent 65%);}
 .logo-area{display:flex;align-items:center;gap:9px;}
-.logo-dot{width:11px;height:11px;background:#FF6B35;border-radius:50%;box-shadow:0 0 14px rgba(255,107,53,.9);animation:pulse 2s infinite;}
+.logo-dot{width:12px;height:12px;background:#FF6B35;border-radius:50%;box-shadow:0 0 14px rgba(255,107,53,.9);animation:pulse 2s infinite;}
 @@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 12px rgba(255,107,53,.7);}50%{opacity:.6;box-shadow:0 0 26px rgba(255,107,53,1);}}
-.logo-text{font-size:17px;font-weight:900;color:#E8F0F8;letter-spacing:.3px;}
-.logo-text span{color:#FF6B35;}
-.title{font-size:26px;font-weight:900;color:#E8F0F8;letter-spacing:-.5px;}
-.subtitle{font-size:13px;font-weight:600;color:#6B7F96;margin-top:-8px;}
-.qr-frame{
-    position:relative;width:260px;height:260px;
-    background:#fff;border-radius:18px;padding:14px;
-    border:3px solid #FF6B35;
-    box-shadow:0 0 0 5px rgba(255,107,53,.12),0 16px 48px rgba(0,0,0,.35);
-    flex-shrink:0;
-}
-.qr-corner{position:absolute;width:26px;height:26px;border-color:#FF6B35;border-style:solid;}
+.logo-text{font-size:20px;font-weight:900;color:#E8F0F8;letter-spacing:.3px;}.logo-text span{color:#FF6B35;}
+.title{font-size:32px;font-weight:900;color:#E8F0F8;letter-spacing:-.5px;}
+.subtitle{font-size:14px;font-weight:600;color:#6B7F96;margin-top:-10px;}
+.qr-frame{position:relative;width:300px;height:300px;background:#fff;border-radius:20px;padding:16px;border:3px solid #FF6B35;box-shadow:0 0 0 6px rgba(255,107,53,.1),0 20px 60px rgba(0,0,0,.4);flex-shrink:0;}
+.qr-corner{position:absolute;width:28px;height:28px;border-color:#FF6B35;border-style:solid;}
 .qr-corner.tl{top:-3px;left:-3px;border-width:5px 0 0 5px;border-radius:6px 0 0 0;}
 .qr-corner.tr{top:-3px;right:-3px;border-width:5px 5px 0 0;border-radius:0 6px 0 0;}
 .qr-corner.bl{bottom:-3px;left:-3px;border-width:0 0 5px 5px;border-radius:0 0 0 6px;}
 .qr-corner.br{bottom:-3px;right:-3px;border-width:0 5px 5px 0;border-radius:0 0 6px 0;}
-.qr-inner{width:228px;height:228px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.pulse-ring{position:absolute;inset:-14px;border-radius:24px;border:2px solid rgba(255,107,53,.2);animation:pring 2.5s ease-in-out infinite;pointer-events:none;}
+.qr-inner{width:264px;height:264px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;}
+.qr-inner img{width:100%;height:100%;object-fit:contain;border-radius:6px;display:block;}
+.qr-inner canvas{border-radius:6px;}
+.pulse-ring{position:absolute;inset:-16px;border-radius:28px;border:2px solid rgba(255,107,53,.2);animation:pring 2.5s ease-in-out infinite;pointer-events:none;}
 @@keyframes pring{0%,100%{opacity:.5;transform:scale(1);}50%{opacity:.08;transform:scale(1.05);}}
-.scan-line{position:absolute;left:14px;right:14px;height:2.5px;background:linear-gradient(90deg,transparent,#FF6B35,transparent);animation:scanAnim 2.2s linear infinite;opacity:.85;}
-@@keyframes scanAnim{0%{top:14px;}100%{top:calc(100% - 16px);}}
-.amount{font-size:40px;font-weight:900;color:#FF6B35;letter-spacing:-.8px;line-height:1;}
-.amount-khr{font-size:15px;font-weight:600;color:#6B7F96;margin-top:-4px;}
-.merchant{font-size:14px;font-weight:800;color:#E8F0F8;}
-.bank{font-size:11.5px;font-weight:500;color:#6B7F96;margin-top:2px;}
-.scan-badge{display:flex;align-items:center;gap:8px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.22);border-radius:28px;padding:7px 18px;font-size:12.5px;font-weight:700;color:#FF6B35;}
-.timer-wrap{width:100%;max-width:280px;}
-.timer-bar{background:rgba(255,255,255,.07);border-radius:20px;height:6px;overflow:hidden;}
+.amount{font-size:52px;font-weight:900;color:#FF6B35;letter-spacing:-.8px;line-height:1;}
+.amount-khr{font-size:18px;font-weight:600;color:#6B7F96;margin-top:-6px;}
+.merchant{font-size:16px;font-weight:800;color:#E8F0F8;}.bank{font-size:13px;font-weight:500;color:#6B7F96;margin-top:3px;}
+.scan-badge{display:flex;align-items:center;gap:9px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.22);border-radius:28px;padding:9px 22px;font-size:14px;font-weight:700;color:#FF6B35;}
+.timer-wrap{width:100%;max-width:320px;}
+.timer-bar{background:rgba(255,255,255,.07);border-radius:20px;height:7px;overflow:hidden;}
 .timer-fill{height:100%;background:linear-gradient(90deg,#FF6B35,#E85520);border-radius:20px;width:100%;transition:width linear;}
-.timer-label{font-size:11px;font-weight:600;color:#6B7F96;text-align:center;margin-top:6px;}
-.timer-label span{font-weight:900;color:#FF6B35;}
+.timer-label{font-size:12px;font-weight:600;color:#6B7F96;text-align:center;margin-top:7px;}.timer-label span{font-weight:900;color:#FF6B35;}
 </style>
 </head>
 <body>
-<div class="logo-area">
-    <div class="logo-dot"></div>
-    <div class="logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div>
-</div>
+<div class="logo-area"><div class="logo-dot"></div><div class="logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div></div>
 <div class="title">ទូទាត់តាម KHQR</div>
-<div class="subtitle">ស្កែ QR Code ខាងក្រោម ដើម្បីធ្វើការបង់ប្រាក់</div>
+<div class="subtitle">ស្កែ QR Code ខាងក្រោម តើអ្វីបើការបង់ប្រាក់</div>
 <div class="qr-frame">
+    <div class="pulse-ring"></div>
     <span class="qr-corner tl"></span><span class="qr-corner tr"></span>
     <span class="qr-corner bl"></span><span class="qr-corner br"></span>
-    <div class="pulse-ring"></div>
-    <div class="scan-line"></div>
-    <div class="qr-inner"><canvas id="qrCanvas" width="228" height="228"></canvas></div>
+    <div class="qr-inner">
+        <img src="${qrImgUrl}" alt="KHQR" onerror="this.style.display='none';document.getElementById('qrCanvas').style.display='block';">
+        <canvas id="qrCanvas" width="264" height="264" style="display:none;"></canvas>
+    </div>
 </div>
-<div class="amount" id="amountDisplay">${amountStr}</div>
-<div class="amount-khr">${totalKhrStr}</div>
-<div style="text-align:center;">
-    <div class="merchant">ផ្ទះបាយសេនឌូ</div>
-    <div class="bank">🏦 ABA Bank · 0000123456</div>
-</div>
-<div class="scan-badge">📱 ស្កែន QR ដោយ ABA / ACLEDA / Wing</div>
+<div class="amount" id="qrAmount">${amountStr}</div>
+<div class="amount-khr" id="qrAmountKhr">${totalKhrStr}</div>
+<div style="text-align:center;"><div class="merchant">ផ្ទះបាយសេនឌូ</div><div class="bank">🏦 ABA Bank · 0000123456</div></div>
+<div class="scan-badge">📱 ស្កែន QR តំ ABA / ACLEDA / Wing</div>
 <div class="timer-wrap">
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
     <div class="timer-label">ផុតកំណត់ក្នុង <span id="timerLabel">2:00</span></div>
@@ -1141,87 +1211,160 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>
 <script>
 (function(){
-    const qrText='KHQR|SandooHouse|ABA|0000123456|USD|${totalUsd.toFixed(2)}|'+Date.now();
-    QRCode.toCanvas(document.getElementById('qrCanvas'),qrText,
-        {width:228,margin:1,color:{dark:'#12100D',light:'#ffffff'},errorCorrectionLevel:'H'},
-        function(){});
-    /* timer */
-    const fill=document.getElementById('timerFill');
-    const label=document.getElementById('timerLabel');
+    var canvas  = document.getElementById('qrCanvas');
+    var qrText  = 'KHQR|SandooHouse|ABA|0000123456|USD|${totalUsd.toFixed(2)}|' + Date.now();
+    QRCode.toCanvas(canvas, qrText,
+        {width:264,margin:1,color:{dark:'#12100D',light:'#ffffff'},errorCorrectionLevel:'H'},
+        function(err){ if(err) console.warn('QR canvas error:',err); });
+
+    var fill  = document.getElementById('timerFill');
+    var label = document.getElementById('timerLabel');
     void fill.offsetWidth;
-    fill.style.transition='width 120s linear';
-    fill.style.width='0%';
-    let secs=120;
-    const iv=setInterval(function(){
+    fill.style.transition = 'width 120s linear';
+    fill.style.width      = '0%';
+    var secs = 120;
+    var iv   = setInterval(function(){
         secs--;
-        const m=Math.floor(secs/60),s=String(secs%60).padStart(2,'0');
-        label.textContent=m+':'+s;
-        if(secs<=30)document.querySelector('.timer-label span').style.color='#EF4444';
-        if(secs<=0){clearInterval(iv);label.textContent='ផុតកំណត់!';window.close();}
+        var m = Math.floor(secs/60), s = String(secs%60).padStart(2,'0');
+        label.textContent = m+':'+s;
+        if(secs<=30) document.querySelector('.timer-label span').style.color='#EF4444';
+        if(secs<=0){ clearInterval(iv); label.textContent='ផុតកំណត់!'; window.close(); }
     },1000);
-    /* allow parent to close us cleanly */
-    window.addEventListener('beforeunload',function(){clearInterval(iv);});
+    window.addEventListener('beforeunload',function(){ clearInterval(iv); });
+
+    window.addEventListener('message',function(e){
+        if(!e.data||e.data.type!=='KHQR_UPDATE_AMOUNT') return;
+        var amtEl = document.getElementById('qrAmount');
+        var khrEl = document.getElementById('qrAmountKhr');
+        if(amtEl){ amtEl.style.transition='opacity .15s'; amtEl.style.opacity='0';
+            setTimeout(function(){ amtEl.textContent=e.data.usd; amtEl.style.opacity='1'; },150); }
+        if(khrEl){ khrEl.textContent=e.data.khr; }
+    });
 })();
 <\/script>
 </body>
 </html>`;
         }
 
-        /* ── Open QR popup on second screen ─────────────────── */
-        function openQrOnSecondScreen(totalUsd) {
-            /*
-             * Strategy: open a borderless window positioned at
-             * (screen.width, 0) — i.e., just past the right edge of
-             * screen 1 — and immediately request fullscreen inside it.
-             * The browser places it on screen 2 in an extended setup.
-             */
-            const sw = window.screen.width;   /* width of primary screen */
-            const sh = window.screen.height;
-            qrWindow = window.open(
-                '',
-                'SandooKHQR_Display',
-                `width=${sw},height=${sh},left=${sw},top=0,` +
-                `resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no`
-            );
-            if (!qrWindow) {
-                /* Popup blocker fired */
-                showNoScreenModal(totalUsd, 'popup_blocked');
-                return false;
+        async function openQrOnSecondScreen(totalUsd) {
+            let left = window.screen.width, top = 0;
+            let sw   = window.screen.width,  sh  = window.screen.height;
+
+            const details = await getScreenDetails();
+            if (details && details.screens.length > 1) {
+                const second = details.screens.find(s => !s.isPrimary) || details.screens[1];
+                if (second) {
+                    left = (second.availLeft  !== undefined) ? second.availLeft  : (second.left  || window.screen.width);
+                    top  = (second.availTop   !== undefined) ? second.availTop   : (second.top   || 0);
+                    sw   = (second.availWidth !== undefined) ? second.availWidth : (second.width  || window.screen.width);
+                    sh   = (second.availHeight!== undefined) ? second.availHeight: (second.height || window.screen.height);
+                }
+            } else {
+                left = window.screen.availWidth;
+                sw   = window.screen.availWidth;
+                sh   = window.screen.availHeight;
             }
+
+            const s1Left  = window.screen.availLeft  || 0;
+            const s1Top   = window.screen.availTop   || 0;
+            const s1Right = s1Left + (window.screen.availWidth  || window.screen.width);
+            const s1Bot   = s1Top  + (window.screen.availHeight || window.screen.height);
+            const wouldBeOnScreen1 = (left >= s1Left && left < s1Right && top >= s1Top && top < s1Bot);
+            if (wouldBeOnScreen1) {
+                const hasReal2nd = details && details.screens && details.screens.length > 1;
+                if (!hasReal2nd) { notify('QR ត្រូវការ Screen ទី 2 — បើ Extended Display', 'error'); return false; }
+            }
+
+            if (qrWindow && !qrWindow.closed) { qrWindow.close(); qrWindow = null; }
+
+            qrWindow = window.open('', 'SandooKHQR_Display',
+                `width=${sw},height=${sh},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no`);
+
+            if (!qrWindow) { notify('Browser ទប់ Popup — សូម Allow popup', 'error'); return false; }
+
+            try { qrWindow.moveTo(left, top); qrWindow.resizeTo(sw, sh); }
+            catch(e) { console.warn('KHQR: moveTo/resizeTo blocked:', e.message); }
+
             qrWindow.document.open();
             qrWindow.document.write(buildQrWindowHtml(totalUsd));
             qrWindow.document.close();
 
-            /* Ask the new window to go fullscreen after a short delay */
-            qrWindow.addEventListener('load', function () {
-                try { qrWindow.document.documentElement.requestFullscreen(); } catch(e) {}
-            });
-            /* Fallback: try after 400 ms */
-            setTimeout(function () {
+            const tryFullscreen = function () {
                 try {
-                    if (qrWindow && !qrWindow.closed)
-                        qrWindow.document.documentElement.requestFullscreen();
-                } catch(e) {}
-            }, 400);
-
+                    if (qrWindow && !qrWindow.closed) {
+                        const el = qrWindow.document.documentElement;
+                        if (el.requestFullscreen)            el.requestFullscreen();
+                        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                    }
+                } catch(e) { console.warn('KHQR: fullscreen blocked:', e.message); }
+            };
+            try { qrWindow.addEventListener('load', tryFullscreen); } catch(e) {}
+            setTimeout(tryFullscreen, 500);
             return true;
         }
 
-        /* ── "No second screen" guidance modal ──────────────── */
-        /* (injected into the page body once; toggled via class) */
+        function showKhqrActionBar(totalUsd) {
+            $('#khqrActionBar').remove();
+            const bar = $(`
+<div id="khqrActionBar" style="position:fixed;bottom:0;right:0;width:320px;z-index:8000;
+    background:#131C27;border-top:2px solid #FF6B35;box-shadow:0 -4px 24px rgba(0,0,0,.35);
+    padding:12px 16px;display:flex;flex-direction:column;gap:8px;border-radius:16px 16px 0 0;
+    animation:slideUpBar .25s ease;">
+  <style>@@keyframes slideUpBar{from{transform:translateY(100%)}to{transform:translateY(0)}}</style>
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:7px;">
+      <i class="fas fa-qrcode" style="color:#FF6B35;font-size:14px;"></i>
+      <span style="font-size:12px;font-weight:700;color:#E8F0F8;">KHQR បានបង្ហាញ Screen 2</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:5px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.25);border-radius:20px;padding:3px 9px;">
+      <i class="fas fa-circle" style="color:#FF6B35;font-size:7px;animation:pulse 1.5s infinite;"></i>
+      <span id="khqrBarTimer" style="font-size:11px;font-weight:800;color:#FF6B35;min-width:32px;">2:00</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:7px;">
+    <button id="khqrBarConfirm" style="flex:2;height:40px;background:linear-gradient(135deg,#00B894,#00956E);color:#fff;
+        border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
+      <i class="fas fa-check-circle"></i> បានទូទាត់
+    </button>
+    <button id="khqrBarCancel" style="flex:1;height:40px;background:#1E2A38;color:#94A3B8;
+        border:1px solid #2D3A4A;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;">
+      <i class="fas fa-times"></i> បោះបង់
+    </button>
+  </div>
+</div>`);
+
+            $('body').append(bar);
+
+            let rem      = 120;
+            const barTimer = setInterval(function () {
+                rem--;
+                const m = Math.floor(rem / 60), s = String(rem % 60).padStart(2, '0');
+                $('#khqrBarTimer').text(m + ':' + s);
+                if (rem <= 30) $('#khqrBarTimer').css('color', '#EF4444');
+                if (rem <= 0) { clearInterval(barTimer); closeKhqrFlow(); notify('KHQR ផុតកំណត់', 'warning'); }
+            }, 1000);
+            bar.data('barTimer', barTimer);
+
+            $('#khqrBarConfirm').on('click', function () { clearInterval(barTimer); closeKhqrFlow(); runPayFlow(); });
+            $('#khqrBarCancel').on('click',  function () { clearInterval(barTimer); closeKhqrFlow(); notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning'); });
+        }
+
+        function hideKhqrActionBar() {
+            const bar = $('#khqrActionBar');
+            if (bar.length) { clearInterval(bar.data('barTimer')); bar.remove(); }
+        }
+
+        /* No-second-screen guidance modal */
         (function injectNoScreenModal() {
             if (document.getElementById('noScreenModal')) return;
             $('body').append(`
-<div id="noScreenModal" style="
-    display:none;position:fixed;inset:0;z-index:19000;
+<div id="noScreenModal" style="display:none;position:fixed;inset:0;z-index:19000;
     background:rgba(12,10,8,.78);backdrop-filter:blur(10px);
     align-items:center;justify-content:center;padding:16px;">
-  <div style="
-      background:#fff;border-radius:24px;max-width:480px;width:100%;
-      box-shadow:0 24px 64px rgba(0,0,0,.22);border:1px solid #E0DAD3;
-      overflow:hidden;animation:slideUp .3s cubic-bezier(.34,1.2,.64,1);">
-
-    <!-- Header -->
+  <div style="background:#fff;border-radius:24px;max-width:480px;width:100%;
+      box-shadow:0 24px 64px rgba(0,0,0,.22);border:1px solid #E0DAD3;overflow:hidden;">
     <div style="background:linear-gradient(135deg,#1C2340,#2D3561);padding:22px 24px 18px;text-align:center;">
       <div style="width:56px;height:56px;background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.35);
           border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
@@ -1229,182 +1372,78 @@ body{
       </div>
       <h3 style="font-size:17px;font-weight:800;color:#fff;margin:0 0 4px;">គ្មានអេក្រង់ទី 2!</h3>
       <p style="font-size:12px;color:rgba(255,255,255,.45);font-weight:500;margin:0;">
-        ត្រូវការ Extended Display ដើម្បីបង្ហាញ KHQR ដល់អតិថិជន
+        ត្រូវការ Extended Display ដើម្បីបង្ហាញ KHQR ទៅអតិថិជន
       </p>
     </div>
-
-    <!-- Body -->
-    <div style="padding:20px 24px;">
-
-      <!-- Status indicator -->
-      <div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:12px;padding:12px 14px;
-          display:flex;align-items:center;gap:11px;margin-bottom:16px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:#FEE2E2;
-            display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i class="fas fa-times-circle" style="color:#EF4444;font-size:16px;"></i>
-        </div>
-        <div>
-          <div style="font-size:12.5px;font-weight:700;color:#7F1D1D;margin-bottom:2px;"> អេក្រង់តែមួយ (Single Display)</div>
-          <div style="font-size:11px;font-weight:500;color:#991B1B;">QR មិនអាចបង្ហាញដល់អតិថិជន</div>
-        </div>
-      </div>
-
-      <!-- Steps -->
-      <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9C9189;margin-bottom:8px;">
-        វិធីបើក Extended Display
-      </div>
+    <div style="padding:20px 24px 14px;">
+      <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9C9189;margin-bottom:8px;">វិធីបើ Extended Display</div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;border:1px solid #E0DAD3;">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;">
           <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">1</div>
-          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">
-            <strong style="color:#1A1714;">Windows:</strong> ចុច <kbd style="background:#E0DAD3;padding:1px 5px;border-radius:4px;font-size:10px;">Win + P</kbd>
-            → ជ្រើស <strong>Extend</strong>
-          </div>
+          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;"><strong style="color:#1A1714;">Windows:</strong> ចុច <kbd style="background:#E0DAD3;padding:1px 5px;border-radius:4px;font-size:10px;">Win + P</kbd> → ជ្រើស <strong>Extend</strong></div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;border:1px solid #E0DAD3;">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;">
           <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">2</div>
-          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">
-            <strong style="color:#1A1714;">Mac:</strong> System Settings → Displays → Use as <strong>Extended Display</strong>
-          </div>
+          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;"><strong style="color:#1A1714;">Mac:</strong> System Settings → Displays → Use as <strong>Extended Display</strong></div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;border:1px solid #E0DAD3;">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;">
           <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">3</div>
-          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">
-            បន្ទាប់មក ចុច <strong style="color:#FF6B35;">«ព្យាយាមម្ដងទៀត»</strong> ខាងក្រោម
-          </div>
-        </div>
-      </div>
-
-      <!-- Tip -->
-      <div style="background:#FFF3EE;border:1px solid rgba(255,107,53,.2);border-radius:10px;padding:9px 12px;
-          display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <i class="fas fa-lightbulb" style="color:#FF6B35;font-size:13px;flex-shrink:0;"></i>
-        <div style="font-size:11px;font-weight:600;color:#7A3A00;line-height:1.6;">
-          ភ្ជាប់ម៉ូនីទ័រ (Monitor) ឬ TV សម្រាប់ Customer Display រួចបើក Extend mode
+          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">បន្ទាប់មក ចុច <strong style="color:#FF6B35;">«ព្យាយាមមួយទៀត»</strong> ខាងក្រោម</div>
         </div>
       </div>
     </div>
-
-    <!-- Footer -->
     <div style="display:flex;gap:8px;padding:0 24px 20px;">
-      <button id="noScreenRetryBtn" style="
-          flex:2;height:46px;background:linear-gradient(135deg,#FF6B35,#E85520);color:#fff;
+      <button id="noScreenRetryBtn" style="flex:2;height:46px;background:linear-gradient(135deg,#FF6B35,#E85520);color:#fff;
           border:none;border-radius:11px;font-family:var(--font);font-size:13px;font-weight:800;
-          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
-          box-shadow:0 5px 16px rgba(255,107,53,.32);transition:all .16s;">
-        <i class="fas fa-redo"></i> ព្យាយាមម្ដងទៀត
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+        <i class="fas fa-redo"></i> ព្យាយាមមួយទៀត
       </button>
-      <button id="noScreenCancelBtn" style="
-          flex:1;height:46px;background:#F4F1ED;color:#574F47;
+      <button id="noScreenCancelBtn" style="flex:1;height:46px;background:#F4F1ED;color:#574F47;
           border:1.5px solid #E0DAD3;border-radius:11px;font-family:var(--font);
-          font-size:12px;font-weight:700;cursor:pointer;display:flex;
-          align-items:center;justify-content:center;gap:6px;transition:all .16s;">
+          font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
         <i class="fas fa-times"></i> បោះបង់
       </button>
     </div>
   </div>
 </div>`);
-            /* Retry button */
-            $('#noScreenRetryBtn').on('click', function () {
-                hideNoScreenModal();
-                /* Re-check and try again */
-                if (_pendingQrUsd !== null) {
-                    setTimeout(function () { openKhqrFlow(_pendingQrUsd); }, 200);
-                }
+
+            $('#noScreenRetryBtn').on('click', async function () {
+                $('#noScreenModal').css('display', 'none');
+                if (_pendingQrUsd !== null) { const amt = _pendingQrUsd; _pendingQrUsd = null; await openKhqrFlow(amt); }
             });
-            /* Cancel button */
             $('#noScreenCancelBtn').on('click', function () {
                 _pendingQrUsd = null;
-                hideNoScreenModal();
-                notify('បោះបង់ KHQR — ភ្ជាប់ Monitor ហើយព្យាយាមម្ដងទៀត', 'warning');
+                $('#noScreenModal').css('display', 'none');
+                notify('បោះបង់ KHQR', 'warning');
             });
         })();
 
-        function showNoScreenModal(totalUsd, reason) {
-            _pendingQrUsd = totalUsd;
-            $('#noScreenModal').css('display', 'flex');
-        }
-        function hideNoScreenModal() {
-            $('#noScreenModal').css('display', 'none');
-        }
-
-        /* ── Main entry point ───────────────────────────────── */
-        function openKhqrFlow(totalUsd) {
-            /* 1. Check for extended / second screen */
-            if (!hasSecondScreen()) {
-                showNoScreenModal(totalUsd);
-                return;
-            }
-
-            /* 2. Open QR fullscreen on screen 2 */
-            const opened = openQrOnSecondScreen(totalUsd);
-            if (!opened) return;   /* popup blocked — modal already shown */
-
-            /* 3. Update inline customer panel QR overlay (fallback / mirror) */
-            $('#cdQrAmount').text(fmtUsd(totalUsd));
-            $('#cdQrKhr').text(fmtKhr(toKhr(totalUsd)));
-            const cdFill = document.getElementById('cdQrTimerFill');
-            cdFill.style.transition = 'none'; cdFill.style.width = '100%';
-            void cdFill.offsetWidth;
-            cdFill.style.transition = 'width 120s linear'; cdFill.style.width = '0%';
-            $('#cdQrOverlay').addClass('show');
-
-            /* 4. Show cashier waiting modal */
-            $('#cqrAmount').text(fmtUsd(totalUsd));
-            $('#cqrKhr').text(fmtKhr(toKhr(totalUsd)));
-            const cFill = document.getElementById('cqrTimerFill');
-            cFill.style.transition = 'none'; cFill.style.width = '100%';
-            void cFill.offsetWidth;
-            cFill.style.transition = 'width 120s linear'; cFill.style.width = '0%';
-
-            startKhqrCountdown(120);
-            $('#cashierQrModal').addClass('show');
+        async function openKhqrFlow(totalUsd) {
+            const second = await hasSecondScreen();
+            if (!second) { _pendingQrUsd = totalUsd; $('#noScreenModal').css('display', 'flex'); return; }
+            const opened = await openQrOnSecondScreen(totalUsd);
+            if (!opened) return;
+            showKhqrActionBar(totalUsd);
             _pendingQrUsd = null;
+            _khqrActive   = true;
         }
 
         function closeKhqrFlow() {
-            clearInterval(khqrTimer);
-            $('#cashierQrModal').removeClass('show');
-            $('#cdQrOverlay').removeClass('show');
+            _khqrActive = false;
+            hideKhqrActionBar();
             if (qrWindow && !qrWindow.closed) { qrWindow.close(); qrWindow = null; }
         }
 
-        function startKhqrCountdown(secs) {
-            clearInterval(khqrTimer);
-            let rem = secs;
-            updateKhqrDisplay(rem);
-            khqrTimer = setInterval(function () {
-                rem--;
-                updateKhqrDisplay(rem);
-                if (rem <= 0) {
-                    clearInterval(khqrTimer);
-                    document.getElementById('cqrCountdown').textContent = 'ផុតកំណត់!';
-                    document.getElementById('cqrCountdownSub').textContent = 'ផុតកំណត់!';
-                    document.getElementById('cqrTimerText').style.color = '#EF4444';
-                    setTimeout(closeKhqrFlow, 2000);
-                }
-            }, 1000);
-        }
-
-        function updateKhqrDisplay(s) {
-            const m = Math.floor(s/60), sec = String(s%60).padStart(2,'0');
-            const t = m+':'+sec;
-            document.getElementById('cqrCountdown').textContent = t;
-            document.getElementById('cqrCountdownSub').textContent = t;
-            const red = s<=30 ? '#EF4444' : '';
-            document.getElementById('cqrTimerText').style.color = red;
-            if (document.getElementById('cqrCountdown')) document.getElementById('cqrCountdown').style.color = red||'#FF6B35';
-        }
-
+        /* Legacy modal buttons */
         $('#cqrConfirmBtn').on('click', function () { closeKhqrFlow(); runPayFlow(); });
-        $('#cqrCancelBtn').on('click',  function () { closeKhqrFlow(); notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត','warning'); });
+        $('#cqrCancelBtn').on('click',  function () { closeKhqrFlow(); notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning'); });
 
         /* ── Invoice ── */
         function showInvoice(order) {
             const now = new Date();
-            $('#invoiceDate').text(now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}));
-            $('#invoiceTime').text(now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}));
-            $('#invoiceNumber').text('#'+order.number);
+            $('#invoiceDate').text(now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }));
+            $('#invoiceTime').text(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+            $('#invoiceNumber').text('#' + order.number);
             $('#invoicePaymentMethod').text(order.paymentMethod);
 
             let itemsHtml = '';
@@ -1415,17 +1454,17 @@ body{
             $('#invoiceItems').html(itemsHtml);
 
             let sumHtml = `<div class="inv-sum-row"><span>សរុបរង</span><span>${fmtUsd(order.subtotal)}</span></div>`;
-            if (order.discount>0) sumHtml += `<div class="inv-sum-row discount"><span>បញ្ចុះ ${order.discountType==='percentage'?'('+order.discountAmount+'%)':''}</span><span>-${fmtUsd(order.discount)}</span></div>`;
+            if (order.discount > 0) sumHtml += `<div class="inv-sum-row discount"><span>បញ្ចុះ ${order.discountType==='percentage'?'('+order.discountAmount+'%)':''}</span><span>-${fmtUsd(order.discount)}</span></div>`;
             sumHtml += `<div class="inv-sum-row total"><span>សរុប</span><span>${fmtUsd(order.total)}</span></div><div style="text-align:right;font-size:10.5px;color:var(--text-muted);margin-top:3px;">${fmtKhr(order.totalKhr)}</div>`;
             $('#invoiceSummary').html(sumHtml);
 
             let payHtml = '';
-            if (order.paymentMethod==='សាច់ប្រាក់') {
-                const cd=order.paymentCurrency==='ដុល្លារ'?fmtUsd(order.cashReceived):fmtKhr(order.cashReceived);
-                const ch=order.paymentCurrency==='ដុល្លារ'?fmtUsd(order.changeUsd):fmtKhr(order.changeKhr);
-                payHtml=`<div class="inv-sum-row"><span>ទទួល (${order.paymentCurrency})</span><span>${cd}</span></div><div class="inv-sum-row"><span>អាប់</span><span>${ch}</span></div>`;
+            if (order.paymentMethod === 'សាច់ប្រាក់') {
+                const cd = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.cashReceived) : fmtKhr(order.cashReceived);
+                const ch = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.changeUsd)    : fmtKhr(order.changeKhr);
+                payHtml = `<div class="inv-sum-row"><span>ទទួល (${order.paymentCurrency})</span><span>${cd}</span></div><div class="inv-sum-row"><span>អាប់</span><span>${ch}</span></div>`;
             } else {
-                payHtml=`<div class="inv-sum-row"><span>វិធីបង់</span><span>${order.paymentMethod}</span></div>`;
+                payHtml = `<div class="inv-sum-row"><span>វិធីបង់</span><span>${order.paymentMethod}</span></div>`;
             }
             $('#invoicePaymentDetails').html(payHtml);
             $('#invoiceModal').addClass('show');
@@ -1433,85 +1472,288 @@ body{
 
         /* Print */
         $('#printInvoiceBtn').click(function () {
-            if (!lastOrder) return;
+            if (!lastOrderLocal) return;
             $('#invoiceModal').removeClass('show');
-            const order=lastOrder, now=new Date();
-            const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-            const timeStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-            const fu=n=>'$'+parseFloat(n).toFixed(2), fk=n=>Math.round(n).toLocaleString()+' ៛';
-            let itH='';
-            order.items.forEach(i=>{
-                const t=i.price*i.quantity;
-                itH+=`<tr><td style="padding:8px 4px;border-bottom:1px solid #eee;">${i.name}</td><td style="text-align:center;padding:8px 4px;border-bottom:1px solid #eee;">${i.quantity}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(i.price)}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(t)}</td></tr>`;
+            const order   = lastOrderLocal, now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const fu = n => '$' + parseFloat(n).toFixed(2);
+            const fk = n => Math.round(n).toLocaleString() + ' ៛';
+            let itH = '';
+            order.items.forEach(i => {
+                const t = i.price * i.quantity;
+                itH += `<tr><td style="padding:8px 4px;border-bottom:1px solid #eee;">${i.name}</td><td style="text-align:center;padding:8px 4px;border-bottom:1px solid #eee;">${i.quantity}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(i.price)}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(t)}</td></tr>`;
             });
-            let sumH=`<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>សរុប</span><span>${fu(order.subtotal)}</span></div>`;
-            if(order.discount>0) sumH+=`<div style="display:flex;justify-content:space-between;margin:5px 0;color:#F59E0B;"><span>បញ្ចុះ</span><span>-${fu(order.discount)}</span></div>`;
-            sumH+=`<div style="display:flex;justify-content:space-between;margin:5px 0;font-weight:bold;font-size:16px;border-top:2px dashed #333;padding-top:8px;"><span>សរុបទាំងអស់</span><span>${fu(order.total)}</span></div><div style="text-align:right;font-size:11px;font-weight:bold;">${fk(order.totalKhr)}</div>`;
-            let payH='';
-            if(order.paymentMethod==='សាច់ប្រាក់'){
-                const cd=order.paymentCurrency==='ដុល្លារ'?fu(order.cashReceived):fk(order.cashReceived);
-                const ch=order.paymentCurrency==='ដុល្លារ'?fu(order.changeUsd):fk(order.changeKhr);
-                payH=`<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>ទទួល</span><span>${cd}</span></div><div style="display:flex;justify-content:space-between;margin:5px 0;"><span>អាប់</span><span>${ch}</span></div>`;
+            let sumH = `<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>សរុបរង</span><span>${fu(order.subtotal)}</span></div>`;
+            if (order.discount > 0) sumH += `<div style="display:flex;justify-content:space-between;margin:5px 0;color:#F59E0B;"><span>បញ្ចុះ</span><span>-${fu(order.discount)}</span></div>`;
+            sumH += `<div style="display:flex;justify-content:space-between;margin:5px 0;font-weight:bold;font-size:16px;border-top:2px dashed #333;padding-top:8px;"><span>សរុបទាំងអស់</span><span>${fu(order.total)}</span></div><div style="text-align:right;font-size:11px;font-weight:bold;">${fk(order.totalKhr)}</div>`;
+            let payH = '';
+            if (order.paymentMethod === 'សាច់ប្រាក់') {
+                const cd = order.paymentCurrency === 'ដុល្លារ' ? fu(order.cashReceived) : fk(order.cashReceived);
+                const ch = order.paymentCurrency === 'ដុល្លារ' ? fu(order.changeUsd)    : fk(order.changeKhr);
+                payH = `<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>ទទួល</span><span>${cd}</span></div><div style="display:flex;justify-content:space-between;margin:5px 0;"><span>អាប់</span><span>${ch}</span></div>`;
             } else {
-                payH=`<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>វិធីបង់</span><span>${order.paymentMethod}</span></div>`;
+                payH = `<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>វិធីបង់</span><span>${order.paymentMethod}</span></div>`;
             }
-            const pf=document.createElement('iframe');
-            pf.style.cssText='position:absolute;width:0;height:0;border:none;visibility:hidden';
+            const pf  = document.createElement('iframe');
+            pf.style.cssText = 'position:absolute;width:0;height:0;border:none;visibility:hidden';
             document.body.appendChild(pf);
-            const doc=pf.contentWindow.document;
+            const doc = pf.contentWindow.document;
             doc.open();
             doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Khmer OS','Leelawadee UI',Arial,sans-serif;font-size:13px;font-weight:bold;width:72mm;margin:0 auto;padding:4mm 3mm;color:#000}.hdr{text-align:center;padding-bottom:8px;border-bottom:3px solid #000;margin-bottom:8px}.shop{font-size:22px;font-weight:900;letter-spacing:1px;margin-bottom:3px}.det{font-size:12px;margin:1px 0}.ord-num{font-size:15px;font-weight:900;text-align:center;margin:6px 0;border:2px solid #000;padding:4px 0}.info{margin-bottom:7px;border-bottom:2px dashed #000;padding-bottom:7px}.row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}table{width:100%;border-collapse:collapse;margin-bottom:4px;table-layout:fixed}thead tr{border-bottom:2px solid #000;border-top:2px solid #000}th{font-size:12px;font-weight:900;padding:5px 2px;text-align:left}th:nth-child(1){width:38%}th:nth-child(2){width:13%;text-align:center}th:nth-child(3){width:22%;text-align:right}th:nth-child(4){width:27%;text-align:right}tbody tr{border-bottom:1px dashed #000}td{font-size:13px;font-weight:bold;padding:5px 2px}td:nth-child(2){text-align:center}td:nth-child(3){text-align:right}td:last-child{text-align:right;font-weight:900}.sum{padding:6px 0;border-bottom:2px dashed #000;margin-bottom:6px}.pay{padding:6px 0;border-bottom:2px dashed #000;margin-bottom:7px}.ftr{text-align:center;padding-top:7px;border-top:2px dashed #000}.ty{font-size:17px;font-weight:900;margin-bottom:4px}.fs{font-size:11px;margin:3px 0}@@media print{body{width:72mm;padding:2mm;margin:0}}</style></head>
-<body><div class="hdr"><div class="shop">ផ្ទះបាយសេនឌូ</div><div class="det">ទូរស័ព្ទ: 086 262 828</div><div class="det">ភ្នំពេញ, កម្ពុជា</div></div><div class="ord-num">លេខ #${order.number}</div><div class="info"><div class="row"><span>កាលបរិច្ឆេទ:</span><span>${dateStr} ${timeStr}</span></div><div class="row"><span>អ្នកលក់:</span><span>${order.cashier}</span></div></div><table><thead><tr><th>មុខទំនិញ</th><th style="text-align:center">ចំនួន</th><th style="text-align:right">តម្លៃ</th><th style="text-align:right">សរុប</th></tr></thead><tbody>${itH}</tbody></table><div class="sum">${sumH}</div><div class="pay">${payH}</div><div class="ftr"><div class="ty">សូមអរគុណ! 🙏</div><div class="fs">ទំនិញដែលបានទិញ មិនអាចដូរបានទេ</div><div class="fs">សូមអញ្ជើញមកម្តងទៀត</div></div></body></html>`);
+<body><div class="hdr"><div class="shop">ផ្ទះបាយសេនឌូ</div><div class="det">ទូរស័ព្ទ: 086 262 828</div><div class="det">ភ្នំពេញ, កម្ពុជា</div></div><div class="ord-num">លេខ #${order.number}</div><div class="info"><div class="row"><span>កាលបរិច្ឆេទ:</span><span>${dateStr} ${timeStr}</span></div><div class="row"><span>អ្នកលក់:</span><span>${order.cashier}</span></div></div><table><thead><tr><th>មុខទំនិញ</th><th style="text-align:center">ចំនួន</th><th style="text-align:right">តម្លៃ</th><th style="text-align:right">សរុប</th></tr></thead><tbody>${itH}</tbody></table><div class="sum">${sumH}</div><div class="pay">${payH}</div><div class="ftr"><div class="ty">សូមអរគុណ! 🙏</div><div class="fs">ទំនិញទិញហើយ មិនអាចដូរបានទេ</div><div class="fs">សូមអញ្ជើញមកម្តងទៀត</div></div></body></html>`);
             doc.close();
-            pf.onload=function(){setTimeout(function(){pf.contentWindow.focus();pf.contentWindow.print();pf.contentWindow.onafterprint=()=>document.body.removeChild(pf);},100);};
+            pf.onload = function () {
+                setTimeout(function () {
+                    pf.contentWindow.focus();
+                    pf.contentWindow.print();
+                    pf.contentWindow.onafterprint = () => document.body.removeChild(pf);
+                }, 100);
+            };
         });
 
-        $('#closeInvoiceBtn').click(()=>$('#invoiceModal').removeClass('show'));
-        $(document).on('click','.modal-overlay',function(e){if($(e.target).hasClass('modal-overlay'))$('#invoiceModal').removeClass('show');});
+        $('#closeInvoiceBtn').click(() => $('#invoiceModal').removeClass('show'));
+        $(document).on('click', '.modal-overlay', function (e) {
+            if ($(e.target).hasClass('modal-overlay')) $('#invoiceModal').removeClass('show');
+        });
 
         /* Recent chips */
         function addRecentChip(num, amt) {
-            const html=`<div class="recent-chip" data-order="${num}"><span class="rord-num">#${num}</span><span>${fmtUsd(amt)}</span><span class="rord-status">✓</span></div>`;
+            const html = `<div class="recent-chip" data-order="${num}"><span class="rord-num">#${num}</span><span>${fmtUsd(amt)}</span><span class="rord-status">✓</span></div>`;
             $('#recentOrders').prepend(html);
-            if($('#recentOrders .recent-chip').length>6) $('#recentOrders .recent-chip:last').remove();
+            if ($('#recentOrders .recent-chip').length > 6) $('#recentOrders .recent-chip:last').remove();
         }
-        $(document).on('click','.recent-chip',()=>{ if(lastOrder) showInvoice(lastOrder); });
-        addRecentChip('4582',45.97);
-        addRecentChip('4581',23.50);
-        addRecentChip('4580',67.48);
+        $(document).on('click', '.recent-chip', () => { if (lastOrderLocal) showInvoice(lastOrderLocal); });
+        addRecentChip('4582', 45.97);
+        addRecentChip('4581', 23.50);
+        addRecentChip('4580', 67.48);
 
         /* Mobile sheet */
-        $('#cartFab').click(function(){$('#mobileCartContent').html($('#cartPanel').html());updateSummary();$('#cartSheet').addClass('open');});
-        $('#sheetBackdrop').click(()=>$('#cartSheet').removeClass('open'));
+        $('#cartFab').click(function () {
+            $('#mobileCartContent').html($('#cartPanel').html());
+            updateSummary();
+            $('#cartSheet').addClass('open');
+        });
+        $('#sheetBackdrop').click(() => $('#cartSheet').removeClass('open'));
 
-        /* Toast */
-        function notify(msg, type='info') {
+        /* Toast notifications */
+        function notify(msg, type = 'info') {
             $('.toast').remove();
-            const icons={success:'fa-check-circle',warning:'fa-exclamation-triangle',error:'fa-times-circle',info:'fa-info-circle'};
-            const $t=$(`<div class="toast t-${type}"><i class="fas ${icons[type]||icons.info}" style="color:${type==='success'?'#00B894':type==='warning'?'#F59E0B':type==='error'?'#EF4444':'#FF6B35'};flex-shrink:0;"></i><span>${msg}</span></div>`);
+            const icons = { success: 'fa-check-circle', warning: 'fa-exclamation-triangle', error: 'fa-times-circle', info: 'fa-info-circle' };
+            const $t = $(`<div class="toast t-${type}"><i class="fas ${icons[type]||icons.info}" style="color:${type==='success'?'#00B894':type==='warning'?'#F59E0B':type==='error'?'#EF4444':'#FF6B35'};flex-shrink:0;"></i><span>${msg}</span></div>`);
             $('body').append($t);
-            setTimeout(()=>$t.addClass('show'),10);
-            setTimeout(()=>{ $t.removeClass('show'); setTimeout(()=>$t.remove(),280); },2800);
+            setTimeout(() => $t.addClass('show'), 10);
+            setTimeout(() => { $t.removeClass('show'); setTimeout(() => $t.remove(), 280); }, 2800);
         }
 
         /* Keyboard shortcuts */
-        $(document).on('keydown', function(e){
-            if(e.key==='F2'){e.preventDefault();if(cart.length&&confirm('ចាប់ផ្តើមថ្មី?')){resetCart();notify('ចាប់ផ្តើមការកម្មង់ថ្មី','info');}}
-            if(e.key==='F4'){e.preventDefault();$('#holdOrderBtn').click();}
-            if(e.key==='F8'){e.preventDefault();if(!$('#payBtn').prop('disabled'))$('#payBtn').click();}
-            if(e.key==='Escape'){
+        $(document).on('keydown', async function (e) {
+            if (e.key === 'F2') { e.preventDefault(); if (cart.length && confirm('ចាប់ផ្តើមថ្មី?')) { resetCart(); notify('ចាប់ផ្ដើម​ការ​កម្មង់​ថ្មី', 'info'); } }
+            if (e.key === 'F4') { e.preventDefault(); $('#holdOrderBtn').click(); }
+            if (e.key === 'F8') {
                 e.preventDefault();
-                if($('#cashierQrModal').hasClass('show')){closeKhqrFlow();}
-                else if($('#cashConfirmModal').hasClass('show')){$('#cashConfirmModal').removeClass('show');}
-                else if($('#invoiceModal').hasClass('show')){$('#invoiceModal').removeClass('show');}
-                else{$('#cancelOrderBtn').click();}
+                if (!$('#payBtn').prop('disabled')) {
+                    const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+                    const totalUsd = sub - calcDiscount(sub);
+                    if (currentPaymentMethod === 'qr') { await openKhqrFlow(totalUsd); }
+                    else { $('#payBtn').click(); }
+                }
             }
-            if(e.key==='/'&&!$(e.target).is('input,textarea,select')){e.preventDefault();$('#productSearch').focus();}
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                if ($('#cashierQrModal').hasClass('show')) { closeKhqrFlow(); }
+                else if ($('#cashConfirmModal').hasClass('show')) { $('#cashConfirmModal').removeClass('show'); }
+                else if ($('#invoiceModal').hasClass('show')) { $('#invoiceModal').removeClass('show'); }
+                else { $('#cancelOrderBtn').click(); }
+            }
+            if (e.key === '/' && !$(e.target).is('input,textarea,select')) { e.preventDefault(); $('#productSearch').focus(); }
         });
 
-        console.log('✅ POS Ready — Rate: 4100 (cashier) / 4000 round-100 (customer) | QR: new browser window');
+        console.log('%c✅ POS Ready — Backend Shift Connected', 'color:#00B894;font-weight:bold');
     });
+
+    /* ════════════════════════════════════════════════
+       SHIFT MANAGEMENT — fully backend-connected
+    ════════════════════════════════════════════════ */
+    const shift = {
+        isOpen:       false,
+        shiftId:      null,
+        startTime:    null,
+        openingCash:  0,
+        orderCount:   0,
+        revenue:      0,
+        elapsedTimer: null
+    };
+
+    /* ── On page load: restore shift state from backend ── */
+    (async function loadShiftState() {
+        try {
+            const res  = await fetch('/Shift/GetCurrentShiftInfo');
+            const data = await res.json();
+            if (data.isOpen) {
+                shift.isOpen      = true;
+                shift.shiftId     = data.shiftId;
+                shift.startTime   = new Date(data.startTime).getTime();
+                shift.openingCash = data.openingCash;
+                shift.orderCount  = data.orderCount;
+                shift.revenue     = data.revenue;
+
+                document.getElementById('shiftBtn').classList.add('shift-open');
+                document.getElementById('shiftOpenCashDisplay').textContent = '$' + parseFloat(data.openingCash).toFixed(2);
+                document.getElementById('shiftStartedTime').textContent =
+                    'ចាប់ផ្ដើម — ' + new Date(data.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                clearInterval(shift.elapsedTimer);
+                shift.elapsedTimer = setInterval(updateShiftStats, 10000);
+                updateShiftStats();
+            }
+        } catch (e) { console.warn('Could not load shift state:', e); }
+    })();
+
+    function showShiftModal() {
+        const now = new Date();
+        const h   = now.getHours() % 12 || 12;
+        const m   = String(now.getMinutes()).padStart(2, '0');
+        const ap  = now.getHours() >= 12 ? 'PM' : 'AM';
+        document.getElementById('shiftCurrentTime').textContent = `${h}:${m} ${ap}`;
+
+        if (shift.isOpen) {
+            document.getElementById('shiftClosedView').style.display = 'none';
+            document.getElementById('shiftOpenView').style.display   = 'block';
+            updateShiftStats();
+        } else {
+            document.getElementById('shiftClosedView').style.display = 'block';
+            document.getElementById('shiftOpenView').style.display   = 'none';
+        }
+        document.getElementById('shiftModal').classList.add('show');
+    }
+
+    function hideShiftModal() {
+        document.getElementById('shiftModal').classList.remove('show');
+    }
+
+    function updateShiftStats() {
+        if (!shift.startTime) return;
+        const elapsed = Math.floor((Date.now() - shift.startTime) / 1000);
+        const hrs     = Math.floor(elapsed / 3600);
+        const mins    = Math.floor((elapsed % 3600) / 60);
+        document.getElementById('shiftElapsed').textContent    = `${hrs}:${String(mins).padStart(2,'0')}`;
+        document.getElementById('shiftOrderCount').textContent = shift.orderCount;
+        document.getElementById('shiftRevenue').textContent    = '$' + shift.revenue.toFixed(2);
+        document.getElementById('shiftTotalCash').textContent  = '$' + (shift.openingCash + shift.revenue).toFixed(2);
+    }
+
+    /* ── START SHIFT ── */
+    document.getElementById('shiftStartBtn').addEventListener('click', async function () {
+        const openCash = parseFloat(document.getElementById('shiftOpeningCash').value) || 0;
+        this.disabled  = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងបើក...';
+
+        try {
+            const res  = await fetch('/Shift/OpenShift', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ openingCash: openCash })
+            });
+            const data = await res.json();
+
+            shift.isOpen      = true;
+            shift.shiftId     = data.shiftId;
+            shift.startTime   = Date.now();
+            shift.openingCash = openCash;
+            shift.orderCount  = 0;
+            shift.revenue     = 0;
+
+            document.getElementById('shiftBtn').classList.add('shift-open');
+
+            const now     = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('shiftStartedTime').textContent     = 'ចាប់ផ្ដើម — ' + timeStr;
+            document.getElementById('shiftOpenCashDisplay').textContent = '$' + openCash.toFixed(2);
+
+            clearInterval(shift.elapsedTimer);
+            shift.elapsedTimer = setInterval(updateShiftStats, 10000);
+
+            document.getElementById('shiftClosedView').style.display = 'none';
+            document.getElementById('shiftOpenView').style.display   = 'block';
+            updateShiftStats();
+
+        } catch (e) {
+            alert('បើកវេនមិនបានជោគជ័យ: ' + e.message);
+        } finally {
+            this.disabled  = false;
+            this.innerHTML = '<i class="fas fa-play-circle"></i> ចាប់ផ្ដើមវេន';
+        }
+    });
+
+    /* ── END SHIFT ── */
+    /* ── END SHIFT ── */
+    document.getElementById('shiftEndBtn').addEventListener('click', async function () {
+        if (!confirm('បញ្ចប់វេនការងារ?\n\nការកម្មង់: ' + shift.orderCount + '\nចំណូល: $' + shift.revenue.toFixed(2))) return;
+
+        this.disabled  = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងបិទ...';
+
+        try {
+            const res  = await fetch('/Shift/CloseShift', { method: 'POST' });
+            const data = await res.json();
+
+            if (!data.success) {
+                alert('មានបញ្ហា: ' + (data.message || 'Unknown error'));
+                return;
+            }
+
+            clearInterval(shift.elapsedTimer);
+            shift.isOpen      = false;
+            shift.shiftId     = null;
+            shift.startTime   = null;
+            shift.orderCount  = 0;
+            shift.revenue     = 0;
+            shift.openingCash = 0;
+
+            document.getElementById('shiftBtn').classList.remove('shift-open');
+            document.getElementById('shiftOpeningCash').value = '0';
+            hideShiftModal();
+
+            // ── Redirect to ShiftSummary ──
+            window.location.href = '/Shift/ShiftSummary/' + data.shiftId;
+
+        } catch (e) {
+            alert('បិទវេនមិនបានជោគជ័យ: ' + e.message);
+        } finally {
+            this.disabled  = false;
+            this.innerHTML = '<i class="fas fa-stop-circle"></i> បញ្ចប់វេន';
+        }
+    });
+
+    /* Close modal on backdrop click */
+    document.getElementById('shiftModal').addEventListener('click', function (e) {
+        if (e.target === this) hideShiftModal();
+    });
+
+    /* ── Hook: update local shift counters after each successful payment ──
+       Reads window.lastOrder which is set by runPayFlow BEFORE resetCart.   */
+    (function watchShiftRevenue() {
+        const obs = new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                m.addedNodes.forEach(function (node) {
+                    if (node.classList &&
+                        node.classList.contains('toast') &&
+                        node.classList.contains('t-success') &&
+                        shift.isOpen &&
+                        window.lastOrder &&
+                        window.lastOrder.total > 0) {
+
+                        shift.orderCount++;
+                        shift.revenue += window.lastOrder.total;
+                        updateShiftStats();
+                    }
+                });
+            });
+        });
+        obs.observe(document.body, { childList: true });
+    })();
 </script>
 </body>
 </html>

@@ -1,55 +1,489 @@
-﻿@{
-  ViewData["Title"] = "Add Supplier";
+﻿@using Sandoohouse.Models.Enum
+@model Sandoohouse.Models.ModelViewer.SupplierModelViewer.SupplierViewModel
+
+@{
+ViewData["Title"] = "Add Supplier";
 }
-<div class="page-inner">
-  <div class="page-header">
-    <h3 class="fw-bold mb-3">Supplier</h3>
-    <ul class="breadcrumbs mb-3">
-      <li class="nav-home">
-        <a asp-controller="Home" asp-action="Index">
-          <i class="icon-home"></i>
-        </a>
-      </li>
-      <li class="separator">
-        <i class="icon-arrow-right"></i>
-      </li>
-      <li class="nav-item">
-        <a asp-controller="Supplier" asp-action="Index">Supplier</a>
-      </li>
-      <li class="separator">
-        <i class="icon-arrow-right"></i>
-      </li>
-      <li class="nav-item">
-        <a asp-controller="Supplier" asp-action="AddSupplier">Supplier Form</a>
-      </li>
-    </ul>
-  </div>
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Form Data Supplier</div>
-          <div class="card-body">
-            <div class="row">
-              <form>
-                <div class="form-group">
-                  <label for="exampleInputEmail1">Email address</label>
-                  <input type="email" class="form-control form-control border-1 border-dark" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                </div>
-                <div class="form-group">
-                  <label for="exampleInputPassword1">Password</label>
-                  <input type="password" class="form-control border-1 border-dark" id="exampleInputPassword1" placeholder="Password">
-                </div>
-                <div class="card-action">
-                  <button class="btn btn-success">Submit</button>
-                  <a asp-controller="Supplier" asp-action="Index" class="btn btn-danger">Cancel</a>
-                </div>
-              </form>
-            </div>
-          </div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --brand:        #FF6B35;
+        --brand-dark:   #E85520;
+        --brand-light:  #FFF0EA;
+        --brand-mid:    rgba(255,107,53,.13);
+        --accent:       #1C2340;
+        --success:      #00B894;
+        --success-bg:   rgba(0,184,148,.1);
+        --warning:      #F0A500;
+        --warning-bg:   rgba(240,165,0,.1);
+        --danger:       #E84545;
+        --danger-bg:    rgba(232,69,69,.1);
+        --bg:           #F2EFE9;
+        --surface:      #FFFFFF;
+        --surface2:     #FAF8F5;
+        --surface3:     #F4F1EC;
+        --border:       #EAE5DC;
+        --border-s:     #D8D2C8;
+        --text:         #18150F;
+        --text-sub:     #6E685F;
+        --text-light:   #AEA89F;
+        --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+        --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+        --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+        --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+        --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+        --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+        --font: 'Sora', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .as-page {
+        font-family: var(--font);
+        background: var(--bg);
+        background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+        background-size: 28px 28px;
+        min-height: 100vh;
+        padding: 28px 24px;
+        color: var(--text);
+    }
+
+    /* ── Topbar ── */
+    .as-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+        max-width: 900px; margin-left: auto; margin-right: auto;
+    }
+    .as-topbar h1 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 5px; letter-spacing: -.4px; }
+    .as-breadcrumb {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+    }
+    .as-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+    .as-breadcrumb a:hover { color: var(--brand); }
+    .as-breadcrumb .sep { color: var(--border-s); }
+    .as-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+    /* ── Wrapper ── */
+    .as-wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; }
+
+    /* ── Hero ── */
+    .as-hero {
+        background: var(--accent);
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+        padding: 30px 36px;
+        display: flex; align-items: center; gap: 20px;
+        position: relative; overflow: hidden;
+    }
+    .as-hero::before {
+        content: ''; position: absolute; inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+    .as-hero::after {
+        content: ''; position: absolute; width: 280px; height: 280px; border-radius: 50%;
+        background: rgba(255,107,53,.08); top: -100px; right: -60px; pointer-events: none;
+    }
+    .as-hero-circle {
+        position: absolute; width: 200px; height: 200px; border-radius: 50%;
+        background: rgba(255,255,255,.03); bottom: -80px; left: 200px; pointer-events: none;
+    }
+    .as-hero-badge {
+        width: 56px; height: 56px; border-radius: 15px; background: var(--brand);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: #fff; flex-shrink: 0; z-index: 1; box-shadow: var(--shadow-brand);
+    }
+    .as-hero-text { z-index: 1; flex: 1; }
+    .as-hero-text h2 { font-size: 19px; font-weight: 800; color: #fff; margin: 0 0 5px; letter-spacing: -.3px; }
+    .as-hero-text p  { font-size: 12px; color: rgba(255,255,255,.5); margin: 0; font-weight: 500; }
+    .as-hero-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 14px; border-radius: 20px; z-index: 1; flex-shrink: 0;
+        background: var(--brand-mid); color: var(--brand);
+        border: 1px solid rgba(255,107,53,.25); font-size: 11px; font-weight: 700;
+    }
+
+    /* ── Form area ── */
+    .as-form-area {
+        background: var(--surface);
+        border: 1.5px solid var(--border); border-top: none;
+        border-radius: 0 0 var(--r-lg) var(--r-lg);
+        box-shadow: var(--shadow-md); overflow: hidden;
+    }
+    .as-body { padding: 32px 36px 28px; }
+
+    /* ── Logo upload ── */
+    .as-logo-section {
+        display: flex; align-items: center; gap: 24px;
+        padding: 20px 24px; margin-bottom: 28px;
+        background: var(--surface2); border: 1.5px solid var(--border);
+        border-radius: var(--r-md);
+    }
+    .as-logo-wrap { position: relative; cursor: pointer; flex-shrink: 0; }
+    .as-logo-img {
+        width: 90px; height: 90px; border-radius: var(--r-md);
+        overflow: hidden; border: 2px solid var(--border);
+        background: var(--surface); box-shadow: var(--shadow-sm); transition: border-color .2s;
+    }
+    .as-logo-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .as-logo-overlay {
+        position: absolute; inset: 0; border-radius: var(--r-md);
+        background: rgba(24,21,15,.55);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        opacity: 0; transition: opacity .2s;
+    }
+    .as-logo-overlay i    { font-size: 20px; color: #fff; }
+    .as-logo-overlay span { font-size: 10px; color: rgba(255,255,255,.85); font-weight: 700; }
+    .as-logo-wrap:hover .as-logo-img { border-color: var(--brand); }
+    .as-logo-wrap:hover .as-logo-overlay { opacity: 1; }
+
+    .as-logo-info { flex: 1; }
+    .as-logo-info h5 { font-size: 14px; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+    .as-logo-info p  { font-size: 12px; color: var(--text-light); margin: 0 0 12px; }
+
+    .btn-pick-logo {
+        display: inline-flex; align-items: center; gap: 6px;
+        height: 36px; padding: 0 16px;
+        border: 1.5px solid var(--brand); border-radius: var(--r-xl);
+        background: var(--brand-light); color: var(--brand);
+        font-family: var(--font); font-size: 12px; font-weight: 700;
+        cursor: pointer; transition: all .16s;
+    }
+    .btn-pick-logo:hover { background: var(--brand); color: #fff; }
+
+    /* ── Section title ── */
+    .as-sec {
+        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+        color: var(--text-light); margin: 0 0 16px; padding-bottom: 10px;
+        border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+    }
+    .as-sec i { font-size: 12px; color: var(--brand); }
+
+    /* ── Grid ── */
+    .as-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+    .as-grid .full { grid-column: 1 / -1; }
+
+    /* ── Field ── */
+    .as-field { display: flex; flex-direction: column; gap: 6px; }
+    .as-label {
+        font-size: 11px; font-weight: 700; color: var(--text-sub);
+        text-transform: uppercase; letter-spacing: .05em;
+        display: flex; align-items: baseline; gap: 4px;
+    }
+    .as-label .req { color: var(--brand); font-size: 14px; line-height: .8; text-transform: none; letter-spacing: 0; }
+    .as-label .opt { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+    .as-control {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        background: var(--surface2); overflow: hidden;
+        transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .as-control:focus-within {
+        border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-mid); background: var(--surface);
+    }
+    .as-control.err { border-color: var(--danger); }
+    .as-control.err:focus-within { box-shadow: 0 0 0 3px var(--danger-bg); }
+    .as-control.textarea-mode { align-items: flex-start; }
+    .as-control.textarea-mode .as-prefix { padding-top: 13px; align-self: flex-start; }
+
+    .as-prefix {
+        width: 44px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; color: var(--text-light);
+        border-right: 1.5px solid var(--border); background: var(--surface);
+        transition: color .15s, border-color .15s;
+    }
+    .as-control:focus-within .as-prefix { color: var(--brand); border-color: var(--brand); }
+
+    .as-inp {
+        flex: 1; height: 46px; padding: 0 14px;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+    }
+    .as-inp::placeholder { color: var(--text-light); font-weight: 400; }
+
+    .as-select {
+        flex: 1; height: 46px; padding: 0 38px 0 14px;
+        border: none; outline: none;
+        background-color: transparent;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23AEA89F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        background-size: 14px 14px;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        cursor: pointer; width: 100%;
+    }
+    /* When select is focused, update the caret to brand orange */
+    .as-control:focus-within .as-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23FF6B35' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    }
+    /* Remove default select outline/border in all browsers */
+    .as-select:focus { outline: none; box-shadow: none; border: none; }
+    .as-select option { font-family: var(--font); color: var(--text); background: var(--surface); }
+
+    .as-area {
+        flex: 1; padding: 13px 14px; min-height: 100px; resize: vertical;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text);
+        line-height: 1.65; font-weight: 500;
+    }
+    .as-area::placeholder { color: var(--text-light); font-weight: 400; }
+
+    .as-val-msg { font-size: 11px; color: var(--danger); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .as-hint    { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 4px; }
+
+    /* ── Divider ── */
+    .as-divider { height: 1.5px; background: var(--border); margin: 4px 0 28px; }
+
+    /* ── Actions ── */
+    .as-actions { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+
+    .btn-submit-sup {
+        flex: 1; height: 48px; min-width: 160px;
+        background: var(--brand); color: #fff;
+        border: none; border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: var(--shadow-brand); transition: all .18s; letter-spacing: .01em;
+    }
+    .btn-submit-sup:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,53,.4); }
+    .btn-submit-sup:active { transform: translateY(0); }
+
+    .btn-cancel-sup {
+        height: 48px; padding: 0 22px;
+        background: var(--surface); color: var(--text-sub);
+        border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        text-decoration: none; transition: all .18s;
+    }
+    .btn-cancel-sup:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); text-decoration: none; }
+
+    /* ── Responsive ── */
+    @@media (max-width: 680px) {
+        .as-grid { grid-template-columns: 1fr; }
+        .as-grid .full { grid-column: 1; }
+        .as-body { padding: 24px 20px; }
+        .as-hero { padding: 24px 22px; gap: 14px; }
+        .as-hero-badge { width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
+        .as-hero-text h2 { font-size: 17px; }
+        .as-logo-section { flex-direction: column; align-items: flex-start; gap: 16px; }
+        .as-actions { flex-direction: column; }
+        .btn-submit-sup, .btn-cancel-sup { min-width: unset; width: 100%; }
+    }
+</style>
+
+<div class="as-page">
+
+    <!-- Topbar -->
+    <div class="as-topbar">
+        <div>
+            <h1>Add Supplier</h1>
+            <nav class="as-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-action="Index">Suppliers</a>
+                <span class="sep">›</span>
+                <span class="cur">Add Supplier</span>
+            </nav>
         </div>
-        
-      </div>
     </div>
-  </div>
-</div>
+
+    <div class="as-wrap">
+
+        <!-- ── Hero ── -->
+        <div class="as-hero">
+            <div class="as-hero-circle"></div>
+            <div class="as-hero-badge"><i class="bi bi-building-add"></i></div>
+            <div class="as-hero-text">
+                <h2>New Supplier Registration</h2>
+                <p>Fill in the information below to register a new supplier</p>
+            </div>
+            <span class="as-hero-pill">
+                <i class="bi bi-plus-circle-fill" style="font-size:11px;"></i> New Supplier
+            </span>
+        </div>
+
+        <!-- ── Form area ── -->
+        <div class="as-form-area">
+            <div class="as-body">
+                <form asp-action="AddSupplier" method="post" enctype="multipart/form-data"
+                      class="needs-validation" novalidate>
+
+                    <!-- ── Logo upload ── -->
+                    <div class="as-logo-section">
+                        <div class="as-logo-wrap" onclick="document.getElementById('companyImageInput').click();">
+                            <div class="as-logo-img">
+                                <img id="previewImage"
+                                     src="~/images/default-company.png"
+                                     onerror="this.src='https://ui-avatars.com/api/?name=Co&background=FF6B35&color=fff&size=90'"
+                                     alt="Company Logo" />
+                            </div>
+                            <div class="as-logo-overlay">
+                                <i class="bi bi-camera-fill"></i>
+                                <span>Change</span>
+                            </div>
+                        </div>
+                        <div class="as-logo-info">
+                            <h5>Company Logo</h5>
+                            <p>Upload a logo to represent this supplier. JPG, PNG or GIF · Max 2 MB</p>
+                            <label for="companyImageInput" class="btn-pick-logo">
+                                <i class="bi bi-cloud-arrow-up-fill"></i> Upload Logo
+                            </label>
+                            <input asp-for="CompanyProfileFile" id="companyImageInput" type="file"
+                                   style="display:none;" accept="image/*" onchange="previewLogo(event)" />
+                        </div>
+                    </div>
+
+                    <!-- ── Company information ── -->
+                    <div class="as-sec"><i class="bi bi-building-fill"></i> Company Information</div>
+
+                    <div class="as-grid">
+
+                        <div class="as-field">
+                            <label class="as-label">Company Name <span class="req">*</span></label>
+                            <div class="as-control @(ViewData.ModelState["CompanyName"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-building"></i></span>
+                                <input asp-for="CompanyName" class="as-inp" placeholder="Enter company name" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="CompanyName" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label class="as-label">Contact Person <span class="req">*</span></label>
+                            <div class="as-control @(ViewData.ModelState["ContactPerson"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-person"></i></span>
+                                <input asp-for="ContactPerson" class="as-inp" placeholder="Enter contact person name" />
+                            </div>
+                            <span asp-validation-for="ContactPerson" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label class="as-label">Phone Number <span class="req">*</span></label>
+                            <div class="as-control @(ViewData.ModelState["Phone"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="Phone" class="as-inp" placeholder="+855 000 000 000" type="tel" />
+                            </div>
+                            <span asp-validation-for="Phone" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label class="as-label">Email Address <span class="opt">&nbsp;optional</span></label>
+                            <div class="as-control @(ViewData.ModelState["Email"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="as-inp" placeholder="supplier@example.com" type="email" />
+                            </div>
+                            <span asp-validation-for="Email" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label class="as-label">Status <span class="req">*</span></label>
+                            <div class="as-control @(ViewData.ModelState["Status"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-toggle-on"></i></span>
+                                <select asp-for="Status" class="as-select"
+                                        asp-items="Html.GetEnumSelectList<SupplierStatus>()">
+                                </select>
+                            </div>
+                            <span asp-validation-for="Status" class="as-val-msg"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- ── Address ── -->
+                    <div class="as-sec" style="margin-top:4px;"><i class="bi bi-geo-alt-fill"></i> Address Details</div>
+
+                    <div class="as-grid">
+
+                        <div class="as-field full">
+                            <label class="as-label">Street Address <span class="opt">&nbsp;optional</span></label>
+                            <div class="as-control @(ViewData.ModelState["Address"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-geo-alt"></i></span>
+                                <input asp-for="Address" class="as-inp" placeholder="Enter street address" />
+                            </div>
+                            <span asp-validation-for="Address" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label class="as-label">City <span class="opt">&nbsp;optional</span></label>
+                            <div class="as-control @(ViewData.ModelState["City"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-pin-map"></i></span>
+                                <input asp-for="City" class="as-inp" placeholder="City" />
+                            </div>
+                            <span asp-validation-for="City" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label class="as-label">State / Province <span class="opt">&nbsp;optional</span></label>
+                            <div class="as-control @(ViewData.ModelState["State"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-map"></i></span>
+                                <input asp-for="State" class="as-inp" placeholder="State or Province" />
+                            </div>
+                            <span asp-validation-for="State" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field">
+                            <label class="as-label">Country <span class="opt">&nbsp;optional</span></label>
+                            <div class="as-control @(ViewData.ModelState["Country"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-globe"></i></span>
+                                <input asp-for="Country" class="as-inp" placeholder="Country" />
+                            </div>
+                            <span asp-validation-for="Country" class="as-val-msg"></span>
+                        </div>
+
+                        <div class="as-field full">
+                            <label class="as-label">Notes <span class="opt">&nbsp;optional</span></label>
+                            <div class="as-control textarea-mode @(ViewData.ModelState["Notes"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="as-prefix"><i class="bi bi-chat-left-text"></i></span>
+                                <textarea asp-for="Notes" class="as-area" rows="4"
+                                          placeholder="Additional notes about this supplier…"></textarea>
+                            </div>
+                            <span asp-validation-for="Notes" class="as-val-msg"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- ── Actions ── -->
+                    <div class="as-actions">
+                        <button type="submit" class="btn-submit-sup">
+                            <i class="bi bi-check-circle-fill"></i> Save Supplier
+                        </button>
+                        <a asp-action="Index" class="btn-cancel-sup">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div><!-- /.as-wrap -->
+</div><!-- /.as-page -->
+
+@section Scripts {
+<script>
+    function previewLogo(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { alert('File must be under 2 MB.'); e.target.value = ''; return; }
+        if (!file.type.match('image.*'))  { alert('Please select an image file.'); e.target.value = ''; return; }
+        const r = new FileReader();
+        r.onload = ev => { document.getElementById('previewImage').src = ev.target.result; };
+        r.readAsDataURL(file);
+    }
+
+    document.querySelectorAll('.needs-validation').forEach(form => {
+        form.addEventListener('submit', e => {
+            if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+            form.classList.add('was-validated');
+        }, false);
+    });
+</script>
+<partial name="_ValidationScriptsPartial" />
+}

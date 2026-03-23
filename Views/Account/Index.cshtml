@@ -2,461 +2,574 @@
 @using System.Globalization
 @using Sandoohouse.Models.Enum
 @{
-    ViewData["Title"] = "Account Profile";
+ViewData["Title"] = "Account Profile";
 }
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
-:root {
-    --brand:       #FF6B35;
-    --brand-dark:  #E85520;
-    --brand-light: #FFF0EA;
-    --brand-mid:   rgba(255,107,53,.12);
-    --accent:      #2D3561;
-    --accent-mid:  rgba(45,53,97,.1);
-    --success:     #00B894;
-    --success-bg:  rgba(0,184,148,.1);
-    --danger:      #E84545;
-    --danger-bg:   rgba(232,69,69,.1);
-    --bg:          #F7F4F0;
-    --surface:     #FFFFFF;
-    --surface2:    #FAF8F5;
-    --border:      #EDE8E0;
-    --text:        #1A1714;
-    --text-sub:    #7A736B;
-    --text-light:  #B5AFA8;
-    --shadow-sm:   0 1px 4px rgba(26,23,20,.06);
-    --shadow-md:   0 4px 20px rgba(26,23,20,.10);
-    --shadow-lg:   0 12px 48px rgba(26,23,20,.14);
-    --r-sm:  10px;
-    --r-md:  16px;
-    --r-lg:  24px;
-    --r-xl:  32px;
-    --font:  'Sora','Noto Sans Khmer',sans-serif;
-}
+    :root {
+        --brand:        #FF6B35;
+        --brand-dark:   #E85520;
+        --brand-light:  #FFF0EA;
+        --brand-mid:    rgba(255,107,53,.13);
+        --accent:       #1C2340;
+        --accent2:      #2D3561;
+        --success:      #00B894;
+        --success-bg:   rgba(0,184,148,.1);
+        --warning:      #F0A500;
+        --warning-bg:   rgba(240,165,0,.1);
+        --danger:       #E84545;
+        --danger-bg:    rgba(232,69,69,.1);
+        --bg:           #F2EFE9;
+        --surface:      #FFFFFF;
+        --surface2:     #FAF8F5;
+        --surface3:     #F4F1EC;
+        --border:       #EAE5DC;
+        --border-s:     #D8D2C8;
+        --text:         #18150F;
+        --text-sub:     #6E685F;
+        --text-light:   #AEA89F;
+        --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+        --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+        --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+        --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+        --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+        --r-xs:6px; --r-sm:10px; --r-md:16px; --r-lg:24px; --r-xl:32px;
+        --font: 'Sora', sans-serif;
+    }
+    *,*::before,*::after { box-sizing:border-box; }
 
-*, *::before, *::after { box-sizing: border-box; }
+    .ap-page {
+        font-family: var(--font);
+        background: var(--bg);
+        background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+        background-size: 28px 28px;
+        min-height: 100vh;
+        padding: 28px 24px;
+        color: var(--text);
+    }
 
-.ap-page {
-    font-family: var(--font);
-    background: var(--bg);
-    min-height: 100vh;
-    padding: 32px 20px;
-    color: var(--text);
-}
+    /* ── Topbar ── */
+    .ap-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+        max-width: 960px; margin-left: auto; margin-right: auto;
+    }
+    .ap-topbar h1 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 5px; letter-spacing: -.4px; }
+    .ap-breadcrumb { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; margin:0; padding:0; list-style:none; }
+    .ap-breadcrumb a { color:var(--text-light); text-decoration:none; transition:color .14s; }
+    .ap-breadcrumb a:hover { color:var(--brand); }
+    .ap-breadcrumb .sep { color:var(--border-s); }
+    .ap-breadcrumb .cur { color:var(--text-sub); font-weight:600; }
 
-/* ── Breadcrumb ── */
-.ap-breadcrumb {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12px; font-weight: 500;
-    margin-bottom: 28px; flex-wrap: wrap;
-}
-.ap-breadcrumb a {
-    color: var(--text-light); text-decoration: none;
-    transition: color .15s;
-}
-.ap-breadcrumb a:hover { color: var(--brand); }
-.ap-breadcrumb .sep { color: var(--border); font-size: 10px; }
-.ap-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+    .btn-edit-top {
+        display:inline-flex; align-items:center; gap:7px;
+        height:38px; padding:0 18px;
+        background:var(--brand); color:#fff;
+        border:none; border-radius:var(--r-xl);
+        font-family:var(--font); font-size:13px; font-weight:700;
+        text-decoration:none; cursor:pointer;
+        box-shadow:var(--shadow-brand); transition:all .18s;
+    }
+    .btn-edit-top:hover { background:var(--brand-dark); transform:translateY(-1px); color:#fff; text-decoration:none; }
 
-/* ── Page title ── */
-.ap-page-title {
-    font-size: 22px; font-weight: 700;
-    color: var(--text); margin: 0 0 6px;
-    letter-spacing: -.4px;
-}
-.ap-page-sub {
-    font-size: 12px; color: var(--text-light);
-    font-weight: 500; margin: 0 0 28px;
-}
+    /* ── Wrap ── */
+    .ap-wrap { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-/* ── Profile card ── */
-.ap-card {
-    background: var(--surface);
-    border-radius: var(--r-lg);
-    border: 1.5px solid var(--border);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    max-width: 860px;
-    margin: 0 auto;
-}
+    /* ── Hero banner ── */
+    .ap-hero {
+        background: var(--accent);
+        border-radius: var(--r-lg);
+        padding: 0;
+        position: relative; overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+    /* dot pattern */
+    .ap-hero::before {
+        content: ''; position: absolute; inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+    /* decorative circles */
+    .ap-hero-deco1 {
+        position:absolute; width:320px; height:320px; border-radius:50%;
+        background:rgba(255,107,53,.07); top:-120px; right:-80px; pointer-events:none;
+    }
+    .ap-hero-deco2 {
+        position:absolute; width:200px; height:200px; border-radius:50%;
+        background:rgba(255,255,255,.03); bottom:-80px; left:220px; pointer-events:none;
+    }
 
-/* ── Left panel ── */
-.ap-left {
-    background: var(--accent);
-    padding: 44px 28px 36px;
-    display: flex; flex-direction: column;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-}
+    /* cover strip */
+    .ap-cover {
+        height: 110px;
+        background: linear-gradient(135deg, rgba(255,107,53,.25) 0%, rgba(28,35,64,0) 100%);
+        position: relative;
+    }
 
-/* decorative circles */
-.ap-left::before,
-.ap-left::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255,255,255,.05);
-    pointer-events: none;
-}
-.ap-left::before { width: 260px; height: 260px; top: -80px; right: -80px; }
-.ap-left::after  { width: 180px; height: 180px; bottom: -60px; left: -60px; }
+    /* avatar area - overlaps cover */
+    .ap-avatar-row {
+        display: flex; align-items: flex-end; justify-content: space-between;
+        padding: 0 32px 24px;
+        position: relative; z-index: 1;
+        margin-top: -44px;
+        flex-wrap: wrap; gap: 16px;
+    }
 
-.ap-avatar-wrap { position: relative; z-index: 1; }
+    .ap-avatar-wrap { position: relative; flex-shrink: 0; }
+    .ap-avatar {
+        width: 88px; height: 88px; border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid var(--accent);
+        box-shadow: 0 4px 20px rgba(0,0,0,.3);
+        background: var(--surface2);
+    }
+    .ap-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
 
-.ap-avatar {
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    border: 3px solid rgba(255,255,255,.25);
-    overflow: hidden;
-    background: var(--surface);
-    box-shadow: 0 8px 32px rgba(0,0,0,.25);
-}
-.ap-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* online dot */
+    .ap-avatar-status {
+        position: absolute; bottom: 4px; right: 4px;
+        width: 18px; height: 18px; border-radius: 50%;
+        border: 3px solid var(--accent);
+    }
+    .ap-avatar-status.active   { background: var(--success); }
+    .ap-avatar-status.inactive { background: var(--text-light); }
 
-.ap-status-dot {
-    position: absolute;
-    bottom: 4px; right: 4px;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    border: 2.5px solid var(--accent);
-}
-.dot-active   { background: var(--success); }
-.dot-inactive { background: var(--text-light); }
+    .ap-hero-info { flex: 1; min-width: 0; padding-top: 48px; }
+    .ap-hero-name { font-size: 22px; font-weight: 800; color: #fff; margin: 0 0 6px; letter-spacing: -.4px; line-height: 1.15; }
+    .ap-hero-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
-.ap-name {
-    font-size: 18px; font-weight: 700;
-    color: #fff; margin: 18px 0 6px;
-    text-align: center; z-index: 1;
-    letter-spacing: -.3px;
-}
+    .ap-role-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 12px; border-radius: 20px;
+        font-size: 11px; font-weight: 700;
+        background: var(--brand-mid); color: var(--brand);
+        border: 1px solid rgba(255,107,53,.3);
+    }
+    .ap-status-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 12px; border-radius: 20px;
+        font-size: 11px; font-weight: 700;
+    }
+    .ap-status-chip.active   { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.25); }
+    .ap-status-chip.inactive { background: rgba(255,255,255,.06); color: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.12); }
 
-.ap-role-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 14px;
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 20px;
-    font-size: 11px; font-weight: 600;
-    color: rgba(255,255,255,.9);
-    z-index: 1;
-}
+    .ap-hero-id {
+        font-size: 11px; color: rgba(255,255,255,.35); font-weight: 500; margin-top: 6px;
+    }
 
-.ap-status-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    margin-top: 12px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px; font-weight: 700;
-    z-index: 1;
-}
-.ap-status-chip.active   { background: var(--success-bg); color: var(--success); }
-.ap-status-chip.inactive { background: rgba(255,255,255,.08); color: rgba(255,255,255,.6); }
+    /* ── Main two-column layout ── */
+    .ap-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
 
-.ap-left-divider {
-    width: 40px; height: 2px;
-    background: rgba(255,255,255,.15);
-    border-radius: 2px;
-    margin: 20px 0; z-index: 1;
-}
+    /* ── Left: sidebar card ── */
+    .ap-sidebar {
+        background: var(--surface); border: 1.5px solid var(--border);
+        border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm);
+    }
 
-.ap-id-block {
-    text-align: center; z-index: 1;
-}
-.ap-id-label { font-size: 10px; color: rgba(255,255,255,.45); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; }
-.ap-id-val   { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.75); margin-top: 3px; font-family: monospace; }
+    .ap-sidebar-head {
+        padding: 20px 22px 0;
+        border-bottom: 1.5px solid var(--border);
+        background: var(--surface2);
+    }
+    .ap-sidebar-head-label {
+        font-size: 9px; font-weight: 800; text-transform: uppercase;
+        letter-spacing: .12em; color: var(--text-light);
+        margin-bottom: 14px; display: flex; align-items: center; gap: 7px;
+    }
+    .ap-sidebar-head-label i { color: var(--brand); font-size: 12px; }
 
-/* ── Right panel ── */
-.ap-right { padding: 36px 36px 32px; }
+    /* contact rows */
+    .ap-contacts { padding: 14px 22px; display: flex; flex-direction: column; gap: 0; border-bottom: 1.5px solid var(--border); }
+    .ap-contact-row {
+        display: flex; align-items: center; gap: 12px;
+        padding: 11px 0; border-bottom: 1px solid var(--border);
+    }
+    .ap-contact-row:last-child { border-bottom: none; }
+    .ap-contact-icon {
+        width: 32px; height: 32px; border-radius: var(--r-xs);
+        background: var(--brand-light); color: var(--brand);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; flex-shrink: 0;
+    }
+    .ap-contact-body { flex: 1; min-width: 0; }
+    .ap-contact-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-light); margin-bottom: 2px; }
+    .ap-contact-val { font-size: 12px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.ap-section-title {
-    font-size: 11px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .08em;
-    color: var(--text-light);
-    margin: 0 0 16px;
-    display: flex; align-items: center; gap: 8px;
-}
-.ap-section-title::after {
-    content: '';
-    flex: 1; height: 1px;
-    background: var(--border);
-}
+    .btn-copy {
+        width: 26px; height: 26px; border-radius: var(--r-xs);
+        border: 1.5px solid var(--border); background: var(--surface2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; color: var(--text-light); cursor: pointer;
+        transition: all .15s; flex-shrink: 0;
+    }
+    .btn-copy:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+    .btn-copy.copied { border-color: var(--success); color: var(--success); background: var(--success-bg); }
 
-/* Contact rows */
-.ap-contact-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-sm);
-    margin-bottom: 10px;
-    transition: border-color .15s;
-}
-.ap-contact-row:hover { border-color: var(--brand); }
+    /* quick actions */
+    .ap-actions { padding: 16px 22px; display: flex; flex-direction: column; gap: 8px; }
+    .btn-action {
+        height: 40px; width: 100%; border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 13px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        text-decoration: none; transition: all .18s;
+    }
+    .btn-action.primary {
+        background: var(--brand); color: #fff; border: none;
+        box-shadow: var(--shadow-brand);
+    }
+    .btn-action.primary:hover { background: var(--brand-dark); transform: translateY(-1px); color: #fff; text-decoration: none; }
+    .btn-action.outline {
+        background: var(--surface); color: var(--text-sub);
+        border: 1.5px solid var(--border);
+    }
+    .btn-action.outline:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); text-decoration: none; }
 
-.ap-contact-icon {
-    width: 36px; height: 36px;
-    border-radius: var(--r-sm);
-    background: var(--brand-light);
-    color: var(--brand);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; flex-shrink: 0;
-}
+    /* ── Right: detail cards ── */
+    .ap-right { display: flex; flex-direction: column; gap: 16px; }
 
-.ap-contact-text {
-    flex: 1;
-    font-size: 13px; font-weight: 500;
-    color: var(--text);
-    min-width: 0;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.ap-contact-text.muted { color: var(--text-light); font-weight: 400; }
+    .ap-card {
+        background: var(--surface); border: 1.5px solid var(--border);
+        border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm);
+    }
 
-.btn-copy {
-    width: 30px; height: 30px;
-    border-radius: var(--r-sm);
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    color: var(--text-light);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; cursor: pointer;
-    transition: all .15s; flex-shrink: 0;
-}
-.btn-copy:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+    .ap-card-head {
+        padding: 14px 22px; border-bottom: 1.5px solid var(--border);
+        background: var(--surface2);
+        display: flex; align-items: center; gap: 10px;
+    }
+    .ap-card-title-bar { width: 3px; height: 16px; background: var(--brand); border-radius: 3px; flex-shrink: 0; }
+    .ap-card-title { font-size: 12px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .05em; }
 
-/* Info grid */
-.ap-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 4px;
-}
+    /* info grid */
+    .ap-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .ap-info-cell {
+        padding: 16px 22px; border-bottom: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        position: relative;
+    }
+    .ap-info-cell:nth-child(even)  { border-right: none; }
+    .ap-info-cell:nth-last-child(-n+2) { border-bottom: none; }
+    .ap-info-cell::before {
+        content: ''; position: absolute; top: 0; left: 0;
+        width: 3px; height: 100%; background: var(--brand);
+        opacity: 0; transition: opacity .2s;
+    }
+    .ap-info-cell:hover::before { opacity: 1; }
+    .ap-info-label {
+        font-size: 9px; font-weight: 800; text-transform: uppercase;
+        letter-spacing: .09em; color: var(--text-light); margin-bottom: 6px;
+    }
+    .ap-info-val {
+        font-size: 14px; font-weight: 700; color: var(--text);
+        display: flex; align-items: center; gap: 7px;
+    }
+    .ap-info-val i { font-size: 13px; color: var(--brand); }
+    .ap-info-val.success { color: var(--success); }
+    .ap-info-val.muted   { color: var(--text-light); font-weight: 500; }
+    .ap-info-sub { font-size: 11px; color: var(--text-light); margin-top: 3px; }
 
-.ap-info-cell {
-    padding: 12px 14px;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: var(--r-sm);
-}
-.ap-info-cell.full { grid-column: 1 / -1; }
+    /* activity timeline */
+    .ap-timeline { padding: 6px 22px 14px; }
+    .ap-tl-item {
+        display: flex; gap: 14px; padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+    }
+    .ap-tl-item:last-child { border-bottom: none; }
+    .ap-tl-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; padding-top: 2px; }
+    .ap-tl-dot {
+        width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+        border: 2px solid var(--surface); box-shadow: 0 0 0 2px var(--border);
+    }
+    .ap-tl-dot.brand   { background: var(--brand);   box-shadow: 0 0 0 2px var(--brand-mid); }
+    .ap-tl-dot.success { background: var(--success);  box-shadow: 0 0 0 2px var(--success-bg); }
+    .ap-tl-dot.warning { background: var(--warning);  box-shadow: 0 0 0 2px var(--warning-bg); }
+    .ap-tl-dot.muted   { background: var(--text-light); box-shadow: 0 0 0 2px var(--border); }
+    .ap-tl-line { flex: 1; width: 1px; background: var(--border); margin: 4px 0 0; }
+    .ap-tl-item:last-child .ap-tl-line { display: none; }
 
-.ap-info-label {
-    font-size: 10px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .06em;
-    color: var(--text-light); margin-bottom: 4px;
-}
+    .ap-tl-body { flex: 1; min-width: 0; }
+    .ap-tl-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .ap-tl-desc  { font-size: 11px; color: var(--text-sub); }
+    .ap-tl-time  { font-size: 11px; color: var(--text-light); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+    .ap-tl-time i { font-size: 10px; }
 
-.ap-info-val {
-    font-size: 13px; font-weight: 600;
-    color: var(--text);
-}
-.ap-info-val.success { color: var(--success); }
-.ap-info-val.muted   { color: var(--text-sub); }
+    /* stat strip */
+    .ap-stat-strip {
+        display: grid; grid-template-columns: repeat(3,1fr);
+        border-top: 1.5px solid var(--border);
+    }
+    .ap-stat-cell {
+        padding: 18px 22px; text-align: center;
+        border-right: 1px solid var(--border); position: relative; overflow: hidden;
+    }
+    .ap-stat-cell:last-child { border-right: none; }
+    .ap-stat-cell::after {
+        content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+        height: 3px; background: var(--brand); transform: scaleX(0);
+        transform-origin: center; transition: transform .3s;
+    }
+    .ap-stat-cell:hover::after { transform: scaleX(1); }
+    .ap-stat-num  { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -1px; }
+    .ap-stat-label{ font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .07em; margin-top: 4px; }
 
-/* Action buttons */
-.ap-actions {
-    display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap;
-}
-
-.btn-edit {
-    flex: 1;
-    height: 42px; padding: 0 20px;
-    background: var(--brand); color: #fff;
-    border: none; border-radius: var(--r-xl);
-    font-family: var(--font); font-size: 13px; font-weight: 700;
-    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-    text-decoration: none; cursor: pointer;
-    box-shadow: 0 4px 16px rgba(255,107,53,.3);
-    transition: all .18s;
-}
-.btn-edit:hover { background: var(--brand-dark); transform: translateY(-1px); color: #fff; text-decoration: none; }
-
-.btn-back {
-    flex: 1;
-    height: 42px; padding: 0 20px;
-    background: var(--surface); color: var(--text-sub);
-    border: 1.5px solid var(--border); border-radius: var(--r-xl);
-    font-family: var(--font); font-size: 13px; font-weight: 600;
-    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-    text-decoration: none; cursor: pointer;
-    transition: all .18s;
-}
-.btn-back:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
-
-/* ── Toast ── */
-.ap-toast-wrap {
-    position: fixed; bottom: 24px; right: 24px;
-    z-index: 9999; pointer-events: none;
-}
-.ap-toast {
-    background: var(--success);
-    color: #fff;
-    border-radius: var(--r-sm);
-    padding: 12px 18px;
-    font-family: var(--font); font-size: 13px; font-weight: 600;
-    display: flex; align-items: center; gap: 8px;
-    box-shadow: var(--shadow-md);
-    opacity: 0; transform: translateY(12px);
-    transition: opacity .2s, transform .2s;
-    pointer-events: auto;
-}
-.ap-toast.show { opacity: 1; transform: translateY(0); }
-
-/* ── Responsive ── */
-@@media (max-width: 680px) {
-    .ap-card { grid-template-columns: 1fr; }
-    .ap-left { padding: 36px 20px 28px; }
-    .ap-right { padding: 24px 20px; }
+    /* ── Responsive ── */
+    @@media (max-width: 820px) {
+    .ap-layout { grid-template-columns: 1fr; }
+    .ap-hero-info { padding-top: 54px; }
     .ap-info-grid { grid-template-columns: 1fr; }
-    .ap-info-cell.full { grid-column: 1; }
-}
+    .ap-info-cell { border-right: none; }
+    .ap-info-cell:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+    .ap-info-cell:last-child { border-bottom: none; }
+    .ap-stat-strip { grid-template-columns: 1fr; }
+    .ap-stat-cell { border-right: none; border-bottom: 1px solid var(--border); }
+    .ap-stat-cell:last-child { border-bottom: none; }
+    }
+    @@media (max-width: 560px) {
+    .ap-page { padding: 16px 14px; }
+    .ap-hero-name { font-size: 18px; }
+    .ap-avatar-row { padding: 0 20px 20px; }
+    .ap-cover { height: 80px; }
+    .ap-avatar { width: 72px; height: 72px; }
+    .ap-avatar-row { margin-top: -36px; }
+    }
 </style>
 
 <div class="ap-page">
-    <h1 class="ap-page-title">Account Profile</h1>
-    <p class="ap-page-sub">View and manage your account information</p>
-    <!-- Breadcrumb -->
-    <nav class="ap-breadcrumb">
-        <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
-        <span class="sep">›</span>
-        <a asp-controller="Account" asp-action="Index">Admin</a>
-        <span class="sep">›</span>
-        <span class="cur">Account Profile</span>
-    </nav>
-    <div class="ap-card">
 
-        <!-- ── Left: avatar & identity ── -->
-        <div class="ap-left">
+    <!-- Topbar -->
+    <div class="ap-topbar">
+        <div>
+            <h1>Account Profile</h1>
+            <nav class="ap-breadcrumb">
+                <a asp-controller="Home"    asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Account" asp-action="ListAccount">Admin</a>
+                <span class="sep">›</span>
+                <span class="cur">Profile</span>
+            </nav>
+        </div>
+        <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@Model.Id" class="btn-edit-top">
+            <i class="bi bi-pencil-fill"></i> Edit Profile
+        </a>
+    </div>
 
-            <div class="ap-avatar-wrap">
-                <div class="ap-avatar">
-                    <img src="@Url.Content(Model.ProfileImageFile != null ? $"~/Admin/{Model.ProfileImageFile}" : "~/l60Hf.png")"
-                         alt="@Model.FirstName @Model.LastName" />
+    <div class="ap-wrap">
+
+        <!-- ── Hero banner ── -->
+        <div class="ap-hero">
+            <div class="ap-hero-deco1"></div>
+            <div class="ap-hero-deco2"></div>
+
+            <div class="ap-cover"></div>
+
+            <div class="ap-avatar-row">
+                <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;">
+                    <div class="ap-avatar-wrap">
+                        <div class="ap-avatar">
+                            <img src="@Url.Content(Model.ProfileImageFile != null ? $"~/Admin/{Model.ProfileImageFile}" : "~/l60Hf.png")"
+                                 alt="@Model.FirstName @Model.LastName" />
+                        </div>
+                        <span class="ap-avatar-status @(Model.Status == Status.Active ? "active" : "inactive")"></span>
+                    </div>
+
+                    <div class="ap-hero-info">
+                        <div class="ap-hero-name">@Model.FirstName @Model.LastName</div>
+                        <div class="ap-hero-meta">
+                            <span class="ap-role-badge"><i class="bi bi-shield-check"></i> Administrator</span>
+                            <span class="ap-status-chip @(Model.Status == Status.Active ? "active" : "inactive")">
+                                <i class="bi bi-circle-fill" style="font-size:7px;"></i>
+                                @Model.Status
+                            </span>
+                        </div>
+                        <div class="ap-hero-id">ID · ADS00-@Model.Id-88</div>
+                    </div>
                 </div>
-                <span class="ap-status-dot @(Model.Status == Status.Active ? "dot-active" : "dot-inactive")"
-                      title="@Model.Status"></span>
             </div>
-
-            <div class="ap-name">@Model.FirstName @Model.LastName</div>
-
-            <span class="ap-role-badge">
-                <i class="bi bi-shield-check"></i> Administrator
-            </span>
-
-            <span class="ap-status-chip @(Model.Status == Status.Active ? "active" : "inactive")">
-                @if (Model.Status == Status.Active)
-                {
-                    <i class="bi bi-circle-fill" style="font-size:7px;"></i>
-                }
-                else
-                {
-                    <i class="bi bi-circle" style="font-size:7px;"></i>
-                }
-                @Model.Status
-            </span>
-
-            <div class="ap-left-divider"></div>
-
-            <div class="ap-id-block">
-                <div class="ap-id-label">Profile ID</div>
-                <div class="ap-id-val">ADS00-@Model.Id-88</div>
-            </div>
-
         </div>
 
-        <!-- ── Right: details ── -->
-        <div class="ap-right">
-
-            <!-- Contact -->
-            <div class="ap-section-title">Contact Information</div>
-
-            <div class="ap-contact-row">
-                <div class="ap-contact-icon"><i class="bi bi-envelope-fill"></i></div>
-                <div class="ap-contact-text">@Model.Email</div>
-                <button class="btn-copy" onclick="copyText('@Model.Email')" title="Copy email">
-                    <i class="bi bi-copy"></i>
-                </button>
+        <!-- ── Stat strip ── -->
+        <div class="ap-card">
+            <div class="ap-stat-strip">
+                <div class="ap-stat-cell">
+                    <div class="ap-stat-num">@((int)(DateTime.UtcNow - Model.CreatedAt).TotalDays)</div>
+                    <div class="ap-stat-label">Days Active</div>
+                </div>
+                <div class="ap-stat-cell">
+                    <div class="ap-stat-num">@Model.CreatedAt.ToString("yyyy")</div>
+                    <div class="ap-stat-label">Member Since</div>
+                </div>
+                <div class="ap-stat-cell">
+                    <div class="ap-stat-num" style="color:var(--brand);">@(Model.Status == Status.Active ? "ON" : "OFF")</div>
+                    <div class="ap-stat-label">Account Status</div>
+                </div>
             </div>
+        </div>
 
-            <div class="ap-contact-row">
-                <div class="ap-contact-icon"><i class="bi bi-telephone-fill"></i></div>
-                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
-                {
-                    <div class="ap-contact-text">@Model.PhoneNumber</div>
-                    <button class="btn-copy" onclick="copyText('@Model.PhoneNumber')" title="Copy phone">
-                        <i class="bi bi-copy"></i>
-                    </button>
-                }
-                else
-                {
-                    <div class="ap-contact-text muted">Not provided</div>
-                }
-            </div>
+        <!-- ── Main layout ── -->
+        <div class="ap-layout">
 
-            <!-- Account info -->
-            <div class="ap-section-title" style="margin-top:24px;">Account Information</div>
+            <!-- LEFT: sidebar -->
+            <div class="ap-sidebar">
 
-            <div class="ap-info-grid">
-                <div class="ap-info-cell">
-                    <div class="ap-info-label">Status</div>
-                    <div class="ap-info-val @(Model.Status == Status.Active ? "success" : "muted")">
-                        @Model.Status
+                <div class="ap-sidebar-head">
+                    <div class="ap-sidebar-head-label"><i class="bi bi-person-lines-fill"></i> Contact Details</div>
+                </div>
+
+                <div class="ap-contacts">
+                    <div class="ap-contact-row">
+                        <div class="ap-contact-icon"><i class="bi bi-envelope-fill"></i></div>
+                        <div class="ap-contact-body">
+                            <div class="ap-contact-label">Email</div>
+                            <div class="ap-contact-val">@Model.Email</div>
+                        </div>
+                        <button class="btn-copy" onclick="copyText('@Model.Email')" title="Copy email">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                    {
+                    <div class="ap-contact-row">
+                        <div class="ap-contact-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div class="ap-contact-body">
+                            <div class="ap-contact-label">Phone</div>
+                            <div class="ap-contact-val">@Model.PhoneNumber</div>
+                        </div>
+                        <button class="btn-copy" onclick="copyText('@Model.PhoneNumber')" title="Copy phone">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                    </div>
+                    }
+
+                    <div class="ap-contact-row">
+                        <div class="ap-contact-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                        <div class="ap-contact-body">
+                            <div class="ap-contact-label">Role</div>
+                            <div class="ap-contact-val">Administrator</div>
+                        </div>
                     </div>
                 </div>
-                <div class="ap-info-cell">
-                    <div class="ap-info-label">Account Age</div>
-                    <div class="ap-info-val">@((int)(DateTime.UtcNow - Model.CreatedAt).TotalDays) days</div>
+
+                <div class="ap-actions">
+                    <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@Model.Id"
+                       class="btn-action primary">
+                        <i class="bi bi-pencil-fill"></i> Edit Account
+                    </a>
+                    <a asp-controller="Account" asp-action="ListAccount"
+                       class="btn-action outline">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
                 </div>
-                <div class="ap-info-cell">
-                    <div class="ap-info-label">Created At</div>
-                    <div class="ap-info-val">@Model.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</div>
-                </div>
-                <div class="ap-info-cell">
-                    <div class="ap-info-label">Last Updated</div>
-                    <div class="ap-info-val @(Model.UpdatedAt == DateTime.MinValue ? "muted" : "")">
-                        @(Model.UpdatedAt == DateTime.MinValue
-                            ? "Never"
-                            : Model.UpdatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture))
+
+            </div><!-- /.ap-sidebar -->
+
+            <!-- RIGHT: detail cards -->
+            <div class="ap-right">
+
+                <!-- Account info grid -->
+                <div class="ap-card">
+                    <div class="ap-card-head">
+                        <span class="ap-card-title-bar"></span>
+                        <span class="ap-card-title">Account Information</span>
+                    </div>
+                    <div class="ap-info-grid">
+                        <div class="ap-info-cell">
+                            <div class="ap-info-label">Account Status</div>
+                            <div class="ap-info-val @(Model.Status == Status.Active ? "success" : "muted")">
+                                <i class="bi @(Model.Status == Status.Active ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                                @Model.Status
+                            </div>
+                        </div>
+                        <div class="ap-info-cell">
+                            <div class="ap-info-label">Account ID</div>
+                            <div class="ap-info-val">
+                                <i class="bi bi-fingerprint"></i>
+                                ADS00-@Model.Id-88
+                            </div>
+                        </div>
+                        <div class="ap-info-cell">
+                            <div class="ap-info-label">Member Since</div>
+                            <div class="ap-info-val">
+                                <i class="bi bi-calendar-check"></i>
+                                @Model.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)
+                            </div>
+                        </div>
+                        <div class="ap-info-cell">
+                            <div class="ap-info-label">Last Updated</div>
+                            <div class="ap-info-val @(Model.UpdatedAt == DateTime.MinValue ? "muted" : "")">
+                                <i class="bi bi-clock-history"></i>
+                                @(Model.UpdatedAt == DateTime.MinValue
+                                ? "Never updated"
+                                : Model.UpdatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture))
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Actions -->
-            <div class="ap-actions">
-                <a asp-controller="Account" asp-action="EditAccount" asp-route-id="@Model.Id" class="btn-edit">
-                    <i class="bi bi-pencil-square"></i> Edit Profile
-                </a>
-                <a asp-action="Index" asp-controller="Home" class="btn-back">
-                    <i class="bi bi-arrow-left"></i> Dashboard
-                </a>
-            </div>
+                <!-- Activity timeline -->
+                <div class="ap-card">
+                    <div class="ap-card-head">
+                        <span class="ap-card-title-bar"></span>
+                        <span class="ap-card-title">Recent Activity</span>
+                    </div>
+                    <div class="ap-timeline">
+                        <div class="ap-tl-item">
+                            <div class="ap-tl-dot-wrap"><div class="ap-tl-dot brand"></div><div class="ap-tl-line"></div></div>
+                            <div class="ap-tl-body">
+                                <div class="ap-tl-title">Account created</div>
+                                <div class="ap-tl-desc">Account was successfully registered in the system</div>
+                                <div class="ap-tl-time"><i class="bi bi-clock"></i> @Model.CreatedAt.ToString("MMM dd, yyyy · hh:mm tt", CultureInfo.InvariantCulture)</div>
+                            </div>
+                        </div>
+                        @if (Model.UpdatedAt != DateTime.MinValue)
+                        {
+                        <div class="ap-tl-item">
+                            <div class="ap-tl-dot-wrap"><div class="ap-tl-dot success"></div><div class="ap-tl-line"></div></div>
+                            <div class="ap-tl-body">
+                                <div class="ap-tl-title">Profile updated</div>
+                                <div class="ap-tl-desc">Account information was modified</div>
+                                <div class="ap-tl-time"><i class="bi bi-clock"></i> @Model.UpdatedAt.ToString("MMM dd, yyyy · hh:mm tt", CultureInfo.InvariantCulture)</div>
+                            </div>
+                        </div>
+                        }
+                        <div class="ap-tl-item">
+                            <div class="ap-tl-dot-wrap"><div class="ap-tl-dot @(Model.Status == Status.Active ? "success" : "muted")"></div><div class="ap-tl-line"></div></div>
+                            <div class="ap-tl-body">
+                                <div class="ap-tl-title">Status: @Model.Status</div>
+                                <div class="ap-tl-desc">Current account visibility and access level</div>
+                                <div class="ap-tl-time"><i class="bi bi-shield-check"></i> Administrator role</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        </div><!-- /.ap-right -->
+            </div><!-- /.ap-right -->
 
-    </div><!-- /.ap-card -->
+        </div><!-- /.ap-layout -->
 
+    </div><!-- /.ap-wrap -->
 </div><!-- /.ap-page -->
 
-<!-- Toast -->
-<div class="ap-toast-wrap">
-    <div class="ap-toast" id="apToast">
-        <i class="bi bi-check-circle-fill"></i> Copied to clipboard!
-    </div>
-</div>
-
 <script>
-function copyText(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        const t = document.getElementById('apToast');
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2000);
-    }).catch(() => alert('Failed to copy!'));
-}
+    function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const btns = document.querySelectorAll('.btn-copy');
+            btns.forEach(btn => {
+                if (btn.getAttribute('onclick')?.includes(text.replace(/'/g,"\\'"))) {
+                    btn.classList.add('copied');
+                    btn.innerHTML = '<i class="bi bi-check2"></i>';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = '<i class="bi bi-copy"></i>';
+                    }, 1800);
+                }
+            });
+        });
+    }
 </script>

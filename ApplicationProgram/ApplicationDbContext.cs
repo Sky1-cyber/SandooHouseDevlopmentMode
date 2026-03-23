@@ -24,5 +24,17 @@ public class ApplicationDbContext : DbContext
             .WithMany(b => b.Categories)
             .HasForeignKey(c => c.BrandId)
             .OnDelete(DeleteBehavior.SetNull);
+        
+        modelBuilder.Entity<Category>()
+            .HasOne(c => c.Admin)
+            .WithMany(a => a.Categories)
+            .HasForeignKey(c => c.CreatedById)   // ✅ FIX
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Menu>()
+            .HasOne(m => m.Admin)
+            .WithMany(a => a.Menus)
+            .HasForeignKey(m => m.CreatedBy)   // ✅ FIX
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

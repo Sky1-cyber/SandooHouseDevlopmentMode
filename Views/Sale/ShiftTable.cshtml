@@ -19,6 +19,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+<!-- jsPDF + AutoTable for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
 <style>
 :root {
     --brand:        #FF6B35;
@@ -43,6 +47,7 @@
     --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
     --shadow-md:    0 6px 24px rgba(24,21,15,.10);
     --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+    --shadow-danger:0 6px 20px rgba(232,69,69,.28);
     --r-xs:6px; --r-sm:10px; --r-md:16px; --r-lg:24px; --r-xl:32px;
     --font:'Sora','Noto Sans Khmer',sans-serif;
 }
@@ -81,6 +86,8 @@
 .btn-topbar:hover { border-color:var(--brand); color:var(--brand); background:var(--brand-light); text-decoration:none; }
 .btn-topbar-brand { background:var(--brand); color:#fff; border-color:var(--brand); box-shadow:var(--shadow-brand); }
 .btn-topbar-brand:hover { background:var(--brand-dark); color:#fff; border-color:var(--brand-dark); }
+.btn-topbar-pdf { background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 6px 20px rgba(28,35,64,.28); }
+.btn-topbar-pdf:hover { background:#141929; color:#fff; border-color:#141929; }
 
 /* ── Wrap ── */
 .sr-wrap { max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:20px; }
@@ -250,6 +257,9 @@
 .amount-main.brand   { color:var(--brand); }
 .amount-main.success { color:var(--success); }
 .amount-khr   { font-size:11px; color:var(--text-light); margin-top:2px; }
+
+/* ── Action buttons ── */
+.btn-actions { display:flex; align-items:center; gap:6px; justify-content:flex-end; }
 .btn-view {
     display:inline-flex; align-items:center; gap:5px;
     padding:5px 13px; border-radius:var(--r-xl);
@@ -258,6 +268,14 @@
     font-family:var(--font); text-decoration:none; transition:all .15s; white-space:nowrap;
 }
 .btn-view:hover { border-color:var(--brand); color:var(--brand); background:var(--brand-light); text-decoration:none; }
+.btn-delete {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:5px 13px; border-radius:var(--r-xl);
+    background:var(--surface2); border:1.5px solid var(--border);
+    color:var(--text-sub); font-size:11px; font-weight:600;
+    font-family:var(--font); cursor:pointer; transition:all .15s; white-space:nowrap;
+}
+.btn-delete:hover { border-color:var(--danger); color:var(--danger); background:var(--danger-bg); }
 
 /* ── Empty ── */
 .sr-empty {
@@ -282,6 +300,86 @@
 .sr-footer-stat i { color:var(--brand); font-size:13px; }
 .sr-footer-total { font-size:14px; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px; }
 .sr-footer-total span { color:var(--success); font-size:16px; }
+
+/* ── Delete Modal ── */
+.del-backdrop {
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(24,21,15,.45); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+}
+.del-backdrop.active { display:flex; }
+.del-modal {
+    background:var(--surface); border-radius:var(--r-lg);
+    box-shadow:var(--shadow-md); width:100%; max-width:420px;
+    margin:16px; overflow:hidden; animation:modalIn .2s ease;
+}
+@@keyframes modalIn {
+    from { opacity:0; transform:scale(.95) translateY(8px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.del-modal-top {
+    padding:28px 28px 20px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center;
+}
+.del-modal-icon {
+    width:56px; height:56px; border-radius:var(--r-md);
+    background:var(--danger-bg); color:var(--danger);
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+}
+.del-modal-top h3 { font-size:17px; font-weight:800; color:var(--text); margin:0; }
+.del-modal-top p  { font-size:13px; color:var(--text-sub); margin:0; line-height:1.55; }
+.del-modal-info {
+    margin:0 28px 20px; padding:12px 16px; border-radius:var(--r-sm);
+    background:var(--surface2); border:1.5px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+}
+.del-modal-info-av {
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    background:var(--brand-light); color:var(--brand);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:800; border:1.5px solid rgba(255,107,53,.2);
+}
+.del-modal-info-text { display:flex; flex-direction:column; gap:2px; }
+.del-modal-info-name { font-size:13px; font-weight:700; color:var(--text); }
+.del-modal-info-meta { font-size:11px; color:var(--text-light); }
+.del-modal-actions {
+    padding:16px 28px; border-top:1.5px solid var(--border);
+    background:var(--surface2); display:flex; gap:10px;
+}
+.btn-modal-cancel {
+    flex:1; height:42px; border-radius:var(--r-xl);
+    background:var(--surface); border:1.5px solid var(--border);
+    color:var(--text-sub); font-family:var(--font); font-size:13px; font-weight:600;
+    cursor:pointer; transition:all .15s;
+}
+.btn-modal-cancel:hover { border-color:var(--border-s); color:var(--text); }
+.btn-modal-confirm {
+    flex:1; height:42px; border-radius:var(--r-xl);
+    background:var(--danger); border:none; color:#fff;
+    font-family:var(--font); font-size:13px; font-weight:700;
+    cursor:pointer; box-shadow:var(--shadow-danger); transition:all .15s;
+    display:flex; align-items:center; justify-content:center; gap:7px;
+}
+.btn-modal-confirm:hover { background:#d03030; transform:translateY(-1px); }
+
+/* ── PDF Progress Overlay ── */
+.pdf-overlay {
+    display:none; position:fixed; inset:0; z-index:2000;
+    background:rgba(24,21,15,.55); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+}
+.pdf-overlay.active { display:flex; }
+.pdf-spinner-box {
+    background:var(--surface); border-radius:var(--r-lg); padding:32px 40px;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+    box-shadow:var(--shadow-md); min-width:220px; text-align:center;
+}
+.pdf-spinner {
+    width:44px; height:44px; border:3px solid var(--border);
+    border-top-color:var(--brand); border-radius:50%;
+    animation:spin .7s linear infinite;
+}
+@@keyframes spin { to { transform:rotate(360deg); } }
+.pdf-spinner-box p { font-size:13px; font-weight:600; color:var(--text-sub); margin:0; }
 
 /* ── Responsive ── */
 @@media (max-width:1000px) {
@@ -318,6 +416,9 @@
             <a asp-controller="Sale" asp-action="Index" class="btn-topbar">
                 <i class="bi bi-bar-chart-line"></i> Sale Report
             </a>
+            <button type="button" class="btn-topbar btn-topbar-pdf" onclick="downloadShiftPDF()">
+                <i class="bi bi-file-earmark-pdf-fill"></i> Download PDF
+            </button>
         </div>
     </div>
 
@@ -366,6 +467,50 @@
                 </div>
             </form>
 
+            <!-- KPI Strip -->
+            <div class="sr-kpi-strip">
+                <div class="sr-kpi-cell kpi-brand">
+                    <div class="sr-kpi-icon"><i class="bi bi-clock-history"></i></div>
+                    <div class="sr-kpi-info">
+                        <span class="sr-kpi-label">Total Shifts</span>
+                        <span class="sr-kpi-val">@totalShifts</span>
+                        <span class="sr-kpi-sub">All periods</span>
+                    </div>
+                </div>
+                <div class="sr-kpi-cell kpi-green">
+                    <div class="sr-kpi-icon"><i class="bi bi-currency-dollar"></i></div>
+                    <div class="sr-kpi-info">
+                        <span class="sr-kpi-label">Total Revenue</span>
+                        <span class="sr-kpi-val">$@totalSales.ToString("N2")</span>
+                        <span class="sr-kpi-sub">@(Math.Round(totalSales * 4100).ToString("N0")) ៛</span>
+                    </div>
+                </div>
+                <div class="sr-kpi-cell kpi-brand">
+                    <div class="sr-kpi-icon"><i class="bi bi-bag-check"></i></div>
+                    <div class="sr-kpi-info">
+                        <span class="sr-kpi-label">Total Orders</span>
+                        <span class="sr-kpi-val">@totalOrders</span>
+                        <span class="sr-kpi-sub">Across all shifts</span>
+                    </div>
+                </div>
+                <div class="sr-kpi-cell kpi-warn">
+                    <div class="sr-kpi-icon"><i class="bi bi-cash-stack"></i></div>
+                    <div class="sr-kpi-info">
+                        <span class="sr-kpi-label">Opening Cash</span>
+                        <span class="sr-kpi-val">$@totalOpening.ToString("N2")</span>
+                        <span class="sr-kpi-sub">@(Math.Round(totalOpening * 4100).ToString("N0")) ៛</span>
+                    </div>
+                </div>
+                <div class="sr-kpi-cell kpi-green">
+                    <div class="sr-kpi-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                    <div class="sr-kpi-info">
+                        <span class="sr-kpi-label">Avg / Shift</span>
+                        <span class="sr-kpi-val">$@avgSales.ToString("N2")</span>
+                        <span class="sr-kpi-sub">Revenue per shift</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Table header -->
             <div class="sr-table-head">
                 <div class="sr-table-title">
@@ -380,7 +525,7 @@
 
             <!-- Table -->
             <div class="table-responsive">
-                <table class="sr-table">
+                <table class="sr-table" id="shiftDataTable">
                     <thead>
                         <tr>
                             <th>Shift</th>
@@ -466,9 +611,15 @@
                                     <div class="amount-khr">@(Math.Round(drawer * 4100).ToString("N0")) ៛</div>
                                 </td>
                                 <td>
-                                    <a href="/Shift/ShiftSummary/@s.Id" class="btn-view">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
+                                    <div class="btn-actions">
+                                        <a href="/Shift/ShiftSummary/@s.Id" class="btn-view">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        <button type="button" class="btn-delete"
+                                                onclick="openDeleteModal(@s.Id, '@cashier', '@initials', '@s.StartTime.ToLocalTime().ToString("MMM dd, yyyy")')">
+                                            <i class="bi bi-trash3"></i> Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -516,3 +667,333 @@
         </div>
     </div>
 </div>
+
+<!-- ── Delete Confirmation Modal ── -->
+<div class="del-backdrop" id="deleteBackdrop">
+    <div class="del-modal">
+        <div class="del-modal-top">
+            <div class="del-modal-icon"><i class="bi bi-trash3-fill"></i></div>
+            <h3>Delete Shift?</h3>
+            <p>This will permanently remove the shift and all associated data. This action cannot be undone.</p>
+        </div>
+        <div class="del-modal-info">
+            <div class="del-modal-info-av" id="delModalInitials">—</div>
+            <div class="del-modal-info-text">
+                <span class="del-modal-info-name" id="delModalCashier">—</span>
+                <span class="del-modal-info-meta" id="delModalMeta">—</span>
+            </div>
+        </div>
+        <div class="del-modal-actions">
+            <button type="button" class="btn-modal-cancel" onclick="closeDeleteModal()">
+                Cancel
+            </button>
+            <form id="deleteForm" method="post" style="flex:1;display:flex;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-modal-confirm" style="width:100%;">
+                    <i class="bi bi-trash3-fill"></i> Yes, Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ── PDF Generation Spinner ── -->
+<div class="pdf-overlay" id="pdfOverlay">
+    <div class="pdf-spinner-box">
+        <div class="pdf-spinner"></div>
+        <p>Generating PDF report…</p>
+    </div>
+</div>
+
+<script>
+/* ────────────────────────────────────────────────
+   Delete modal
+──────────────────────────────────────────────── */
+function openDeleteModal(id, cashier, initials, date) {
+    document.getElementById('delModalInitials').textContent = initials;
+    document.getElementById('delModalCashier').textContent  = cashier;
+    document.getElementById('delModalMeta').textContent     = 'Shift #' + id + ' · ' + date;
+    document.getElementById('deleteForm').action            = '/Shift/Delete/' + id;
+    document.getElementById('deleteBackdrop').classList.add('active');
+}
+function closeDeleteModal() {
+    document.getElementById('deleteBackdrop').classList.remove('active');
+}
+document.getElementById('deleteBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeleteModal();
+});
+
+/* ────────────────────────────────────────────────
+   PDF Export — full POS shift report
+──────────────────────────────────────────────── */
+function downloadShiftPDF() {
+    document.getElementById('pdfOverlay').classList.add('active');
+
+    setTimeout(function () {
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+
+            const PAGE_W  = doc.internal.pageSize.getWidth();
+            const PAGE_H  = doc.internal.pageSize.getHeight();
+            const MARGIN  = 36;
+            const CONTENT = PAGE_W - MARGIN * 2;
+
+            // Brand colours
+            const C_BRAND   = [255, 107,  53];
+            const C_ACCENT  = [ 28,  35,  64];
+            const C_SUCCESS = [  0, 184, 148];
+            const C_WARN    = [240, 165,   0];
+            const C_TEXT    = [ 24,  21,  15];
+            const C_SUBTEXT = [110, 104,  95];
+            const C_LIGHT   = [174, 168, 159];
+            const C_BG      = [242, 239, 233];
+            const C_WHITE   = [255, 255, 255];
+
+            const KHR_RATE = 4100;
+            function fmtUSD(v) { return '$' + parseFloat(v).toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}); }
+            function fmtKHR(v) { return Math.round(v * KHR_RATE).toLocaleString() + ' \u17DB'; }
+
+            // Razor-injected values
+            const kpiTotalShifts  = @totalShifts;
+            const kpiTotalRevenue = @totalSales.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            const kpiTotalOrders  = @totalOrders;
+            const kpiOpening      = @totalOpening.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            const kpiAvgSales     = @avgSales.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+
+            const now       = new Date();
+            const printTs   = now.toLocaleString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+            const fromDate  = '@fromDate';
+            const toDate    = '@toDate';
+            const dateRange = (fromDate || toDate) ? ((fromDate||'–') + '  \u2192  ' + (toDate||'–')) : 'All dates';
+            const fileName  = 'ShiftReport' + (fromDate ? '_'+fromDate.replace(/-/g,'') : '') + (toDate ? '_'+toDate.replace(/-/g,'') : '') + '.pdf';
+
+            // ═══════════════════════
+            //  HEADER BANNER
+            // ═══════════════════════
+            doc.setFillColor(...C_ACCENT);
+            doc.roundedRect(MARGIN, 22, CONTENT, 68, 8, 8, 'F');
+
+            // Left orange stripe
+            doc.setFillColor(...C_BRAND);
+            doc.roundedRect(MARGIN, 22, 5, 68, 3, 3, 'F');
+
+            // Icon box
+            doc.setFillColor(...C_BRAND);
+            doc.roundedRect(MARGIN+14, 31, 40, 40, 7, 7, 'F');
+            // Draw a simple clock icon using lines
+            doc.setDrawColor(...C_WHITE); doc.setLineWidth(2);
+            doc.circle(MARGIN+34, 51, 11, 'S');
+            doc.line(MARGIN+34, 51, MARGIN+34, 44); // hour hand
+            doc.line(MARGIN+34, 51, MARGIN+40, 51); // minute hand
+
+            // Title
+            doc.setFontSize(17); doc.setFont('helvetica','bold'); doc.setTextColor(...C_WHITE);
+            doc.text('SHIFT REPORT', MARGIN+64, 45);
+            doc.setFontSize(8.5); doc.setFont('helvetica','normal'); doc.setTextColor(170,175,190);
+            doc.text('Sandoo House POS  \u2022  Cashier Shift Summary', MARGIN+64, 59);
+
+            // Date range badge
+            doc.setFillColor(44, 54, 88);
+            doc.roundedRect(PAGE_W - MARGIN - 160, 38, 160, 22, 5, 5, 'F');
+            doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...C_BRAND);
+            doc.text(dateRange, PAGE_W - MARGIN - 80, 51, { align: 'center' });
+
+            // Print timestamp
+            doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...C_LIGHT);
+            doc.text('Generated: ' + printTs, PAGE_W - MARGIN, 19, { align: 'right' });
+
+            let y = 108;
+
+            // ═══════════════════════
+            //  KPI CARDS
+            // ═══════════════════════
+            const KPI = [
+                { label:'Total Shifts',   value:kpiTotalShifts.toString(),    sub:'all periods',              col:C_BRAND   },
+                { label:'Total Revenue',  value:fmtUSD(kpiTotalRevenue),       sub:fmtKHR(kpiTotalRevenue),    col:C_SUCCESS },
+                { label:'Total Orders',   value:kpiTotalOrders.toString(),     sub:'across all shifts',        col:C_BRAND   },
+                { label:'Opening Cash',   value:fmtUSD(kpiOpening),            sub:fmtKHR(kpiOpening),         col:C_WARN    },
+                { label:'Avg / Shift',    value:fmtUSD(kpiAvgSales),           sub:'revenue per shift',        col:C_SUCCESS },
+            ];
+            const kW = (CONTENT - 8*4) / 5;
+            KPI.forEach(function(k, i) {
+                const kx = MARGIN + i*(kW+8);
+                // Card
+                doc.setFillColor(...C_WHITE);
+                doc.roundedRect(kx, y, kW, 56, 6, 6, 'F');
+                // Accent bottom strip
+                doc.setFillColor(...k.col);
+                doc.roundedRect(kx+1, y+50, kW-2, 5, 2, 2, 'F');
+                // Icon tinted bg
+                const tint = k.col.map(function(c){ return c + Math.floor((255-c)*0.82); });
+                doc.setFillColor(...tint);
+                doc.roundedRect(kx+8, y+9, 24, 24, 5, 5, 'F');
+                // Label
+                doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...C_LIGHT);
+                doc.text(k.label.toUpperCase(), kx+kW/2, y+13, {align:'center'});
+                // Value
+                doc.setFontSize(12.5); doc.setFont('helvetica','bold'); doc.setTextColor(...C_TEXT);
+                doc.text(k.value, kx+kW/2, y+31, {align:'center'});
+                // Sub
+                doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...C_LIGHT);
+                doc.text(k.sub, kx+kW/2, y+43, {align:'center'});
+            });
+
+            y += 70;
+
+            // ═══════════════════════
+            //  SECTION TITLE
+            // ═══════════════════════
+            doc.setFillColor(...C_BRAND);
+            doc.rect(MARGIN, y, 4, 17, 'F');
+            doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(...C_TEXT);
+            doc.text('Shift Transactions', MARGIN+12, y+12);
+            doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...C_LIGHT);
+            doc.text('Sorted by latest date', MARGIN+130, y+12);
+            y += 24;
+
+            // ═══════════════════════
+            //  BUILD TABLE ROWS FROM DOM
+            // ═══════════════════════
+            const tableRows = [];
+            document.querySelectorAll('#shiftDataTable tbody tr').forEach(function(tr) {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length < 9) return;
+                const get  = function(td, sel) { var el = td.querySelector(sel); return el ? el.textContent.trim() : ''; };
+                const text = function(td)       { return td.textContent.replace(/\s+/g,' ').trim(); };
+
+                const shiftId  = get(tds[0], '.shift-num');
+                const cashier  = get(tds[1], '.cashier-nm');
+                const status   = get(tds[2], '.s-badge').replace(/^\s*[\u25CF\u2022]\s*/,'');
+                const dateStr  = get(tds[3], '.date-main') + '\n' + get(tds[3],'.date-time').replace(/\s+/g,' ');
+                const dur      = text(tds[4]);
+                const orders   = get(tds[5], '.orders-val');
+                const openUSD  = get(tds[6], '.amount-main');
+                const openKHR  = get(tds[6], '.amount-khr');
+                const revUSD   = get(tds[7], '.amount-main');
+                const revKHR   = get(tds[7], '.amount-khr');
+                const drwUSD   = get(tds[8], '.amount-main');
+                const drwKHR   = get(tds[8], '.amount-khr');
+
+                tableRows.push([
+                    shiftId, cashier, status, dateStr, dur, orders,
+                    openUSD+'\n'+openKHR, revUSD+'\n'+revKHR, drwUSD+'\n'+drwKHR,
+                ]);
+            });
+
+            // ═══════════════════════
+            //  AUTOTABLE
+            // ═══════════════════════
+            doc.autoTable({
+                startY: y,
+                margin: { left: MARGIN, right: MARGIN },
+                head: [['Shift','Cashier','Status','Date & Time','Duration','Orders','Opening Cash','Revenue','Est. Drawer']],
+                body: tableRows,
+                theme: 'plain',
+                styles: {
+                    font: 'helvetica', fontSize: 8,
+                    cellPadding: { top:6, bottom:6, left:7, right:7 },
+                    valign: 'middle', textColor: C_TEXT,
+                    lineColor: [234,229,220], lineWidth: 0.5, overflow: 'linebreak',
+                },
+                headStyles: {
+                    fillColor: [250,248,245], textColor: C_LIGHT,
+                    fontStyle: 'bold', fontSize: 7.5,
+                    cellPadding: { top:7, bottom:7, left:7, right:7 },
+                },
+                alternateRowStyles: { fillColor: [250,248,245] },
+                columnStyles: {
+                    0: { cellWidth:42,  fontStyle:'bold' },
+                    1: { cellWidth:78 },
+                    2: { cellWidth:46,  halign:'center' },
+                    3: { cellWidth:78 },
+                    4: { cellWidth:52,  halign:'center' },
+                    5: { cellWidth:38,  halign:'center', textColor:C_BRAND, fontStyle:'bold', fontSize:10 },
+                    6: { cellWidth:70,  halign:'right' },
+                    7: { cellWidth:70,  halign:'right', textColor:C_BRAND },
+                    8: { cellWidth:70,  halign:'right', textColor:C_SUCCESS },
+                },
+                didParseCell: function(d) {
+                    if (d.column.index === 2 && d.section === 'body') {
+                        var v = (d.cell.raw||'').toString().toLowerCase();
+                        if (v.includes('closed')) {
+                            d.cell.styles.textColor = C_SUCCESS;
+                            d.cell.styles.fillColor = [230,250,245];
+                            d.cell.styles.fontStyle = 'bold';
+                        } else {
+                            d.cell.styles.textColor = C_BRAND;
+                            d.cell.styles.fillColor = [255,240,234];
+                            d.cell.styles.fontStyle = 'bold';
+                        }
+                    }
+                },
+                willDrawPage: function(d) {
+                    if (d.pageNumber > 1) {
+                        doc.setFillColor(...C_ACCENT);
+                        doc.rect(0, 0, PAGE_W, 22, 'F');
+                        doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(...C_WHITE);
+                        doc.text('SHIFT REPORT  \u2013  Sandoo House POS', MARGIN, 15);
+                        doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(170,175,190);
+                        doc.text(dateRange, PAGE_W-MARGIN, 15, {align:'right'});
+                    }
+                },
+                didDrawPage: function(d) {
+                    // Page footer
+                    var pg = doc.internal.getCurrentPageInfo().pageNumber;
+                    doc.setFillColor(...C_BG);
+                    doc.rect(0, PAGE_H-22, PAGE_W, 22, 'F');
+                    doc.setDrawColor(...C_LIGHT); doc.setLineWidth(0.5);
+                    doc.line(MARGIN, PAGE_H-22, PAGE_W-MARGIN, PAGE_H-22);
+                    doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...C_LIGHT);
+                    doc.text('Sandoo House POS  \u2022  Shift Report  \u2022  ' + printTs, MARGIN, PAGE_H-8);
+                    doc.text('Page ' + pg + ' of {total_pages_count_string}', PAGE_W-MARGIN, PAGE_H-8, {align:'right'});
+
+                    // Summary bar after last table row
+                    if (d.cursor && d.cursor.y + 44 < PAGE_H - 26) {
+                        var fy = d.cursor.y + 10;
+                        doc.setFillColor(250,248,245);
+                        doc.setDrawColor(...C_BRAND); doc.setLineWidth(1);
+                        doc.roundedRect(MARGIN, fy, CONTENT, 32, 5, 5, 'FD');
+
+                        var summaryItems = [
+                            { label:'SHIFTS',    value:kpiTotalShifts.toString(),  col:C_TEXT    },
+                            { label:'ORDERS',    value:kpiTotalOrders.toString(),   col:C_TEXT    },
+                            { label:'REVENUE',   value:fmtUSD(kpiTotalRevenue),     col:C_SUCCESS },
+                            { label:'OPENING',   value:fmtUSD(kpiOpening),          col:C_TEXT    },
+                            { label:'AVG/SHIFT', value:fmtUSD(kpiAvgSales),         col:C_SUCCESS },
+                        ];
+                        var sw = (CONTENT - 100) / summaryItems.length;
+                        doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(...C_SUBTEXT);
+                        doc.text('SUMMARY', MARGIN + 14, fy + 13);
+                        doc.setDrawColor(...C_LIGHT); doc.setLineWidth(0.5);
+                        doc.line(MARGIN+72, fy+4, MARGIN+72, fy+28);
+
+                        summaryItems.forEach(function(si, idx) {
+                            var sx = MARGIN + 80 + idx * sw + sw/2;
+                            doc.setFontSize(6.5); doc.setFont('helvetica','normal'); doc.setTextColor(...C_LIGHT);
+                            doc.text(si.label, sx, fy+12, {align:'center'});
+                            doc.setFontSize(9.5); doc.setFont('helvetica','bold'); doc.setTextColor(...si.col);
+                            doc.text(si.value, sx, fy+25, {align:'center'});
+                        });
+                    }
+                },
+            });
+
+            if (typeof doc.putTotalPages === 'function') {
+                doc.putTotalPages('{total_pages_count_string}');
+            }
+
+            doc.save(fileName);
+
+        } catch (err) {
+            console.error('PDF generation failed:', err);
+            alert('PDF generation failed: ' + err.message);
+        } finally {
+            document.getElementById('pdfOverlay').classList.remove('active');
+        }
+    }, 80);
+}
+</script>

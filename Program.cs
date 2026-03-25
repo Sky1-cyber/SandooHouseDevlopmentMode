@@ -51,9 +51,9 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// ✅ Render PORT fix
-var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-app.Urls.Add($"http://*:{port}");
+// // ✅ Render PORT fix
+// var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+// app.Urls.Add($"http://*:{port}");
 
 // --- Database Migration + Safe Seeding ---
 using (var scope = app.Services.CreateScope())

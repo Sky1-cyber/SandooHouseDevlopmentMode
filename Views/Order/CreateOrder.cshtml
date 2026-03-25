@@ -41,9 +41,15 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             <i class="fas fa-user-circle"></i>
             <span>@firstName @lastName</span>
         </div>
+        <!-- Customer Display button with status indicator -->
+        <button class="shift-btn" id="customerScreenBtn" onclick="toggleCustomerDisplay(); return false;" title="Customer Display">
+            <i class="fas fa-desktop"></i>
+            <span class="topbar-hide-sm">Customer Screen</span>
+            <span id="customerScreenStatus" style="margin-left:5px;font-size:10px;"></span>
+        </button>
         <button class="shift-btn" id="shiftBtn" onclick="showShiftModal(); return false;" title="Shift">
             <i class="fas fa-clock"></i>
-            <span class="topbar-hide-sm">Shift</span>
+            <span class="topbar-hide-sm">វេនលក់</span>
         </button>
         <a href="#" class="logout-btn" onclick="showLogoutModal(); return false;" title="Logout">
             <i class="fas fa-sign-out-alt"></i>
@@ -85,115 +91,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 <div class="state-placeholder">
                     <i class="fas fa-circle-notch fa-spin" style="color:var(--brand)"></i>
                     <p>កំពុងផ្ទុក...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ══ MIDDLE: CUSTOMER DISPLAY ══ -->
-        <div class="panel-customer" id="customerPanel">
-            <div class="cd-header">
-                <div class="cd-header-top">
-                    <div class="cd-logo-area">
-                        <div class="cd-logo-dot"></div>
-                        <div class="cd-logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div>
-                    </div>
-                    <div class="cd-clock" id="cdClock">00:00:00</div>
-                </div>
-                <div class="cd-header-sub">
-                    <div class="cd-welcome-line1">Customer Display</div>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <span class="cd-pay-currency-pill usd" id="cdPayCurrencyPill">USD</span>
-                        <div class="cd-live-dot">LIVE</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cd-items-area" id="cdItemsArea">
-                <div class="cd-idle" id="cdIdle">
-                    <div class="cd-idle-icon">
-                        <i class="fas fa-concierge-bell" style="font-size:28px;color:var(--cd-brand);"></i>
-                    </div>
-                    <div>
-                        <div class="cd-idle-title">សូមស្វាគមន៍!</div>
-                        <div class="cd-idle-sub">ជ្រើសរើសមុខអាហារ<br>ហើយយើងនឹងបម្រើអ្នក</div>
-                    </div>
-                    <div style="background:#141B24;border:1px solid #1E2A38;border-radius:10px;padding:10px 13px;width:100%;display:flex;align-items:center;gap:9px;">
-                        <div style="width:30px;height:30px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.18);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fas fa-calendar-day" style="font-size:12px;color:var(--cd-brand);"></i>
-                        </div>
-                        <div>
-                            <div style="font-size:11.5px;font-weight:700;color:var(--cd-text);">@DateTime.Now.ToString("dd MMMM yyyy")</div>
-                            <div style="font-size:9.5px;font-weight:600;color:var(--cd-muted);margin-top:1px;">@DateTime.Now.ToString("dddd")</div>
-                        </div>
-                    </div>
-                    <div class="cd-promo-strip">
-                        <div class="cd-promo-label">ប្រម៉ូសិយ៉ូន</div>
-                        <div class="cd-promo-text">ទទួលការបញ្ចុះតម្លៃ 10%<br>នៅពេលបញ្ជាទិញលើសពី $20</div>
-                    </div>
-                </div>
-
-                <div id="cdOrderArea" style="display:none;">
-                    <div class="cd-section-label">បញ្ជីការកម្មង់</div>
-                    <div id="cdItemsList"></div>
-                </div>
-            </div>
-
-            <div class="cd-summary" id="cdSummaryFooter" style="display:none;">
-                <div class="cd-sum-row">
-                    <span>សរុប</span>
-                    <span>
-                        <span id="cdSubtotal">$0.00</span>
-                        <div class="cd-sum-khr" id="cdSubtotalKhr">0 ៛</div>
-                    </span>
-                </div>
-                <div class="cd-sum-row" id="cdDiscountRow" style="display:none;">
-                    <span class="cd-discount-pill">
-                        <i class="fas fa-tag" style="font-size:9px;"></i>
-                        <span id="cdDiscountLabel">បញ្ចុះ</span>
-                    </span>
-                    <span style="color:#F59E0B;font-weight:800;" id="cdDiscountVal">-$0.00</span>
-                </div>
-                <div class="cd-sum-row total">
-                    <span><i class="fas fa-calculator" style="margin-right:5px;font-size:12px;"></i>សរុបទាំងអស់</span>
-                    <span>
-                        <span class="cd-total-usd" id="cdTotal">$0.00</span>
-                        <div class="cd-sum-khr" id="cdTotalKhr">0 ៛</div>
-                    </span>
-                </div>
-            </div>
-
-            <div class="cd-thankyou" id="cdThankyou">
-                <div class="cd-thankyou-check"><i class="fas fa-check"></i></div>
-                <div class="cd-thankyou-title">សូមអរគុណ! 🙏</div>
-                <div class="cd-thankyou-amount" id="cdTyAmount">$0.00</div>
-                <div class="cd-thankyou-change" id="cdTyChangeBox" style="display:none;">
-                    <div class="cd-thankyou-change-label">ប្រាក់អាប់</div>
-                    <div class="cd-thankyou-change-usd" id="cdTyChangeUsd">$0.00</div>
-                    <div class="cd-thankyou-change-khr" id="cdTyChangeKhr">0 ៛</div>
-                </div>
-                <div class="cd-thankyou-sub">អរគុណសម្រាប់ការញ៉ាំ<br>សូមអញ្ជើញមកម្តងទៀត!</div>
-            </div>
-
-            <div class="cd-qr-overlay" id="cdQrOverlay">
-                <div class="cd-qr-title">ទូទាត់តាម KHQR</div>
-                <div class="cd-qr-subtitle">ស្កែ QR Code ខាងក្រោម</div>
-                <div class="cd-qr-frame">
-                    <span class="cd-qr-corner-bl"></span>
-                    <span class="cd-qr-corner-br"></span>
-                    <div class="cd-qr-pulse"></div>
-                    <div class="cd-qr-inner">
-                        <img src="~/khqr-code.png" alt="KHQR" id="cdQrImg"
-                             style="width:100%;height:100%;object-fit:contain;border-radius:6px;display:block;"
-                             onerror="this.style.display='none';document.getElementById('cdQrCanvas').style.display='block';">
-                        <canvas id="cdQrCanvas" width="160" height="160" style="display:none;border-radius:6px;"></canvas>
-                    </div>
-                </div>
-                <div class="cd-qr-amount" id="cdQrAmount">$0.00</div>
-                <div class="cd-qr-khr" id="cdQrKhr">0 ៛</div>
-                <div class="cd-qr-merchant">ផ្ទះបាយសេនឌូ</div>
-                <div class="cd-qr-bank"><i class="fas fa-university" style="margin-right:4px;"></i>ABA Bank · 0000123456</div>
-                <div class="cd-qr-timer-bar" style="width:100%;">
-                    <div class="cd-qr-timer-fill" id="cdQrTimerFill"></div>
                 </div>
             </div>
         </div>
@@ -339,16 +236,13 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             </div>
         </div>
         <div class="cashier-qr-body">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;">
-                <div style="position:relative;width:196px;height:196px;background:#fff;border-radius:14px;padding:9px;border:2px solid #FF6B35;box-shadow:0 0 0 3px rgba(255,107,53,.1),0 8px 24px rgba(0,0,0,.14);flex-shrink:0;">
-                    <span style="position:absolute;top:-2px;left:-2px;width:20px;height:20px;border-top:3px solid #FF6B35;border-left:3px solid #FF6B35;border-radius:4px 0 0 0;"></span>
-                    <span style="position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-top:3px solid #FF6B35;border-right:3px solid #FF6B35;border-radius:0 4px 0 0;"></span>
-                    <span style="position:absolute;bottom:-2px;left:-2px;width:20px;height:20px;border-bottom:3px solid #FF6B35;border-left:3px solid #FF6B35;border-radius:0 0 0 4px;"></span>
-                    <span style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-bottom:3px solid #FF6B35;border-right:3px solid #FF6B35;border-radius:0 0 4px 0;"></span>
-                    <img src="~/khqr-code.png" alt="KHQR"
-                         style="width:100%;height:100%;object-fit:contain;border-radius:7px;display:block;"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                    <canvas id="cqrFallbackCanvas" width="174" height="174" style="display:none;width:100%;height:100%;border-radius:7px;"></canvas>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;">
+                <div style="background:rgba(255,107,53,0.1);border-radius:12px;padding:12px;text-align:center;">
+                    <i class="fas fa-mobile-alt" style="font-size:32px;color:#FF6B35;margin-bottom:8px;display:block;"></i>
+                    <span style="font-size:12px;color:#E8F0F8;">សូមឱ្យអតិថិជនស្កែន QR</span>
+                </div>
+                <div class="timer-waiting" style="font-size:13px;color:#6B7F96;">
+                    <i class="fas fa-hourglass-half"></i> រង់ចាំការបញ្ជាក់...
                 </div>
             </div>
         </div>
@@ -563,13 +457,689 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 <!-- ── SCRIPTS ── -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     /* ── exposed so shift observer can read it ── */
     window.lastOrder = null;
+    let customerWindow = null;
+    let customerDisplayAutoOpen = false;
 
     function showLogoutModal() {
         document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       CUSTOMER DISPLAY — ALWAYS ON SECOND MONITOR
+    ════════════════════════════════════════════════════════════ */
+
+    // Function to get second screen coordinates
+    async function getSecondScreenCoordinates() {
+        try {
+            // Try to get screen details using modern API
+            if (window.getScreenDetails) {
+                const details = await window.getScreenDetails();
+                if (details.screens.length > 1) {
+                    const secondScreen = details.screens.find(s => !s.isPrimary) || details.screens[1];
+                    if (secondScreen) {
+                        return {
+                            left: secondScreen.availLeft !== undefined ? secondScreen.availLeft : (secondScreen.left || 0),
+                            top: secondScreen.availTop !== undefined ? secondScreen.availTop : (secondScreen.top || 0),
+                            width: secondScreen.availWidth !== undefined ? secondScreen.availWidth : (secondScreen.width || 1024),
+                            height: secondScreen.availHeight !== undefined ? secondScreen.availHeight : (secondScreen.height || 768)
+                        };
+                    }
+                }
+            }
+
+            // Fallback: try to detect second monitor by checking if screen width is larger than window
+            if (window.screen.availWidth > window.screen.width) {
+                return {
+                    left: window.screen.width,
+                    top: 0,
+                    width: window.screen.availWidth - window.screen.width,
+                    height: window.screen.availHeight
+                };
+            }
+
+            // Default: place on right side of primary monitor
+            return {
+                left: window.screen.availWidth,
+                top: 0,
+                width: 1024,
+                height: 768
+            };
+        } catch(e) {
+            console.warn('Error detecting second screen:', e);
+            return {
+                left: window.screen.availWidth,
+                top: 0,
+                width: 1024,
+                height: 768
+            };
+        }
+    }
+
+    // Open customer display on second monitor
+    async function openCustomerDisplay() {
+        const coords = await getSecondScreenCoordinates();
+        const w = coords.width;
+        const h = coords.height;
+        const left = coords.left;
+        const top = coords.top;
+
+        if (customerWindow && !customerWindow.closed) {
+            // Try to move existing window to second monitor
+            try {
+                customerWindow.moveTo(left, top);
+                customerWindow.resizeTo(w, h);
+                customerWindow.focus();
+            } catch(e) {
+                console.warn('Cannot move existing window, reopening');
+                customerWindow.close();
+                customerWindow = null;
+            }
+        }
+
+        if (!customerWindow || customerWindow.closed) {
+            customerWindow = window.open(
+                '', 'SandooCustomerDisplay',
+                'width='+w+',height='+h+',left='+left+',top='+top+
+                ',resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no'
+            );
+
+            if (!customerWindow) {
+                notify('Browser ទប់ Popup — សូម Allow popup', 'error');
+                return false;
+            }
+
+            customerWindow.document.open();
+            customerWindow.document.write(buildCustomerWindowHtml());
+            customerWindow.document.close();
+
+            // Update status indicator
+            document.getElementById('customerScreenStatus').innerHTML = '🟢';
+            document.getElementById('customerScreenBtn').classList.add('shift-open');
+
+            // Watch for close
+            var checkClosed = setInterval(function() {
+                if (!customerWindow || customerWindow.closed) {
+                    clearInterval(checkClosed);
+                    customerWindow = null;
+                    document.getElementById('customerScreenStatus').innerHTML = '🔴';
+                    document.getElementById('customerScreenBtn').classList.remove('shift-open');
+
+                    // Auto-reopen if shift is still open
+                    if (customerDisplayAutoOpen && shift.isOpen) {
+                        setTimeout(() => openCustomerDisplay(), 2000);
+                    }
+                }
+            }, 1000);
+        }
+
+        return true;
+    }
+
+    // Close customer display
+    function closeCustomerDisplay() {
+        if (customerWindow && !customerWindow.closed) {
+            customerWindow.close();
+        }
+        customerWindow = null;
+        document.getElementById('customerScreenStatus').innerHTML = '🔴';
+        document.getElementById('customerScreenBtn').classList.remove('shift-open');
+    }
+
+    // Toggle customer display
+    async function toggleCustomerDisplay() {
+        if (customerWindow && !customerWindow.closed) {
+            closeCustomerDisplay();
+            customerDisplayAutoOpen = false;
+        } else {
+            await openCustomerDisplay();
+            customerDisplayAutoOpen = true;
+        }
+    }
+
+    // Keep customer display alive while shift is open
+    function maintainCustomerDisplay() {
+        if (shift.isOpen && customerDisplayAutoOpen) {
+            if (!customerWindow || customerWindow.closed) {
+                openCustomerDisplay();
+            } else {
+                // Keep it on second monitor
+                getSecondScreenCoordinates().then(coords => {
+                    try {
+                        customerWindow.moveTo(coords.left, coords.top);
+                        customerWindow.resizeTo(coords.width, coords.height);
+                    } catch(e) {}
+                });
+            }
+        }
+        setTimeout(maintainCustomerDisplay, 5000);
+    }
+
+    function postToCustomer(data) {
+        if (customerWindow && !customerWindow.closed) {
+            try { customerWindow.postMessage(data, '*'); } catch(e) {}
+        }
+    }
+
+    // The buildCustomerWindowHtml function remains the same as before
+    // (I'm including it but showing it shortened for brevity)
+    function buildCustomerWindowHtml() {
+        var origin = window.location.origin;
+        return '<!DOCTYPE html>\n' +
+            '<html lang="km">\n' +
+            '<head>\n' +
+            '<meta charset="utf-8">\n' +
+            '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
+            '<title>Customer Display — ផ្ទះបាយសេនឌូ</title>\n' +
+            '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
+            '<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">\n' +
+            '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>\n' +
+            '<style>\n' +
+            '*{margin:0;padding:0;box-sizing:border-box}\n' +
+            'html,body{width:100%;height:100%;overflow:hidden;font-family:\'Sora\',\'Noto Sans Khmer\',sans-serif;background:#0C1118;color:#E8F0F8;-webkit-font-smoothing:antialiased;}\n' +
+            ':root{--cd-bg:#0C1118;--cd-surface:#141B24;--cd-border:#1E2A38;--cd-brand:#FF6B35;--cd-text:#E8F0F8;--cd-muted:#6B7F96;--cd-green:#00B894;--cd-yellow:#F59E0B;}\n' +
+            '.pos-cd{display:flex;flex-direction:column;height:100dvh;width:100vw;background:var(--cd-bg);overflow:hidden;position:relative;}\n' +
+            /* HEADER */
+            '.cd-header{background:linear-gradient(160deg,#141D2B,#1C2845);border-bottom:1px solid rgba(255,107,53,.2);padding:16px 20px;flex-shrink:0;}\n' +
+            '.cd-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}\n' +
+            '.cd-logo-area{display:flex;align-items:center;gap:10px;}\n' +
+            '.cd-logo-dot{width:10px;height:10px;background:var(--cd-brand);border-radius:50%;box-shadow:0 0 14px rgba(255,107,53,.9);animation:cdPulse 2.5s ease-in-out infinite;}\n' +
+            '@@keyframes cdPulse{0%,100%{opacity:1;box-shadow:0 0 8px rgba(255,107,53,.6);}50%{opacity:.7;box-shadow:0 0 22px rgba(255,107,53,.9);}}\n' +
+            '.cd-logo-text{font-size:22px;font-weight:900;color:var(--cd-text);letter-spacing:.3px;}\n' +
+            '.cd-logo-text span{color:var(--cd-brand);}\n' +
+            '.cd-clock{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:5px 14px;font-size:16px;font-weight:700;color:var(--cd-brand);font-variant-numeric:tabular-nums;letter-spacing:.5px;}\n' +
+            '.cd-header-sub{display:flex;align-items:center;justify-content:space-between;}\n' +
+            '.cd-welcome-line1{font-size:11px;font-weight:600;color:var(--cd-muted);letter-spacing:1.2px;text-transform:uppercase;}\n' +
+            '.cd-currency-toggle{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.3);border-radius:24px;padding:3px;border:1px solid var(--cd-border);}\n' +
+            '.cd-currency-opt{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--cd-muted);}\n' +
+            '.cd-currency-opt.active{background:var(--cd-brand);color:#fff;box-shadow:0 2px 8px rgba(255,107,53,.3);}\n' +
+            '.cd-live-dot{font-size:10px;font-weight:700;color:var(--cd-muted);display:flex;align-items:center;gap:5px;}\n' +
+            '.cd-live-dot::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cd-green);animation:livePulse 2s infinite;}\n' +
+            '@@keyframes livePulse{0%,100%{opacity:1;}50%{opacity:.3;}}\n' +
+            /* MAIN CONTENT */
+            '.cd-main-content{flex:1;min-height:0;overflow-y:auto;transition:all 0.3s ease;}\n' +
+            '.cd-main-content.qr-active{overflow:hidden;}\n' +
+            /* IDLE */
+            '.cd-idle{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;}\n' +
+            '.cd-idle-icon{width:90px;height:90px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;}\n' +
+            '.cd-idle-title{font-size:28px;font-weight:900;color:var(--cd-text);letter-spacing:-.5px;}\n' +
+            '.cd-idle-sub{font-size:15px;font-weight:500;color:var(--cd-muted);line-height:1.8;}\n' +
+            '.cd-promo-strip{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:14px;padding:14px 18px;max-width:400px;width:100%;text-align:center;}\n' +
+            '.cd-promo-label{font-size:10px;font-weight:700;color:var(--cd-yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}\n' +
+            '.cd-promo-text{font-size:14px;font-weight:500;color:rgba(245,158,11,.7);line-height:1.7;}\n' +
+            /* ORDER SECTION */
+            '.cd-order-section{padding:14px 16px;}\n' +
+            '.cd-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cd-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}\n' +
+            '.cd-section-label::after{content:"";flex:1;height:1px;background:var(--cd-border);}\n' +
+            /* ITEMS */
+            '.cd-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--cd-surface);border:1px solid var(--cd-border);border-radius:14px;margin-bottom:8px;animation:cdSlideIn .2s ease;border-left:3px solid var(--item-color,var(--cd-brand));}\n' +
+            '@@keyframes cdSlideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}\n' +
+            '.cd-item-thumb{width:52px;height:52px;border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;}\n' +
+            '.cd-item-thumb img{width:100%;height:100%;object-fit:cover;display:block;}\n' +
+            '.cd-item-info{flex:1;min-width:0;}\n' +
+            '.cd-item-name{font-size:15px;font-weight:700;color:var(--cd-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}\n' +
+            '.cd-item-unit{font-size:12px;font-weight:500;color:var(--cd-muted);margin-top:3px;}\n' +
+            '.cd-item-unit-khr{font-size:9px;font-weight:500;color:var(--cd-muted);margin-top:2px;}\n' +
+            '.cd-item-right{text-align:right;flex-shrink:0;}\n' +
+            '.cd-item-qty{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.22);border-radius:8px;font-size:15px;font-weight:800;color:var(--cd-brand);margin-bottom:3px;padding:0 6px;}\n' +
+            '.cd-item-total{font-size:15px;font-weight:700;color:var(--cd-text);}\n' +
+            '.cd-item-total-khr{font-size:10px;font-weight:600;color:var(--cd-muted);margin-top:2px;}\n' +
+            /* SUMMARY FOOTER */
+            '.cd-summary{background:rgba(0,0,0,.3);border-top:1px solid var(--cd-border);padding:16px 18px;flex-shrink:0;}\n' +
+            '.cd-sum-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:14px;font-weight:600;color:var(--cd-muted);margin-bottom:8px;}\n' +
+            '.cd-sum-row.total{font-size:20px;font-weight:900;color:var(--cd-text);border-top:1px solid var(--cd-border);padding-top:10px;margin-top:4px;margin-bottom:0;}\n' +
+            '.cd-sum-row.total .cd-total-usd{color:var(--cd-brand);}\n' +
+            '.cd-sum-khr{font-size:11px;font-weight:600;color:var(--cd-muted);text-align:right;}\n' +
+            '.cd-discount-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.22);color:var(--cd-yellow);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}\n' +
+            /* KHQR FULLSCREEN OVERLAY */
+            '.khqr-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0A0F16,#0C1118);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;animation:khqrFadeIn 0.35s ease;}\n' +
+            '.khqr-overlay.show{display:flex;}\n' +
+            '@@keyframes khqrFadeIn{from{opacity:0;transform:scale(0.98);}to{opacity:1;transform:scale(1);}}\n' +
+            '.khqr-header{text-align:center;margin-bottom:8px;}\n' +
+            '.khqr-title{font-size:28px;font-weight:900;color:var(--cd-brand);letter-spacing:-0.5px;}\n' +
+            '.khqr-subtitle{font-size:14px;font-weight:500;color:var(--cd-muted);margin-top:5px;}\n' +
+            '.khqr-qr-container{position:relative;margin:12px 0;}\n' +
+            '.khqr-qr-frame{position:relative;width:280px;height:280px;background:#fff;border-radius:24px;padding:16px;box-shadow:0 20px 40px rgba(0,0,0,0.4),0 0 0 4px rgba(255,107,53,0.2);}\n' +
+            '.khqr-qr-corner{position:absolute;width:28px;height:28px;border-color:var(--cd-brand);border-style:solid;}\n' +
+            '.khqr-qr-corner.tl{top:-2px;left:-2px;border-width:4px 0 0 4px;border-radius:8px 0 0 0;}\n' +
+            '.khqr-qr-corner.tr{top:-2px;right:-2px;border-width:4px 4px 0 0;border-radius:0 8px 0 0;}\n' +
+            '.khqr-qr-corner.bl{bottom:-2px;left:-2px;border-width:0 0 4px 4px;border-radius:0 0 0 8px;}\n' +
+            '.khqr-qr-corner.br{bottom:-2px;right:-2px;border-width:0 4px 4px 0;border-radius:0 0 8px 0;}\n' +
+            '.khqr-qr-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:12px;}\n' +
+            '.khqr-qr-inner img, .khqr-qr-inner canvas{max-width:100%;max-height:100%;border-radius:8px;}\n' +
+            '.khqr-pulse-ring{position:absolute;inset:-12px;border-radius:32px;border:2px solid rgba(255,107,53,0.3);animation:khqrPulse 2s ease-in-out infinite;pointer-events:none;}\n' +
+            '@@keyframes khqrPulse{0%,100%{transform:scale(1);opacity:0.6;}50%{transform:scale(1.05);opacity:0.2;}}\n' +
+            '.khqr-amount{text-align:center;margin:16px 0 8px;}\n' +
+            '.khqr-amount-usd{font-size:44px;font-weight:900;color:var(--cd-brand);letter-spacing:-1px;}\n' +
+            '.khqr-amount-khr{font-size:18px;font-weight:600;color:var(--cd-muted);margin-top:-5px;}\n' +
+            '.khqr-merchant{font-size:16px;font-weight:700;color:var(--cd-text);margin:8px 0 4px;}\n' +
+            '.khqr-bank{font-size:13px;font-weight:500;color:var(--cd-muted);display:flex;align-items:center;gap:6px;}\n' +
+            '.khqr-timer{width:100%;max-width:280px;margin:20px auto 0;}\n' +
+            '.khqr-timer-bar{background:rgba(255,255,255,0.1);border-radius:20px;height:6px;overflow:hidden;}\n' +
+            '.khqr-timer-fill{height:100%;background:linear-gradient(90deg,var(--cd-brand),#E85520);border-radius:20px;width:100%;transition:width 120s linear;}\n' +
+            '.khqr-timer-text{text-align:center;font-size:12px;font-weight:600;color:var(--cd-muted);margin-top:8px;}\n' +
+            '.khqr-timer-text span{color:var(--cd-brand);font-weight:800;}\n' +
+            '.khqr-close-btn{position:absolute;top:20px;right:20px;width:44px;height:44px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;color:#fff;font-size:20px;}\n' +
+            '.khqr-close-btn:hover{background:rgba(239,68,68,0.2);border-color:#EF4444;transform:scale(1.05);}\n' +
+            '.khqr-instruction{background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.3);border-radius:40px;padding:10px 20px;margin-top:16px;font-size:13px;font-weight:600;color:var(--cd-brand);}\n' +
+            /* THANK YOU OVERLAY */
+            '.thankyou-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0C1118,#0A0F16);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;text-align:center;animation:thankyouFadeIn 0.4s ease;}\n' +
+            '.thankyou-overlay.show{display:flex;}\n' +
+            '@@keyframes thankyouFadeIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}\n' +
+            '.thankyou-check{width:96px;height:96px;background:rgba(0,184,148,0.12);border:3px solid var(--cd-green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;color:var(--cd-green);animation:thankyouBounce 0.5s cubic-bezier(0.34,1.2,0.64,1);}\n' +
+            '@@keyframes thankyouBounce{0%{transform:scale(0.3);opacity:0;}50%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}\n' +
+            '.thankyou-title{font-size:32px;font-weight:900;color:var(--cd-text);}\n' +
+            '.thankyou-amount{font-size:48px;font-weight:900;color:var(--cd-brand);letter-spacing:-1px;margin:8px 0;}\n' +
+            '.thankyou-amount-khr{font-size:20px;font-weight:600;color:var(--cd-muted);margin-top:-8px;}\n' +
+            '.thankyou-change{background:rgba(0,184,148,0.08);border:1px solid rgba(0,184,148,0.2);border-radius:20px;padding:16px 24px;margin-top:12px;}\n' +
+            '.thankyou-change-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cd-green);margin-bottom:5px;}\n' +
+            '.thankyou-change-usd{font-size:28px;font-weight:900;color:var(--cd-green);}\n' +
+            '.thankyou-change-khr{font-size:14px;font-weight:600;color:rgba(0,184,148,0.7);}\n' +
+            '.thankyou-message{font-size:15px;font-weight:500;color:var(--cd-muted);margin-top:16px;line-height:1.6;}\n' +
+            '</style>\n' +
+            '</head>\n' +
+            '<body>\n' +
+            '<div class="pos-cd">\n' +
+
+            /* HEADER */
+            '  <div class="cd-header">\n' +
+            '    <div class="cd-header-top">\n' +
+            '      <div class="cd-logo-area">\n' +
+            '        <div class="cd-logo-dot"></div>\n' +
+            '        <div class="cd-logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div>\n' +
+            '      </div>\n' +
+            '      <div class="cd-clock" id="cdClock">00:00:00</div>\n' +
+            '    </div>\n' +
+            '    <div class="cd-header-sub">\n' +
+            '      <div class="cd-welcome-line1">Customer Display</div>\n' +
+            '      <div style="display:flex;align-items:center;gap:8px;">\n' +
+            '        <div class="cd-currency-toggle" id="cdCurrencyToggle">\n' +
+            '          <span class="cd-currency-opt active" data-cd-currency="usd">USD</span>\n' +
+            '          <span class="cd-currency-opt" data-cd-currency="khr">KHR</span>\n' +
+            '        </div>\n' +
+            '        <div class="cd-live-dot">LIVE</div>\n' +
+            '      </div>\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+
+            /* MAIN CONTENT AREA */
+            '  <div class="cd-main-content" id="cdMainContent">\n' +
+            '    <!-- IDLE STATE -->\n' +
+            '    <div class="cd-idle" id="cdIdle">\n' +
+            '      <div class="cd-idle-icon"><i class="fas fa-concierge-bell" style="font-size:38px;color:var(--cd-brand);"></i></div>\n' +
+            '      <div>\n' +
+            '        <div class="cd-idle-title">សូមស្វាគមន៍!</div>\n' +
+            '        <div class="cd-idle-sub">ជ្រើសរើសមុខអាហារ<br>ហើយយើងនឹងបម្រើអ្នក</div>\n' +
+            '      </div>\n' +
+            '      <div style="background:#141B24;border:1px solid #1E2A38;border-radius:14px;padding:14px 18px;max-width:320px;width:100%;display:flex;align-items:center;gap:12px;">\n' +
+            '        <div style="width:42px;height:42px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">\n' +
+            '          <i class="fas fa-calendar-day" style="font-size:16px;color:var(--cd-brand);"></i>\n' +
+            '        </div>\n' +
+            '        <div>\n' +
+            '          <div id="cdIdleDate" style="font-size:15px;font-weight:700;color:var(--cd-text);"></div>\n' +
+            '          <div id="cdIdleDay" style="font-size:12px;font-weight:600;color:var(--cd-muted);margin-top:2px;"></div>\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="cd-promo-strip">\n' +
+            '        <div class="cd-promo-label">ប្រម៉ូសិយ៉ូន</div>\n' +
+            '        <div class="cd-promo-text">ទទួលការបញ្ចុះតម្លៃ 10%<br>នៅពេលបញ្ជាទិញលើសពី $20</div>\n' +
+            '      </div>\n' +
+            '    </div>\n' +
+            '    \n' +
+            '    <!-- ORDER STATE -->\n' +
+            '    <div id="cdOrderState" style="display:none;">\n' +
+            '      <div class="cd-order-section">\n' +
+            '        <div class="cd-section-label">បញ្ជីការកម្មង់</div>\n' +
+            '        <div id="cdItemsList"></div>\n' +
+            '      </div>\n' +
+            '      <div class="cd-summary">\n' +
+            '        <div class="cd-sum-row"><span>សរុប</span><span><span id="cdSubtotal">$0.00</span><div class="cd-sum-khr" id="cdSubtotalKhr">0 ៛</div></span></div>\n' +
+            '        <div class="cd-sum-row" id="cdDiscountRow" style="display:none;"><span class="cd-discount-pill"><i class="fas fa-tag"></i><span id="cdDiscountLabel">បញ្ចុះ</span></span><span style="color:#F59E0B;font-weight:800;" id="cdDiscountVal">-$0.00</span></div>\n' +
+            '        <div class="cd-sum-row total"><span><i class="fas fa-calculator"></i>សរុបទាំងអស់</span><span><span class="cd-total-usd" id="cdTotal">$0.00</span><div class="cd-sum-khr" id="cdTotalKhr">0 ៛</div></span></div>\n' +
+            '      </div>\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+
+            /* KHQR FULLSCREEN OVERLAY */
+            '<div class="khqr-overlay" id="khqrOverlay">\n' +
+            '  <div class="khqr-close-btn" id="khqrCloseBtn">\n' +
+            '    <i class="fas fa-times"></i>\n' +
+            '  </div>\n' +
+            '  <div class="khqr-header">\n' +
+            '    <div class="khqr-title">ទូទាត់តាម KHQR</div>\n' +
+            '    <div class="khqr-subtitle">ស្កែន QR Code ដើម្បីបង់ប្រាក់</div>\n' +
+            '  </div>\n' +
+            '  <div class="khqr-qr-container">\n' +
+            '    <div class="khqr-qr-frame">\n' +
+            '      <div class="khqr-pulse-ring"></div>\n' +
+            '      <div class="khqr-qr-corner tl"></div>\n' +
+            '      <div class="khqr-qr-corner tr"></div>\n' +
+            '      <div class="khqr-qr-corner bl"></div>\n' +
+            '      <div class="khqr-qr-corner br"></div>\n' +
+            '      <div class="khqr-qr-inner">\n' +
+            '        <img src="' + origin + '/khqr-code.png" alt="KHQR" id="khqrImage" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display=\'none\';document.getElementById(\'khqrCanvas\').style.display=\'block\';">\n' +
+            '        <canvas id="khqrCanvas" width="240" height="240" style="display:none;"></canvas>\n' +
+            '      </div>\n' +
+            '    </div>\n' +
+            '  </div>\n' +
+            '  <div class="khqr-amount">\n' +
+            '    <div class="khqr-amount-usd" id="khqrAmountUsd">$0.00</div>\n' +
+            '    <div class="khqr-amount-khr" id="khqrAmountKhr">0 ៛</div>\n' +
+            '  </div>\n' +
+            '  <div class="khqr-merchant">ផ្ទះបាយសេនឌូ</div>\n' +
+            '  <div class="khqr-bank"><i class="fas fa-university"></i> ABA Bank · 0000 1234 5678</div>\n' +
+            '  <div class="khqr-timer">\n' +
+            '    <div class="khqr-timer-bar"><div class="khqr-timer-fill" id="khqrTimerFill"></div></div>\n' +
+            '    <div class="khqr-timer-text">ផុតកំណត់ក្នុង <span id="khqrTimerLabel">2:00</span></div>\n' +
+            '  </div>\n' +
+            '  <div class="khqr-instruction">\n' +
+            '    <i class="fas fa-mobile-alt"></i> បើកកម្មវិធី ABA / ACLEDA / Wing ហើយស្កែន QR\n' +
+            '  </div>\n' +
+            '</div>\n' +
+
+            /* THANK YOU OVERLAY */
+            '<div class="thankyou-overlay" id="thankyouOverlay">\n' +
+            '  <div class="thankyou-check"><i class="fas fa-check"></i></div>\n' +
+            '  <div class="thankyou-title">សូមអរគុណ! 🙏</div>\n' +
+            '  <div>\n' +
+            '    <div class="thankyou-amount" id="tyAmount">$0.00</div>\n' +
+            '    <div class="thankyou-amount-khr" id="tyAmountKhr">0 ៛</div>\n' +
+            '  </div>\n' +
+            '  <div class="thankyou-change" id="tyChangeBox" style="display:none;">\n' +
+            '    <div class="thankyou-change-label">ប្រាក់អាប់</div>\n' +
+            '    <div class="thankyou-change-usd" id="tyChangeUsd">$0.00</div>\n' +
+            '    <div class="thankyou-change-khr" id="tyChangeKhr">0 ៛</div>\n' +
+            '  </div>\n' +
+            '  <div class="thankyou-message">អរគុណសម្រាប់ការញ៉ាំ<br>សូមអញ្ជើញមកម្តងទៀត!</div>\n' +
+            '</div>\n' +
+            '\n' +
+            '</div>\n' +
+
+            /* SCRIPTS */
+            '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>\n' +
+            '<script>\n' +
+            '(function(){\n' +
+            '  var EXRATE = 4100;\n' +
+            '  var CHG_RATE = 4000;\n' +
+            '  var displayCurrency = "usd";\n' +
+            '  var currentOrderData = null;\n' +
+            '  var qrTimerInterval = null;\n' +
+            '  \n' +
+            '  function fmtUsd(n){return "$"+parseFloat(n).toFixed(2);}\n' +
+            '  function fmtKhr(n){return Math.round(n).toLocaleString()+" ៛";}\n' +
+            '  function toKhr(usd){return Math.round(usd*EXRATE);}\n' +
+            '  function toKhrCustomer(usd){return Math.round(usd*CHG_RATE);}\n' +
+            '  function roundK(v){return Math.round(v/100)*100;}\n' +
+            '\n' +
+            '  /* Currency toggle */\n' +
+            '  function setDisplayCurrency(currency) {\n' +
+            '    displayCurrency = currency;\n' +
+            '    document.querySelectorAll(".cd-currency-opt").forEach(opt => {\n' +
+            '      if(opt.dataset.cdCurrency === currency) opt.classList.add("active");\n' +
+            '      else opt.classList.remove("active");\n' +
+            '    });\n' +
+            '    if(currentOrderData && !currentOrderData.isEmpty) renderOrder(currentOrderData);\n' +
+            '  }\n' +
+            '  \n' +
+            '  var toggle = document.getElementById("cdCurrencyToggle");\n' +
+            '  if(toggle) {\n' +
+            '    toggle.addEventListener("click", function(e) {\n' +
+            '      var target = e.target.closest(".cd-currency-opt");\n' +
+            '      if(target && target.dataset.cdCurrency) {\n' +
+            '        setDisplayCurrency(target.dataset.cdCurrency);\n' +
+            '      }\n' +
+            '    });\n' +
+            '  }\n' +
+            '\n' +
+            '  /* Clock */\n' +
+            '  function updateClock(){\n' +
+            '    var now=new Date();\n' +
+            '    var h=String(now.getHours()).padStart(2,"0");\n' +
+            '    var m=String(now.getMinutes()).padStart(2,"0");\n' +
+            '    var s=String(now.getSeconds()).padStart(2,"0");\n' +
+            '    var clockEl = document.getElementById("cdClock");\n' +
+            '    if(clockEl) clockEl.textContent=h+":"+m+":"+s;\n' +
+            '  }\n' +
+            '  setInterval(updateClock,1000); updateClock();\n' +
+            '\n' +
+            '  /* Idle date */\n' +
+            '  (function(){\n' +
+            '    var now=new Date();\n' +
+            '    var dEl=document.getElementById("cdIdleDate");\n' +
+            '    var dayEl=document.getElementById("cdIdleDay");\n' +
+            '    if(dEl) dEl.textContent=now.toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});\n' +
+            '    if(dayEl) dayEl.textContent=now.toLocaleDateString("en-GB",{weekday:"long"});\n' +
+            '  })();\n' +
+            '\n' +
+            '  /* Format based on display currency */\n' +
+            '  function formatAmount(usdValue, khrValue) {\n' +
+            '    if(displayCurrency === "usd") {\n' +
+            '      return { main: fmtUsd(usdValue), secondary: fmtKhr(khrValue) };\n' +
+            '    } else {\n' +
+            '      return { main: fmtKhr(khrValue), secondary: fmtUsd(usdValue) };\n' +
+            '    }\n' +
+            '  }\n' +
+            '\n' +
+            '  /* Generate QR Code */\n' +
+            '  function generateQRCode(canvasId, text, width, height) {\n' +
+            '    var canvas = document.getElementById(canvasId);\n' +
+            '    if(!canvas) return false;\n' +
+            '    \n' +
+            '    if(typeof QRCode !== "undefined" && QRCode.toCanvas) {\n' +
+            '      try {\n' +
+            '        QRCode.toCanvas(canvas, text, {\n' +
+            '          width: width,\n' +
+            '          margin: 1,\n' +
+            '          color: { dark: "#000000", light: "#ffffff" },\n' +
+            '          errorCorrectionLevel: "H"\n' +
+            '        }, function(err) {\n' +
+            '          if(err) console.warn("QR generation error:", err);\n' +
+            '        });\n' +
+            '        return true;\n' +
+            '      } catch(e) {\n' +
+            '        console.warn("QRCode error:", e);\n' +
+            '        return false;\n' +
+            '      }\n' +
+            '    }\n' +
+            '    return false;\n' +
+            '  }\n' +
+            '\n' +
+            '  /* Show KHQR Overlay */\n' +
+            '  function showKHQR(amountUsd, amountKhr) {\n' +
+            '    var overlay = document.getElementById("khqrOverlay");\n' +
+            '    var mainContent = document.getElementById("cdMainContent");\n' +
+            '    \n' +
+            '    document.getElementById("khqrAmountUsd").textContent = fmtUsd(amountUsd);\n' +
+            '    document.getElementById("khqrAmountKhr").textContent = fmtKhr(amountKhr);\n' +
+            '    \n' +
+            '    // Generate QR code with amount\n' +
+            '    var qrText = "KHQR|SandooHouse|ABA|0000123456|USD|" + amountUsd.toFixed(2) + "|" + Date.now();\n' +
+            '    var canvas = document.getElementById("khqrCanvas");\n' +
+            '    var img = document.getElementById("khqrImage");\n' +
+            '    \n' +
+            '    if(generateQRCode("khqrCanvas", qrText, 240, 240)) {\n' +
+            '      if(img) img.style.display = "none";\n' +
+            '      if(canvas) canvas.style.display = "block";\n' +
+            '    } else {\n' +
+            '      if(img) img.style.display = "block";\n' +
+            '      if(canvas) canvas.style.display = "none";\n' +
+            '    }\n' +
+            '    \n' +
+            '    // Start timer\n' +
+            '    if(qrTimerInterval) clearInterval(qrTimerInterval);\n' +
+            '    var seconds = 120;\n' +
+            '    var fill = document.getElementById("khqrTimerFill");\n' +
+            '    var label = document.getElementById("khqrTimerLabel");\n' +
+            '    \n' +
+            '    if(fill) {\n' +
+            '      fill.style.transition = "width 120s linear";\n' +
+            '      fill.style.width = "0%";\n' +
+            '    }\n' +
+            '    \n' +
+            '    qrTimerInterval = setInterval(function() {\n' +
+            '      seconds--;\n' +
+            '      var m = Math.floor(seconds / 60);\n' +
+            '      var s = String(seconds % 60).padStart(2, "0");\n' +
+            '      if(label) label.textContent = m + ":" + s;\n' +
+            '      if(seconds <= 0) {\n' +
+            '        clearInterval(qrTimerInterval);\n' +
+            '        hideKHQR();\n' +
+            '      }\n' +
+            '    }, 1000);\n' +
+            '    \n' +
+            '    if(overlay) overlay.classList.add("show");\n' +
+            '    if(mainContent) mainContent.classList.add("qr-active");\n' +
+            '  }\n' +
+            '\n' +
+            '  /* Hide KHQR Overlay */\n' +
+            '  function hideKHQR() {\n' +
+            '    var overlay = document.getElementById("khqrOverlay");\n' +
+            '    var mainContent = document.getElementById("cdMainContent");\n' +
+            '    \n' +
+            '    if(qrTimerInterval) {\n' +
+            '      clearInterval(qrTimerInterval);\n' +
+            '      qrTimerInterval = null;\n' +
+            '    }\n' +
+            '    \n' +
+            '    if(overlay) overlay.classList.remove("show");\n' +
+            '    if(mainContent) mainContent.classList.remove("qr-active");\n' +
+            '  }\n' +
+            '\n' +
+            '  /* Show Thank You Overlay */\n' +
+            '  function showThankYou(d) {\n' +
+            '    var totalFormatted = formatAmount(d.total, d.totalKhr || toKhrCustomer(d.total));\n' +
+            '    document.getElementById("tyAmount").textContent = totalFormatted.main;\n' +
+            '    document.getElementById("tyAmountKhr").textContent = totalFormatted.secondary;\n' +
+            '    \n' +
+            '    if(d.paymentMethod === "សាច់ប្រាក់" && d.changeUsd > 0) {\n' +
+            '      var khrChg = roundK(d.changeUsd * (d.paymentCurrency === "ដុល្លារ" ? CHG_RATE : EXRATE));\n' +
+            '      var changeFormatted = formatAmount(d.changeUsd, khrChg);\n' +
+            '      document.getElementById("tyChangeUsd").textContent = changeFormatted.main;\n' +
+            '      document.getElementById("tyChangeKhr").textContent = changeFormatted.secondary;\n' +
+            '      document.getElementById("tyChangeBox").style.display = "flex";\n' +
+            '    } else {\n' +
+            '      document.getElementById("tyChangeBox").style.display = "none";\n' +
+            '    }\n' +
+            '    \n' +
+            '    var ty = document.getElementById("thankyouOverlay");\n' +
+            '    if(ty) ty.classList.add("show");\n' +
+            '    \n' +
+            '    setTimeout(function() {\n' +
+            '      if(ty) ty.classList.remove("show");\n' +
+            '      renderOrder({isEmpty: true, items: []});\n' +
+            '    }, 5000);\n' +
+            '  }\n' +
+            '\n' +
+            '  /* Render Order */\n' +
+            '  function renderOrder(d) {\n' +
+            '    currentOrderData = d;\n' +
+            '    var isEmpty = d.isEmpty || !d.items || d.items.length === 0;\n' +
+            '    \n' +
+            '    var idleDiv = document.getElementById("cdIdle");\n' +
+            '    var orderState = document.getElementById("cdOrderState");\n' +
+            '    \n' +
+            '    if(idleDiv) idleDiv.style.display = isEmpty ? "flex" : "none";\n' +
+            '    if(orderState) orderState.style.display = isEmpty ? "none" : "block";\n' +
+            '    \n' +
+            '    if(isEmpty) return;\n' +
+            '\n' +
+            '    var html = "";\n' +
+            '    d.items.forEach(function(item) {\n' +
+            '      var tot = item.price * item.quantity;\n' +
+            '      var totKhr = toKhrCustomer(tot);\n' +
+            '      var priceFormatted = formatAmount(item.price, toKhrCustomer(item.price));\n' +
+            '      var totalFormatted = formatAmount(tot, totKhr);\n' +
+            '      \n' +
+            '      var imgHtml = item.icon\n' +
+            '        ? "<img src=\'" + item.icon + "\' alt=\'" + escapeHtml(item.name) + "\' onerror=\'this.onerror=null;this.parentElement.innerHTML=\\\"<i class=\\\\\\\"fas fa-utensils\\\\\\\"></i>\\\";\'>"\n' +
+            '        : "<i class=\'fas fa-utensils\'></i>";\n' +
+            '      \n' +
+            '      html += "<div class=\'cd-item\' style=\'--item-color:" + item.color + "\'>";\n' +
+            '      html += "<div class=\'cd-item-thumb\' style=\'background:linear-gradient(135deg," + item.color + ",#2D3561)\'>" + imgHtml + "</div>";\n' +
+            '      html += "<div class=\'cd-item-info\'><div class=\'cd-item-name\'>" + escapeHtml(item.name) + "</div>";\n' +
+            '      html += "<div class=\'cd-item-unit\'>" + priceFormatted.main + " × " + item.quantity + "</div>";\n' +
+            '      html += "<div class=\'cd-item-unit-khr\'>" + priceFormatted.secondary + "</div></div>";\n' +
+            '      html += "<div class=\'cd-item-right\'><div class=\'cd-item-qty\'>" + item.quantity + "</div>";\n' +
+            '      html += "<div class=\'cd-item-total\'>" + totalFormatted.main + "</div>";\n' +
+            '      html += "<div class=\'cd-item-total-khr\'>" + totalFormatted.secondary + "</div></div>";\n' +
+            '      html += "</div>";\n' +
+            '    });\n' +
+            '    \n' +
+            '    var itemsList = document.getElementById("cdItemsList");\n' +
+            '    if(itemsList) itemsList.innerHTML = html;\n' +
+            '\n' +
+            '    var subtotalKhr = toKhrCustomer(d.subtotal);\n' +
+            '    var subtotalFormatted = formatAmount(d.subtotal, subtotalKhr);\n' +
+            '    document.getElementById("cdSubtotal").textContent = subtotalFormatted.main;\n' +
+            '    document.getElementById("cdSubtotalKhr").textContent = subtotalFormatted.secondary;\n' +
+            '\n' +
+            '    var discRow = document.getElementById("cdDiscountRow");\n' +
+            '    if(d.discount > 0) {\n' +
+            '      var lbl = d.discountType === "percentage" ? "បញ្ចុះ " + d.discountAmount + "%" : "បញ្ចុះ";\n' +
+            '      document.getElementById("cdDiscountLabel").textContent = lbl;\n' +
+            '      var discountFormatted = formatAmount(d.discount, toKhrCustomer(d.discount));\n' +
+            '      document.getElementById("cdDiscountVal").textContent = "-" + discountFormatted.main;\n' +
+            '      discRow.style.display = "flex";\n' +
+            '    } else if(discRow) {\n' +
+            '      discRow.style.display = "none";\n' +
+            '    }\n' +
+            '\n' +
+            '    var totalKhr = toKhrCustomer(d.total);\n' +
+            '    var totalFormatted = formatAmount(d.total, totalKhr);\n' +
+            '    document.getElementById("cdTotal").textContent = totalFormatted.main;\n' +
+            '    document.getElementById("cdTotalKhr").textContent = totalFormatted.secondary;\n' +
+            '  }\n' +
+            '\n' +
+            '  function escapeHtml(str) {\n' +
+            '    if(!str) return "";\n' +
+            '    return str.replace(/[&<>]/g, function(m) {\n' +
+            '      if(m === "&") return "&amp;";\n' +
+            '      if(m === "<") return "&lt;";\n' +
+            '      if(m === ">") return "&gt;";\n' +
+            '      return m;\n' +
+            '    });\n' +
+            '  }\n' +
+            '\n' +
+            '  /* Message listener from main POS */\n' +
+            '  window.addEventListener("message", function(e) {\n' +
+            '    if(!e.data || !e.data.type) return;\n' +
+            '    \n' +
+            '    switch(e.data.type) {\n' +
+            '      case "CD_SYNC":\n' +
+            '        renderOrder(e.data);\n' +
+            '        break;\n' +
+            '      case "CD_THANKYOU":\n' +
+            '        showThankYou(e.data);\n' +
+            '        break;\n' +
+            '      case "CD_QR":\n' +
+            '        showKHQR(e.data.total, e.data.totalKhr);\n' +
+            '        break;\n' +
+            '      case "CD_QR_HIDE":\n' +
+            '        hideKHQR();\n' +
+            '        break;\n' +
+            '    }\n' +
+            '  });\n' +
+            '\n' +
+            '  /* Close KHQR button */\n' +
+            '  var closeBtn = document.getElementById("khqrCloseBtn");\n' +
+            '  if(closeBtn) {\n' +
+            '    closeBtn.addEventListener("click", function() {\n' +
+            '      hideKHQR();\n' +
+            '      // Notify main POS that QR was cancelled\n' +
+            '      if(window.opener) {\n' +
+            '        window.opener.postMessage({ type: "KHQR_CANCELLED" }, "*");\n' +
+            '      }\n' +
+            '    });\n' +
+            '  }\n' +
+            '\n' +
+            '  console.log("✅ Customer Display ready with KHQR support");\n' +
+            '})();\n' +
+            '<\/script>\n' +
+            '</body>\n' +
+            '</html>';
     }
 
     $(document).ready(function () {
@@ -595,10 +1165,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             const now = new Date();
             const h   = now.getHours() % 12 || 12;
             const m   = String(now.getMinutes()).padStart(2, '0');
-            const s   = String(now.getSeconds()).padStart(2, '0');
             const ap  = now.getHours() >= 12 ? 'PM' : 'AM';
             $('#liveClock').text(`${h}:${m} ${ap}`);
-            $('#cdClock').text(`${String(now.getHours()).padStart(2,'0')}:${m}:${s}`);
         }
         setInterval(updateClocks, 1000);
         updateClocks();
@@ -655,89 +1223,38 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 : Math.min(sub * discountAmount / 100, sub);
         }
 
-        /* ════ CUSTOMER DISPLAY SYNC ════ */
+        /* ════ CUSTOMER DISPLAY SYNC via postMessage ════ */
         function syncCustomerDisplay() {
-            const isEmpty = cart.length === 0;
-            const pill = document.getElementById('cdPayCurrencyPill');
-            if (pill) {
-                pill.textContent = paymentCurrency === 'usd' ? 'USD' : 'KHR ៛';
-                pill.className   = 'cd-pay-currency-pill ' + paymentCurrency;
-            }
-            $('#cdIdle').toggle(isEmpty);
-            $('#cdOrderArea').toggle(!isEmpty);
-            $('#cdSummaryFooter').toggle(!isEmpty);
-            if (isEmpty) return;
-
             const sub   = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const disc  = calcDiscount(sub);
             const total = sub - disc;
-
-            let html = '';
-            cart.forEach(item => {
-                const lineTotal = item.price * item.quantity;
-                const imgHtml   = item.icon
-                    ? `<img src="${item.icon}" alt="${item.name}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
-                    : '<i class="fas fa-utensils"></i>';
-                html += `
-<div class="cd-item" style="--item-color:${item.color}">
-    <div class="cd-item-thumb" style="background:linear-gradient(135deg,${item.color},#2D3561)">${imgHtml}</div>
-    <div class="cd-item-info">
-        <div class="cd-item-name">${item.name}</div>
-        <div class="cd-item-unit">${fmtUsd(item.price)} × ${item.quantity}</div>
-    </div>
-    <div class="cd-item-right">
-        <div class="cd-item-qty">${item.quantity}</div>
-        <div class="cd-item-total">${fmtUsd(lineTotal)}</div>
-    </div>
-</div>`;
+            postToCustomer({
+                type: 'CD_SYNC',
+                isEmpty: cart.length === 0,
+                paymentCurrency,
+                items: cart.map(i => ({
+                    id: i.id, name: i.name, price: i.price,
+                    quantity: i.quantity, icon: i.icon, color: i.color
+                })),
+                subtotal: sub,
+                discount: disc,
+                discountType,
+                discountAmount,
+                total
             });
-            $('#cdItemsList').html(html);
-
-            const cdKhrRate = paymentCurrency === 'khr' ? CHANGE_RATE_CUSTOMER : EXCHANGE_RATE;
-            const toKhrCd   = usd => roundKhr100(usd * cdKhrRate);
-
-            $('#cdSubtotal').text(fmtUsd(sub));
-            $('#cdSubtotalKhr').text(fmtKhr(toKhrCd(sub)));
-
-            if (disc > 0) {
-                const label = discountType === 'percentage' ? `បញ្ចុះ ${discountAmount}%` : 'បញ្ចុះ';
-                $('#cdDiscountLabel').text(label);
-                $('#cdDiscountVal').text('-' + fmtUsd(disc));
-                $('#cdDiscountRow').show();
-            } else {
-                $('#cdDiscountRow').hide();
-            }
-            $('#cdTotal').text(fmtUsd(total));
-            $('#cdTotalKhr').text(fmtKhr(toKhrCd(total)));
-
-            if (qrWindow && !qrWindow.closed) updateQrWindow(total);
-        }
-
-        function updateQrWindow(totalUsd) {
-            if (!qrWindow || qrWindow.closed) return;
-            try {
-                qrWindow.postMessage({
-                    type: 'KHQR_UPDATE_AMOUNT',
-                    usd:  fmtUsd(totalUsd),
-                    khr:  fmtKhr(roundKhr100(toKhr(totalUsd)))
-                }, '*');
-            } catch(e) { console.warn('KHQR postMessage:', e.message); }
         }
 
         /* ════ CUSTOMER THANK-YOU ════ */
         function showCustomerThankYou(order) {
-            $('#cdTyAmount').text(fmtUsd(order.total));
-            if (order.paymentMethod === 'សាច់ប្រាក់' && order.changeUsd > 0) {
-                $('#cdTyChangeUsd').text(fmtUsd(order.changeUsd));
-                const khrChange = customerChangeKhr(order.changeUsd, order.changeKhr,
-                    order.paymentCurrency === 'ដុល្លារ' ? 'usd' : 'khr');
-                $('#cdTyChangeKhr').text(fmtKhr(khrChange));
-                $('#cdTyChangeBox').show();
-            } else {
-                $('#cdTyChangeBox').hide();
-            }
-            $('#cdThankyou').addClass('show');
-            setTimeout(() => { $('#cdThankyou').removeClass('show'); syncCustomerDisplay(); }, 4000);
+            postToCustomer({
+                type: 'CD_THANKYOU',
+                total: order.total,
+                totalKhr: order.totalKhr,
+                paymentMethod: order.paymentMethod,
+                paymentCurrency: order.paymentCurrency,
+                changeUsd: order.changeUsd,
+                changeKhr: order.changeKhr
+            });
         }
 
         /* ── Category tabs ── */
@@ -987,6 +1504,60 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             notify('ផ្អាកការកម្មង់', 'success');
         });
 
+        /* ════ KHQR FLOW - Only shows on Customer Display ════ */
+        let _khqrActive = false;
+        let qrModalTimer = null;
+
+        async function openKhqrFlow(totalUsd) {
+            const totalKhr = roundKhr100(toKhr(totalUsd));
+
+            // Send KHQR data to customer display only
+            postToCustomer({
+                type: 'CD_QR',
+                total: totalUsd,
+                totalKhr: totalKhr
+            });
+
+            // Show modal on cashier side with instructions
+            showCashierQrModal(totalUsd, totalKhr);
+
+            _khqrActive = true;
+        }
+
+        function showCashierQrModal(totalUsd, totalKhr) {
+            // Update the cashier modal with amount
+            $('#cqrAmount').text(fmtUsd(totalUsd));
+            $('#cqrKhr').text(fmtKhr(totalKhr));
+
+            // Show the modal
+            $('#cashierQrModal').addClass('show');
+
+            // Set timer for auto-cancel after 2 minutes
+            if (qrModalTimer) clearTimeout(qrModalTimer);
+            qrModalTimer = setTimeout(function() {
+                if ($('#cashierQrModal').hasClass('show')) {
+                    closeKhqrFlow();
+                    notify('KHQR ផុតកំណត់', 'warning');
+                }
+            }, 120000);
+        }
+
+        function closeKhqrFlow() {
+            _khqrActive = false;
+
+            // Hide cashier modal
+            $('#cashierQrModal').removeClass('show');
+
+            // Hide QR on customer display
+            postToCustomer({ type: 'CD_QR_HIDE' });
+
+            // Clear timer
+            if (qrModalTimer) {
+                clearTimeout(qrModalTimer);
+                qrModalTimer = null;
+            }
+        }
+
         /* ════ PAY BUTTON ════ */
         $('#payBtn').on('click', async function () {
             const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -1076,7 +1647,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 const orderNum = result.orderNumber || 'ORD' + orderCounter;
                 const pmLabel  = currentPaymentMethod === 'cash' ? 'សាច់ប្រាក់' : currentPaymentMethod === 'card' ? 'Card' : 'KHQR';
 
-                /* Build lastOrder BEFORE resetCart so the shift observer can read it */
                 const completedOrder = {
                     number:          orderNum,
                     date:            new Date(),
@@ -1095,7 +1665,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                     cashier:         '@firstName @lastName'
                 };
 
-                /* Expose globally so the shift MutationObserver can read it */
                 window.lastOrder = completedOrder;
                 lastOrderLocal   = completedOrder;
 
@@ -1120,323 +1689,16 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             renderCart();
         }
 
-        /* ════════════════════════════════════════════════════════
-           KHQR DUAL-SCREEN FLOW
-        ════════════════════════════════════════════════════════ */
-        let qrWindow      = null;
-        let _pendingQrUsd = null;
-        let _khqrActive   = false;
+        /* ── QR Modal Buttons ── */
+        $('#cqrConfirmBtn').off('click').on('click', function() {
+            closeKhqrFlow();
+            runPayFlow();
+        });
 
-        async function getScreenDetails() {
-            if (window.getScreenDetails) {
-                try { return await window.getScreenDetails(); } catch(e) { return null; }
-            }
-            return null;
-        }
-
-        async function hasSecondScreen() {
-            const details = await getScreenDetails();
-            if (details) return details.screens.length > 1;
-            try {
-                return window.screen.availWidth > window.screen.width ||
-                    window.screen.width > window.innerWidth + 200;
-            } catch(e) { return false; }
-        }
-
-        function buildQrWindowHtml(totalUsd) {
-            const totalKhrStr = fmtKhr(roundKhr100(toKhr(totalUsd)));
-            const amountStr   = fmtUsd(totalUsd);
-            const qrImgUrl    = window.location.origin + '/khqr-code.png';
-
-            return `<!DOCTYPE html>
-<html lang="km">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KHQR — ផ្ទះបាយសេនឌូ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;}
-body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E8F0F8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:32px;-webkit-font-smoothing:antialiased;background-image:radial-gradient(ellipse at 50% 0%,rgba(255,107,53,.07) 0%,transparent 65%);}
-.logo-area{display:flex;align-items:center;gap:9px;}
-.logo-dot{width:12px;height:12px;background:#FF6B35;border-radius:50%;box-shadow:0 0 14px rgba(255,107,53,.9);animation:pulse 2s infinite;}
-@@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 12px rgba(255,107,53,.7);}50%{opacity:.6;box-shadow:0 0 26px rgba(255,107,53,1);}}
-.logo-text{font-size:20px;font-weight:900;color:#E8F0F8;letter-spacing:.3px;}.logo-text span{color:#FF6B35;}
-.title{font-size:32px;font-weight:900;color:#E8F0F8;letter-spacing:-.5px;}
-.subtitle{font-size:14px;font-weight:600;color:#6B7F96;margin-top:-10px;}
-.qr-frame{position:relative;width:300px;height:300px;background:#fff;border-radius:20px;padding:16px;border:3px solid #FF6B35;box-shadow:0 0 0 6px rgba(255,107,53,.1),0 20px 60px rgba(0,0,0,.4);flex-shrink:0;}
-.qr-corner{position:absolute;width:28px;height:28px;border-color:#FF6B35;border-style:solid;}
-.qr-corner.tl{top:-3px;left:-3px;border-width:5px 0 0 5px;border-radius:6px 0 0 0;}
-.qr-corner.tr{top:-3px;right:-3px;border-width:5px 5px 0 0;border-radius:0 6px 0 0;}
-.qr-corner.bl{bottom:-3px;left:-3px;border-width:0 0 5px 5px;border-radius:0 0 0 6px;}
-.qr-corner.br{bottom:-3px;right:-3px;border-width:0 5px 5px 0;border-radius:0 0 6px 0;}
-.qr-inner{width:264px;height:264px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;}
-.qr-inner img{width:100%;height:100%;object-fit:contain;border-radius:6px;display:block;}
-.qr-inner canvas{border-radius:6px;}
-.pulse-ring{position:absolute;inset:-16px;border-radius:28px;border:2px solid rgba(255,107,53,.2);animation:pring 2.5s ease-in-out infinite;pointer-events:none;}
-@@keyframes pring{0%,100%{opacity:.5;transform:scale(1);}50%{opacity:.08;transform:scale(1.05);}}
-.amount{font-size:52px;font-weight:900;color:#FF6B35;letter-spacing:-.8px;line-height:1;}
-.amount-khr{font-size:18px;font-weight:600;color:#6B7F96;margin-top:-6px;}
-.merchant{font-size:16px;font-weight:800;color:#E8F0F8;}.bank{font-size:13px;font-weight:500;color:#6B7F96;margin-top:3px;}
-.scan-badge{display:flex;align-items:center;gap:9px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.22);border-radius:28px;padding:9px 22px;font-size:14px;font-weight:700;color:#FF6B35;}
-.timer-wrap{width:100%;max-width:320px;}
-.timer-bar{background:rgba(255,255,255,.07);border-radius:20px;height:7px;overflow:hidden;}
-.timer-fill{height:100%;background:linear-gradient(90deg,#FF6B35,#E85520);border-radius:20px;width:100%;transition:width linear;}
-.timer-label{font-size:12px;font-weight:600;color:#6B7F96;text-align:center;margin-top:7px;}.timer-label span{font-weight:900;color:#FF6B35;}
-</style>
-</head>
-<body>
-<div class="logo-area"><div class="logo-dot"></div><div class="logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div></div>
-<div class="title">ទូទាត់តាម KHQR</div>
-<div class="subtitle">ស្កែ QR Code ខាងក្រោម តើអ្វីបើការបង់ប្រាក់</div>
-<div class="qr-frame">
-    <div class="pulse-ring"></div>
-    <span class="qr-corner tl"></span><span class="qr-corner tr"></span>
-    <span class="qr-corner bl"></span><span class="qr-corner br"></span>
-    <div class="qr-inner">
-        <img src="${qrImgUrl}" alt="KHQR" onerror="this.style.display='none';document.getElementById('qrCanvas').style.display='block';">
-        <canvas id="qrCanvas" width="264" height="264" style="display:none;"></canvas>
-    </div>
-</div>
-<div class="amount" id="qrAmount">${amountStr}</div>
-<div class="amount-khr" id="qrAmountKhr">${totalKhrStr}</div>
-<div style="text-align:center;"><div class="merchant">ផ្ទះបាយសេនឌូ</div><div class="bank">🏦 ABA Bank · 0000123456</div></div>
-<div class="scan-badge">📱 ស្កែន QR តំ ABA / ACLEDA / Wing</div>
-<div class="timer-wrap">
-    <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
-    <div class="timer-label">ផុតកំណត់ក្នុង <span id="timerLabel">2:00</span></div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>
-<script>
-(function(){
-    var canvas  = document.getElementById('qrCanvas');
-    var qrText  = 'KHQR|SandooHouse|ABA|0000123456|USD|${totalUsd.toFixed(2)}|' + Date.now();
-    QRCode.toCanvas(canvas, qrText,
-        {width:264,margin:1,color:{dark:'#12100D',light:'#ffffff'},errorCorrectionLevel:'H'},
-        function(err){ if(err) console.warn('QR canvas error:',err); });
-
-    var fill  = document.getElementById('timerFill');
-    var label = document.getElementById('timerLabel');
-    void fill.offsetWidth;
-    fill.style.transition = 'width 120s linear';
-    fill.style.width      = '0%';
-    var secs = 120;
-    var iv   = setInterval(function(){
-        secs--;
-        var m = Math.floor(secs/60), s = String(secs%60).padStart(2,'0');
-        label.textContent = m+':'+s;
-        if(secs<=30) document.querySelector('.timer-label span').style.color='#EF4444';
-        if(secs<=0){ clearInterval(iv); label.textContent='ផុតកំណត់!'; window.close(); }
-    },1000);
-    window.addEventListener('beforeunload',function(){ clearInterval(iv); });
-
-    window.addEventListener('message',function(e){
-        if(!e.data||e.data.type!=='KHQR_UPDATE_AMOUNT') return;
-        var amtEl = document.getElementById('qrAmount');
-        var khrEl = document.getElementById('qrAmountKhr');
-        if(amtEl){ amtEl.style.transition='opacity .15s'; amtEl.style.opacity='0';
-            setTimeout(function(){ amtEl.textContent=e.data.usd; amtEl.style.opacity='1'; },150); }
-        if(khrEl){ khrEl.textContent=e.data.khr; }
-    });
-})();
-<\/script>
-</body>
-</html>`;
-        }
-
-        async function openQrOnSecondScreen(totalUsd) {
-            let left = window.screen.width, top = 0;
-            let sw   = window.screen.width,  sh  = window.screen.height;
-
-            const details = await getScreenDetails();
-            if (details && details.screens.length > 1) {
-                const second = details.screens.find(s => !s.isPrimary) || details.screens[1];
-                if (second) {
-                    left = (second.availLeft  !== undefined) ? second.availLeft  : (second.left  || window.screen.width);
-                    top  = (second.availTop   !== undefined) ? second.availTop   : (second.top   || 0);
-                    sw   = (second.availWidth !== undefined) ? second.availWidth : (second.width  || window.screen.width);
-                    sh   = (second.availHeight!== undefined) ? second.availHeight: (second.height || window.screen.height);
-                }
-            } else {
-                left = window.screen.availWidth;
-                sw   = window.screen.availWidth;
-                sh   = window.screen.availHeight;
-            }
-
-            const s1Left  = window.screen.availLeft  || 0;
-            const s1Top   = window.screen.availTop   || 0;
-            const s1Right = s1Left + (window.screen.availWidth  || window.screen.width);
-            const s1Bot   = s1Top  + (window.screen.availHeight || window.screen.height);
-            const wouldBeOnScreen1 = (left >= s1Left && left < s1Right && top >= s1Top && top < s1Bot);
-            if (wouldBeOnScreen1) {
-                const hasReal2nd = details && details.screens && details.screens.length > 1;
-                if (!hasReal2nd) { notify('QR ត្រូវការ Screen ទី 2 — បើ Extended Display', 'error'); return false; }
-            }
-
-            if (qrWindow && !qrWindow.closed) { qrWindow.close(); qrWindow = null; }
-
-            qrWindow = window.open('', 'SandooKHQR_Display',
-                `width=${sw},height=${sh},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no`);
-
-            if (!qrWindow) { notify('Browser ទប់ Popup — សូម Allow popup', 'error'); return false; }
-
-            try { qrWindow.moveTo(left, top); qrWindow.resizeTo(sw, sh); }
-            catch(e) { console.warn('KHQR: moveTo/resizeTo blocked:', e.message); }
-
-            qrWindow.document.open();
-            qrWindow.document.write(buildQrWindowHtml(totalUsd));
-            qrWindow.document.close();
-
-            const tryFullscreen = function () {
-                try {
-                    if (qrWindow && !qrWindow.closed) {
-                        const el = qrWindow.document.documentElement;
-                        if (el.requestFullscreen)            el.requestFullscreen();
-                        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-                    }
-                } catch(e) { console.warn('KHQR: fullscreen blocked:', e.message); }
-            };
-            try { qrWindow.addEventListener('load', tryFullscreen); } catch(e) {}
-            setTimeout(tryFullscreen, 500);
-            return true;
-        }
-
-        function showKhqrActionBar(totalUsd) {
-            $('#khqrActionBar').remove();
-            const bar = $(`
-<div id="khqrActionBar" style="position:fixed;bottom:0;right:0;width:320px;z-index:8000;
-    background:#131C27;border-top:2px solid #FF6B35;box-shadow:0 -4px 24px rgba(0,0,0,.35);
-    padding:12px 16px;display:flex;flex-direction:column;gap:8px;border-radius:16px 16px 0 0;
-    animation:slideUpBar .25s ease;">
-  <style>@@keyframes slideUpBar{from{transform:translateY(100%)}to{transform:translateY(0)}}</style>
-  <div style="display:flex;align-items:center;justify-content:space-between;">
-    <div style="display:flex;align-items:center;gap:7px;">
-      <i class="fas fa-qrcode" style="color:#FF6B35;font-size:14px;"></i>
-      <span style="font-size:12px;font-weight:700;color:#E8F0F8;">KHQR បានបង្ហាញ Screen 2</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:5px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.25);border-radius:20px;padding:3px 9px;">
-      <i class="fas fa-circle" style="color:#FF6B35;font-size:7px;animation:pulse 1.5s infinite;"></i>
-      <span id="khqrBarTimer" style="font-size:11px;font-weight:800;color:#FF6B35;min-width:32px;">2:00</span>
-    </div>
-  </div>
-  <div style="display:flex;gap:7px;">
-    <button id="khqrBarConfirm" style="flex:2;height:40px;background:linear-gradient(135deg,#00B894,#00956E);color:#fff;
-        border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;
-        display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
-      <i class="fas fa-check-circle"></i> បានទូទាត់
-    </button>
-    <button id="khqrBarCancel" style="flex:1;height:40px;background:#1E2A38;color:#94A3B8;
-        border:1px solid #2D3A4A;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;
-        display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;">
-      <i class="fas fa-times"></i> បោះបង់
-    </button>
-  </div>
-</div>`);
-
-            $('body').append(bar);
-
-            let rem      = 120;
-            const barTimer = setInterval(function () {
-                rem--;
-                const m = Math.floor(rem / 60), s = String(rem % 60).padStart(2, '0');
-                $('#khqrBarTimer').text(m + ':' + s);
-                if (rem <= 30) $('#khqrBarTimer').css('color', '#EF4444');
-                if (rem <= 0) { clearInterval(barTimer); closeKhqrFlow(); notify('KHQR ផុតកំណត់', 'warning'); }
-            }, 1000);
-            bar.data('barTimer', barTimer);
-
-            $('#khqrBarConfirm').on('click', function () { clearInterval(barTimer); closeKhqrFlow(); runPayFlow(); });
-            $('#khqrBarCancel').on('click',  function () { clearInterval(barTimer); closeKhqrFlow(); notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning'); });
-        }
-
-        function hideKhqrActionBar() {
-            const bar = $('#khqrActionBar');
-            if (bar.length) { clearInterval(bar.data('barTimer')); bar.remove(); }
-        }
-
-        /* No-second-screen guidance modal */
-        (function injectNoScreenModal() {
-            if (document.getElementById('noScreenModal')) return;
-            $('body').append(`
-<div id="noScreenModal" style="display:none;position:fixed;inset:0;z-index:19000;
-    background:rgba(12,10,8,.78);backdrop-filter:blur(10px);
-    align-items:center;justify-content:center;padding:16px;">
-  <div style="background:#fff;border-radius:24px;max-width:480px;width:100%;
-      box-shadow:0 24px 64px rgba(0,0,0,.22);border:1px solid #E0DAD3;overflow:hidden;">
-    <div style="background:linear-gradient(135deg,#1C2340,#2D3561);padding:22px 24px 18px;text-align:center;">
-      <div style="width:56px;height:56px;background:rgba(239,68,68,.15);border:2px solid rgba(239,68,68,.35);
-          border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-        <i class="fas fa-desktop" style="font-size:22px;color:#FCA5A5;"></i>
-      </div>
-      <h3 style="font-size:17px;font-weight:800;color:#fff;margin:0 0 4px;">គ្មានអេក្រង់ទី 2!</h3>
-      <p style="font-size:12px;color:rgba(255,255,255,.45);font-weight:500;margin:0;">
-        ត្រូវការ Extended Display ដើម្បីបង្ហាញ KHQR ទៅអតិថិជន
-      </p>
-    </div>
-    <div style="padding:20px 24px 14px;">
-      <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9C9189;margin-bottom:8px;">វិធីបើ Extended Display</div>
-      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;">
-          <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">1</div>
-          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;"><strong style="color:#1A1714;">Windows:</strong> ចុច <kbd style="background:#E0DAD3;padding:1px 5px;border-radius:4px;font-size:10px;">Win + P</kbd> → ជ្រើស <strong>Extend</strong></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;">
-          <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">2</div>
-          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;"><strong style="color:#1A1714;">Mac:</strong> System Settings → Displays → Use as <strong>Extended Display</strong></div>
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 11px;background:#F4F1ED;border-radius:9px;">
-          <div style="width:22px;height:22px;background:#FF6B35;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;">3</div>
-          <div style="font-size:11.5px;font-weight:600;color:#574F47;line-height:1.6;">បន្ទាប់មក ចុច <strong style="color:#FF6B35;">«ព្យាយាមមួយទៀត»</strong> ខាងក្រោម</div>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;padding:0 24px 20px;">
-      <button id="noScreenRetryBtn" style="flex:2;height:46px;background:linear-gradient(135deg,#FF6B35,#E85520);color:#fff;
-          border:none;border-radius:11px;font-family:var(--font);font-size:13px;font-weight:800;
-          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
-        <i class="fas fa-redo"></i> ព្យាយាមមួយទៀត
-      </button>
-      <button id="noScreenCancelBtn" style="flex:1;height:46px;background:#F4F1ED;color:#574F47;
-          border:1.5px solid #E0DAD3;border-radius:11px;font-family:var(--font);
-          font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-        <i class="fas fa-times"></i> បោះបង់
-      </button>
-    </div>
-  </div>
-</div>`);
-
-            $('#noScreenRetryBtn').on('click', async function () {
-                $('#noScreenModal').css('display', 'none');
-                if (_pendingQrUsd !== null) { const amt = _pendingQrUsd; _pendingQrUsd = null; await openKhqrFlow(amt); }
-            });
-            $('#noScreenCancelBtn').on('click', function () {
-                _pendingQrUsd = null;
-                $('#noScreenModal').css('display', 'none');
-                notify('បោះបង់ KHQR', 'warning');
-            });
-        })();
-
-        async function openKhqrFlow(totalUsd) {
-            const second = await hasSecondScreen();
-            if (!second) { _pendingQrUsd = totalUsd; $('#noScreenModal').css('display', 'flex'); return; }
-            const opened = await openQrOnSecondScreen(totalUsd);
-            if (!opened) return;
-            showKhqrActionBar(totalUsd);
-            _pendingQrUsd = null;
-            _khqrActive   = true;
-        }
-
-        function closeKhqrFlow() {
-            _khqrActive = false;
-            hideKhqrActionBar();
-            if (qrWindow && !qrWindow.closed) { qrWindow.close(); qrWindow = null; }
-        }
-
-        /* Legacy modal buttons */
-        $('#cqrConfirmBtn').on('click', function () { closeKhqrFlow(); runPayFlow(); });
-        $('#cqrCancelBtn').on('click',  function () { closeKhqrFlow(); notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning'); });
+        $('#cqrCancelBtn').off('click').on('click', function() {
+            closeKhqrFlow();
+            notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning');
+        });
 
         /* ── Invoice ── */
         function showInvoice(order) {
@@ -1482,7 +1744,7 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
             let itH = '';
             order.items.forEach(i => {
                 const t = i.price * i.quantity;
-                itH += `<tr><td style="padding:8px 4px;border-bottom:1px solid #eee;">${i.name}</td><td style="text-align:center;padding:8px 4px;border-bottom:1px solid #eee;">${i.quantity}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(i.price)}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(t)}</td></tr>`;
+                itH += `<td><td style="padding:8px 4px;border-bottom:1px solid #eee;">${i.name}</td><td style="text-align:center;padding:8px 4px;border-bottom:1px solid #eee;">${i.quantity}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(i.price)}</td><td style="text-align:right;padding:8px 4px;border-bottom:1px solid #eee;">${fu(t)}</td></tr>`;
             });
             let sumH = `<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>សរុបរង</span><span>${fu(order.subtotal)}</span></div>`;
             if (order.discount > 0) sumH += `<div style="display:flex;justify-content:space-between;margin:5px 0;color:#F59E0B;"><span>បញ្ចុះ</span><span>-${fu(order.discount)}</span></div>`;
@@ -1550,6 +1812,7 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
         /* Keyboard shortcuts */
         $(document).on('keydown', async function (e) {
             if (e.key === 'F2') { e.preventDefault(); if (cart.length && confirm('ចាប់ផ្តើមថ្មី?')) { resetCart(); notify('ចាប់ផ្ដើម​ការ​កម្មង់​ថ្មី', 'info'); } }
+            if (e.key === 'F3') { e.preventDefault(); openCustomerDisplay(); }
             if (e.key === 'F4') { e.preventDefault(); $('#holdOrderBtn').click(); }
             if (e.key === 'F8') {
                 e.preventDefault();
@@ -1570,11 +1833,11 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
             if (e.key === '/' && !$(e.target).is('input,textarea,select')) { e.preventDefault(); $('#productSearch').focus(); }
         });
 
-        console.log('%c✅ POS Ready — Backend Shift Connected', 'color:#00B894;font-weight:bold');
+        console.log('%c✅ POS Ready — KHQR shows only on Customer Display', 'color:#00B894;font-weight:bold');
     });
 
     /* ════════════════════════════════════════════════
-       SHIFT MANAGEMENT — fully backend-connected
+       SHIFT MANAGEMENT — with auto customer display
     ════════════════════════════════════════════════ */
     const shift = {
         isOpen:       false,
@@ -1586,7 +1849,6 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
         elapsedTimer: null
     };
 
-    /* ── On page load: restore shift state from backend ── */
     (async function loadShiftState() {
         try {
             const res  = await fetch('/Shift/GetCurrentShiftInfo');
@@ -1607,6 +1869,12 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
                 clearInterval(shift.elapsedTimer);
                 shift.elapsedTimer = setInterval(updateShiftStats, 10000);
                 updateShiftStats();
+
+                // Auto-open customer display when shift opens
+                setTimeout(() => {
+                    customerDisplayAutoOpen = true;
+                    openCustomerDisplay();
+                }, 1000);
             }
         } catch (e) { console.warn('Could not load shift state:', e); }
     })();
@@ -1644,7 +1912,6 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
         document.getElementById('shiftTotalCash').textContent  = '$' + (shift.openingCash + shift.revenue).toFixed(2);
     }
 
-    /* ── START SHIFT ── */
     document.getElementById('shiftStartBtn').addEventListener('click', async function () {
         const openCash = parseFloat(document.getElementById('shiftOpeningCash').value) || 0;
         this.disabled  = true;
@@ -1679,6 +1946,10 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
             document.getElementById('shiftOpenView').style.display   = 'block';
             updateShiftStats();
 
+            // Auto-open customer display when shift starts
+            customerDisplayAutoOpen = true;
+            setTimeout(() => openCustomerDisplay(), 500);
+
         } catch (e) {
             alert('បើកវេនមិនបានជោគជ័យ: ' + e.message);
         } finally {
@@ -1687,8 +1958,6 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
         }
     });
 
-    /* ── END SHIFT ── */
-    /* ── END SHIFT ── */
     document.getElementById('shiftEndBtn').addEventListener('click', async function () {
         if (!confirm('បញ្ចប់វេនការងារ?\n\nការកម្មង់: ' + shift.orderCount + '\nចំណូល: $' + shift.revenue.toFixed(2))) return;
 
@@ -1712,11 +1981,14 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
             shift.revenue     = 0;
             shift.openingCash = 0;
 
+            // Close customer display when shift ends
+            customerDisplayAutoOpen = false;
+            closeCustomerDisplay();
+
             document.getElementById('shiftBtn').classList.remove('shift-open');
             document.getElementById('shiftOpeningCash').value = '0';
             hideShiftModal();
 
-            // ── Redirect to ShiftSummary ──
             window.location.href = '/Shift/ShiftSummary/' + data.shiftId;
 
         } catch (e) {
@@ -1727,13 +1999,10 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
         }
     });
 
-    /* Close modal on backdrop click */
     document.getElementById('shiftModal').addEventListener('click', function (e) {
         if (e.target === this) hideShiftModal();
     });
 
-    /* ── Hook: update local shift counters after each successful payment ──
-       Reads window.lastOrder which is set by runPayFlow BEFORE resetCart.   */
     (function watchShiftRevenue() {
         const obs = new MutationObserver(function (mutations) {
             mutations.forEach(function (m) {
@@ -1754,6 +2023,9 @@ body{font-family:'Sora','Noto Sans Khmer',sans-serif;background:#0C1118;color:#E
         });
         obs.observe(document.body, { childList: true });
     })();
+
+    // Start customer display maintenance
+    setTimeout(maintainCustomerDisplay, 3000);
 </script>
 </body>
 </html>

@@ -624,121 +624,870 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         }
     }
 
-    // The buildCustomerWindowHtml function remains the same as before
-    // (I'm including it but showing it shortened for brevity)
     function buildCustomerWindowHtml() {
         var origin = window.location.origin;
         return '<!DOCTYPE html>\n' +
             '<html lang="km">\n' +
             '<head>\n' +
             '<meta charset="utf-8">\n' +
-            '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
+            '<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">\n' +
             '<title>Customer Display — ផ្ទះបាយសេនឌូ</title>\n' +
             '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
-            '<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=Noto+Sans+Khmer:wght@400;600;700;800&display=swap" rel="stylesheet">\n' +
+            '<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">\n' +
             '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>\n' +
             '<style>\n' +
-            '*{margin:0;padding:0;box-sizing:border-box}\n' +
-            'html,body{width:100%;height:100%;overflow:hidden;font-family:\'Sora\',\'Noto Sans Khmer\',sans-serif;background:#0C1118;color:#E8F0F8;-webkit-font-smoothing:antialiased;}\n' +
-            ':root{--cd-bg:#0C1118;--cd-surface:#141B24;--cd-border:#1E2A38;--cd-brand:#FF6B35;--cd-text:#E8F0F8;--cd-muted:#6B7F96;--cd-green:#00B894;--cd-yellow:#F59E0B;}\n' +
-            '.pos-cd{display:flex;flex-direction:column;height:100dvh;width:100vw;background:var(--cd-bg);overflow:hidden;position:relative;}\n' +
-            /* HEADER */
-            '.cd-header{background:linear-gradient(160deg,#141D2B,#1C2845);border-bottom:1px solid rgba(255,107,53,.2);padding:16px 20px;flex-shrink:0;}\n' +
-            '.cd-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}\n' +
-            '.cd-logo-area{display:flex;align-items:center;gap:10px;}\n' +
-            '.cd-logo-dot{width:10px;height:10px;background:var(--cd-brand);border-radius:50%;box-shadow:0 0 14px rgba(255,107,53,.9);animation:cdPulse 2.5s ease-in-out infinite;}\n' +
-            '@@keyframes cdPulse{0%,100%{opacity:1;box-shadow:0 0 8px rgba(255,107,53,.6);}50%{opacity:.7;box-shadow:0 0 22px rgba(255,107,53,.9);}}\n' +
-            '.cd-logo-text{font-size:22px;font-weight:900;color:var(--cd-text);letter-spacing:.3px;}\n' +
-            '.cd-logo-text span{color:var(--cd-brand);}\n' +
-            '.cd-clock{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:5px 14px;font-size:16px;font-weight:700;color:var(--cd-brand);font-variant-numeric:tabular-nums;letter-spacing:.5px;}\n' +
-            '.cd-header-sub{display:flex;align-items:center;justify-content:space-between;}\n' +
-            '.cd-welcome-line1{font-size:11px;font-weight:600;color:var(--cd-muted);letter-spacing:1.2px;text-transform:uppercase;}\n' +
-            '.cd-currency-toggle{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.3);border-radius:24px;padding:3px;border:1px solid var(--cd-border);}\n' +
-            '.cd-currency-opt{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--cd-muted);}\n' +
-            '.cd-currency-opt.active{background:var(--cd-brand);color:#fff;box-shadow:0 2px 8px rgba(255,107,53,.3);}\n' +
-            '.cd-live-dot{font-size:10px;font-weight:700;color:var(--cd-muted);display:flex;align-items:center;gap:5px;}\n' +
-            '.cd-live-dot::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--cd-green);animation:livePulse 2s infinite;}\n' +
-            '@@keyframes livePulse{0%,100%{opacity:1;}50%{opacity:.3;}}\n' +
-            /* MAIN CONTENT */
-            '.cd-main-content{flex:1;min-height:0;overflow-y:auto;transition:all 0.3s ease;}\n' +
-            '.cd-main-content.qr-active{overflow:hidden;}\n' +
-            /* IDLE */
-            '.cd-idle{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;}\n' +
-            '.cd-idle-icon{width:90px;height:90px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;}\n' +
-            '.cd-idle-title{font-size:28px;font-weight:900;color:var(--cd-text);letter-spacing:-.5px;}\n' +
-            '.cd-idle-sub{font-size:15px;font-weight:500;color:var(--cd-muted);line-height:1.8;}\n' +
-            '.cd-promo-strip{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:14px;padding:14px 18px;max-width:400px;width:100%;text-align:center;}\n' +
-            '.cd-promo-label{font-size:10px;font-weight:700;color:var(--cd-yellow);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}\n' +
-            '.cd-promo-text{font-size:14px;font-weight:500;color:rgba(245,158,11,.7);line-height:1.7;}\n' +
-            /* ORDER SECTION */
-            '.cd-order-section{padding:14px 16px;}\n' +
-            '.cd-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--cd-muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}\n' +
-            '.cd-section-label::after{content:"";flex:1;height:1px;background:var(--cd-border);}\n' +
-            /* ITEMS */
-            '.cd-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--cd-surface);border:1px solid var(--cd-border);border-radius:14px;margin-bottom:8px;animation:cdSlideIn .2s ease;border-left:3px solid var(--item-color,var(--cd-brand));}\n' +
-            '@@keyframes cdSlideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}\n' +
-            '.cd-item-thumb{width:52px;height:52px;border-radius:12px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;}\n' +
-            '.cd-item-thumb img{width:100%;height:100%;object-fit:cover;display:block;}\n' +
-            '.cd-item-info{flex:1;min-width:0;}\n' +
-            '.cd-item-name{font-size:15px;font-weight:700;color:var(--cd-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}\n' +
-            '.cd-item-unit{font-size:12px;font-weight:500;color:var(--cd-muted);margin-top:3px;}\n' +
-            '.cd-item-unit-khr{font-size:9px;font-weight:500;color:var(--cd-muted);margin-top:2px;}\n' +
-            '.cd-item-right{text-align:right;flex-shrink:0;}\n' +
-            '.cd-item-qty{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.22);border-radius:8px;font-size:15px;font-weight:800;color:var(--cd-brand);margin-bottom:3px;padding:0 6px;}\n' +
-            '.cd-item-total{font-size:15px;font-weight:700;color:var(--cd-text);}\n' +
-            '.cd-item-total-khr{font-size:10px;font-weight:600;color:var(--cd-muted);margin-top:2px;}\n' +
-            /* SUMMARY FOOTER */
-            '.cd-summary{background:rgba(0,0,0,.3);border-top:1px solid var(--cd-border);padding:16px 18px;flex-shrink:0;}\n' +
-            '.cd-sum-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:14px;font-weight:600;color:var(--cd-muted);margin-bottom:8px;}\n' +
-            '.cd-sum-row.total{font-size:20px;font-weight:900;color:var(--cd-text);border-top:1px solid var(--cd-border);padding-top:10px;margin-top:4px;margin-bottom:0;}\n' +
-            '.cd-sum-row.total .cd-total-usd{color:var(--cd-brand);}\n' +
-            '.cd-sum-khr{font-size:11px;font-weight:600;color:var(--cd-muted);text-align:right;}\n' +
-            '.cd-discount-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.22);color:var(--cd-yellow);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}\n' +
-            /* KHQR FULLSCREEN OVERLAY */
-            '.khqr-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0A0F16,#0C1118);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;animation:khqrFadeIn 0.35s ease;}\n' +
-            '.khqr-overlay.show{display:flex;}\n' +
-            '@@keyframes khqrFadeIn{from{opacity:0;transform:scale(0.98);}to{opacity:1;transform:scale(1);}}\n' +
-            '.khqr-header{text-align:center;margin-bottom:8px;}\n' +
-            '.khqr-title{font-size:28px;font-weight:900;color:var(--cd-brand);letter-spacing:-0.5px;}\n' +
-            '.khqr-subtitle{font-size:14px;font-weight:500;color:var(--cd-muted);margin-top:5px;}\n' +
-            '.khqr-qr-container{position:relative;margin:12px 0;}\n' +
-            '.khqr-qr-frame{position:relative;width:280px;height:280px;background:#fff;border-radius:24px;padding:16px;box-shadow:0 20px 40px rgba(0,0,0,0.4),0 0 0 4px rgba(255,107,53,0.2);}\n' +
-            '.khqr-qr-corner{position:absolute;width:28px;height:28px;border-color:var(--cd-brand);border-style:solid;}\n' +
-            '.khqr-qr-corner.tl{top:-2px;left:-2px;border-width:4px 0 0 4px;border-radius:8px 0 0 0;}\n' +
-            '.khqr-qr-corner.tr{top:-2px;right:-2px;border-width:4px 4px 0 0;border-radius:0 8px 0 0;}\n' +
-            '.khqr-qr-corner.bl{bottom:-2px;left:-2px;border-width:0 0 4px 4px;border-radius:0 0 0 8px;}\n' +
-            '.khqr-qr-corner.br{bottom:-2px;right:-2px;border-width:0 4px 4px 0;border-radius:0 0 8px 0;}\n' +
-            '.khqr-qr-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:12px;}\n' +
-            '.khqr-qr-inner img, .khqr-qr-inner canvas{max-width:100%;max-height:100%;border-radius:8px;}\n' +
-            '.khqr-pulse-ring{position:absolute;inset:-12px;border-radius:32px;border:2px solid rgba(255,107,53,0.3);animation:khqrPulse 2s ease-in-out infinite;pointer-events:none;}\n' +
-            '@@keyframes khqrPulse{0%,100%{transform:scale(1);opacity:0.6;}50%{transform:scale(1.05);opacity:0.2;}}\n' +
-            '.khqr-amount{text-align:center;margin:16px 0 8px;}\n' +
-            '.khqr-amount-usd{font-size:44px;font-weight:900;color:var(--cd-brand);letter-spacing:-1px;}\n' +
-            '.khqr-amount-khr{font-size:18px;font-weight:600;color:var(--cd-muted);margin-top:-5px;}\n' +
-            '.khqr-merchant{font-size:16px;font-weight:700;color:var(--cd-text);margin:8px 0 4px;}\n' +
-            '.khqr-bank{font-size:13px;font-weight:500;color:var(--cd-muted);display:flex;align-items:center;gap:6px;}\n' +
-            '.khqr-timer{width:100%;max-width:280px;margin:20px auto 0;}\n' +
-            '.khqr-timer-bar{background:rgba(255,255,255,0.1);border-radius:20px;height:6px;overflow:hidden;}\n' +
-            '.khqr-timer-fill{height:100%;background:linear-gradient(90deg,var(--cd-brand),#E85520);border-radius:20px;width:100%;transition:width 120s linear;}\n' +
-            '.khqr-timer-text{text-align:center;font-size:12px;font-weight:600;color:var(--cd-muted);margin-top:8px;}\n' +
-            '.khqr-timer-text span{color:var(--cd-brand);font-weight:800;}\n' +
-            '.khqr-close-btn{position:absolute;top:20px;right:20px;width:44px;height:44px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;color:#fff;font-size:20px;}\n' +
-            '.khqr-close-btn:hover{background:rgba(239,68,68,0.2);border-color:#EF4444;transform:scale(1.05);}\n' +
-            '.khqr-instruction{background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.3);border-radius:40px;padding:10px 20px;margin-top:16px;font-size:13px;font-weight:600;color:var(--cd-brand);}\n' +
-            /* THANK YOU OVERLAY */
-            '.thankyou-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0C1118,#0A0F16);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;text-align:center;animation:thankyouFadeIn 0.4s ease;}\n' +
-            '.thankyou-overlay.show{display:flex;}\n' +
-            '@@keyframes thankyouFadeIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}\n' +
-            '.thankyou-check{width:96px;height:96px;background:rgba(0,184,148,0.12);border:3px solid var(--cd-green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;color:var(--cd-green);animation:thankyouBounce 0.5s cubic-bezier(0.34,1.2,0.64,1);}\n' +
-            '@@keyframes thankyouBounce{0%{transform:scale(0.3);opacity:0;}50%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}\n' +
-            '.thankyou-title{font-size:32px;font-weight:900;color:var(--cd-text);}\n' +
-            '.thankyou-amount{font-size:48px;font-weight:900;color:var(--cd-brand);letter-spacing:-1px;margin:8px 0;}\n' +
-            '.thankyou-amount-khr{font-size:20px;font-weight:600;color:var(--cd-muted);margin-top:-8px;}\n' +
-            '.thankyou-change{background:rgba(0,184,148,0.08);border:1px solid rgba(0,184,148,0.2);border-radius:20px;padding:16px 24px;margin-top:12px;}\n' +
-            '.thankyou-change-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cd-green);margin-bottom:5px;}\n' +
-            '.thankyou-change-usd{font-size:28px;font-weight:900;color:var(--cd-green);}\n' +
-            '.thankyou-change-khr{font-size:14px;font-weight:600;color:rgba(0,184,148,0.7);}\n' +
-            '.thankyou-message{font-size:15px;font-weight:500;color:var(--cd-muted);margin-top:16px;line-height:1.6;}\n' +
+            '* {\n' +
+            '    margin: 0;\n' +
+            '    padding: 0;\n' +
+            '    box-sizing: border-box;\n' +
+            '}\n' +
+            '\n' +
+            'html, body {\n' +
+            '    width: 100%;\n' +
+            '    height: 100%;\n' +
+            '    overflow: hidden;\n' +
+            '    font-family: \'Sora\', \'Noto Sans Khmer\', sans-serif;\n' +
+            '    background: var(--bg);\n' +
+            '    color: var(--text);\n' +
+            '    -webkit-font-smoothing: antialiased;\n' +
+            '    -moz-osx-font-smoothing: grayscale;\n' +
+            '}\n' +
+            '\n' +
+            ':root {\n' +
+            '    --brand: #FF6B35;\n' +
+            '    --brand-dark: #E85520;\n' +
+            '    --brand-light: #FFF3EE;\n' +
+            '    --brand-glow: rgba(255,107,53,.18);\n' +
+            '    --accent: #2D3561;\n' +
+            '    --accent-dark: #1C2140;\n' +
+            '    --accent-light: #3D4880;\n' +
+            '    --success: #00B894;\n' +
+            '    --warning: #F59E0B;\n' +
+            '    --danger: #EF4444;\n' +
+            '    --danger-light: #FEE2E2;\n' +
+            '\n' +
+            '    /* Surfaces */\n' +
+            '    --bg: #F4F1ED;\n' +
+            '    --bg-2: #EDE9E3;\n' +
+            '    --surface: #FFFFFF;\n' +
+            '    --surface-2: #FAFAF8;\n' +
+            '    --surface-3: #F5F3F0;\n' +
+            '    --border: #E2DDD7;\n' +
+            '    --border-light: #EDE9E4;\n' +
+            '\n' +
+            '    /* Text */\n' +
+            '    --text: #1A1714;\n' +
+            '    --text-sub: #574F47;\n' +
+            '    --text-muted: #9C9189;\n' +
+            '\n' +
+            '    /* Shadows */\n' +
+            '    --shadow-xs: 0 1px 3px rgba(26,23,20,.06);\n' +
+            '    --shadow-sm: 0 2px 10px rgba(26,23,20,.08);\n' +
+            '    --shadow-md: 0 8px 24px rgba(26,23,20,.10);\n' +
+            '    --shadow-lg: 0 20px 48px rgba(26,23,20,.15);\n' +
+            '    --shadow-brand: 0 8px 24px rgba(255,107,53,.25);\n' +
+            '\n' +
+            '    /* Radii */\n' +
+            '    --r-xs: 6px;\n' +
+            '    --r-sm: 10px;\n' +
+            '    --r-md: 14px;\n' +
+            '    --r-lg: 20px;\n' +
+            '    --r-xl: 28px;\n' +
+            '}\n' +
+            '\n' +
+            '/* Fullscreen container */\n' +
+            '.pos-cd {\n' +
+            '    position: fixed;\n' +
+            '    top: 0;\n' +
+            '    left: 0;\n' +
+            '    right: 0;\n' +
+            '    bottom: 0;\n' +
+            '    width: 100vw;\n' +
+            '    height: 100vh;\n' +
+            '    display: flex;\n' +
+            '    flex-direction: column;\n' +
+            '    background: var(--bg);\n' +
+            '    overflow: hidden;\n' +
+            '    position: relative;\n' +
+            '}\n' +
+            '\n' +
+            '/* Fullscreen button */\n' +
+            '.fullscreen-btn {\n' +
+            '    position: fixed;\n' +
+            '    bottom: 20px;\n' +
+            '    right: 20px;\n' +
+            '    width: 48px;\n' +
+            '    height: 48px;\n' +
+            '    background: var(--surface);\n' +
+            '    border: 1px solid var(--border);\n' +
+            '    border-radius: 50%;\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    cursor: pointer;\n' +
+            '    z-index: 1000;\n' +
+            '    box-shadow: var(--shadow-sm);\n' +
+            '    transition: all 0.3s ease;\n' +
+            '    color: var(--brand);\n' +
+            '    font-size: 20px;\n' +
+            '}\n' +
+            '\n' +
+            '.fullscreen-btn:hover {\n' +
+            '    transform: scale(1.1);\n' +
+            '    background: var(--brand);\n' +
+            '    color: white;\n' +
+            '    border-color: var(--brand);\n' +
+            '    box-shadow: var(--shadow-brand);\n' +
+            '}\n' +
+            '\n' +
+            '/* HEADER */\n' +
+            '.cd-header {\n' +
+            '    background: var(--surface);\n' +
+            '    border-bottom: 1px solid var(--border);\n' +
+            '    padding: 16px 24px;\n' +
+            '    flex-shrink: 0;\n' +
+            '    box-shadow: var(--shadow-xs);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-header-top {\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: space-between;\n' +
+            '    margin-bottom: 12px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-logo-area {\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    gap: 10px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-logo-dot {\n' +
+            '    width: 10px;\n' +
+            '    height: 10px;\n' +
+            '    background: var(--brand);\n' +
+            '    border-radius: 50%;\n' +
+            '    box-shadow: 0 0 14px rgba(255, 107, 53, 0.9);\n' +
+            '    animation: cdPulse 2.5s ease-in-out infinite;\n' +
+            '}\n' +
+            '\n' +
+            '@@keyframes cdPulse {\n' +
+            '    0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(255, 107, 53, 0.6); }\n' +
+            '    50% { opacity: 0.7; box-shadow: 0 0 22px rgba(255, 107, 53, 0.9); }\n' +
+            '}\n' +
+            '\n' +
+            '.cd-logo-text {\n' +
+            '    font-size: 20px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--text);\n' +
+            '    letter-spacing: -0.3px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-logo-text span {\n' +
+            '    color: var(--brand);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-clock {\n' +
+            '    background: var(--bg-2);\n' +
+            '    border: 1px solid var(--border-light);\n' +
+            '    border-radius: var(--r-xl);\n' +
+            '    padding: 6px 16px;\n' +
+            '    font-size: 15px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--text);\n' +
+            '    font-variant-numeric: tabular-nums;\n' +
+            '    letter-spacing: 0.5px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-header-sub {\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: space-between;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-welcome-line1 {\n' +
+            '    font-size: 12px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-muted);\n' +
+            '    letter-spacing: 0.3px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-currency-toggle {\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    gap: 6px;\n' +
+            '    background: var(--bg-2);\n' +
+            '    border-radius: var(--r-xl);\n' +
+            '    padding: 4px;\n' +
+            '    border: 1px solid var(--border-light);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-currency-opt {\n' +
+            '    padding: 4px 14px;\n' +
+            '    border-radius: 30px;\n' +
+            '    font-size: 12px;\n' +
+            '    font-weight: 600;\n' +
+            '    cursor: pointer;\n' +
+            '    transition: all 0.2s;\n' +
+            '    background: transparent;\n' +
+            '    color: var(--text-sub);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-currency-opt.active {\n' +
+            '    background: var(--brand);\n' +
+            '    color: white;\n' +
+            '    box-shadow: var(--shadow-sm);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-live-dot {\n' +
+            '    font-size: 10px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--text-muted);\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    gap: 5px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-live-dot::before {\n' +
+            '    content: "";\n' +
+            '    width: 6px;\n' +
+            '    height: 6px;\n' +
+            '    border-radius: 50%;\n' +
+            '    background: var(--success);\n' +
+            '    animation: livePulse 2s infinite;\n' +
+            '}\n' +
+            '\n' +
+            '@@keyframes livePulse {\n' +
+            '    0%, 100% { opacity: 1; }\n' +
+            '    50% { opacity: 0.3; }\n' +
+            '}\n' +
+            '\n' +
+            '/* MAIN CONTENT */\n' +
+            '.cd-main-content {\n' +
+            '    flex: 1;\n' +
+            '    min-height: 0;\n' +
+            '    overflow-y: auto;\n' +
+            '    transition: all 0.3s ease;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-main-content.qr-active {\n' +
+            '    overflow: hidden;\n' +
+            '}\n' +
+            '\n' +
+            '/* IDLE */\n' +
+            '.cd-idle {\n' +
+            '    height: 100%;\n' +
+            '    display: flex;\n' +
+            '    flex-direction: column;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    gap: 24px;\n' +
+            '    padding: 32px;\n' +
+            '    text-align: center;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-idle-icon {\n' +
+            '    width: 100px;\n' +
+            '    height: 100px;\n' +
+            '    background: var(--brand-light);\n' +
+            '    border: 1px solid var(--border);\n' +
+            '    border-radius: 50%;\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-idle-icon i {\n' +
+            '    font-size: 42px;\n' +
+            '    color: var(--brand);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-idle-title {\n' +
+            '    font-size: 32px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--text);\n' +
+            '    letter-spacing: -0.5px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-idle-sub {\n' +
+            '    font-size: 16px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-sub);\n' +
+            '    line-height: 1.6;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-promo-strip {\n' +
+            '    background: linear-gradient(135deg, var(--brand-light), #FFF);\n' +
+            '    border: 1px solid var(--border-light);\n' +
+            '    border-radius: var(--r-md);\n' +
+            '    padding: 16px 24px;\n' +
+            '    max-width: 420px;\n' +
+            '    width: 100%;\n' +
+            '    text-align: center;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-promo-label {\n' +
+            '    font-size: 11px;\n' +
+            '    font-weight: 700;\n' +
+            '    color: var(--brand);\n' +
+            '    text-transform: uppercase;\n' +
+            '    letter-spacing: 1px;\n' +
+            '    margin-bottom: 6px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-promo-text {\n' +
+            '    font-size: 14px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-sub);\n' +
+            '    line-height: 1.6;\n' +
+            '}\n' +
+            '\n' +
+            '/* ORDER SECTION */\n' +
+            '.cd-order-section {\n' +
+            '    padding: 20px 24px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-section-label {\n' +
+            '    font-size: 11px;\n' +
+            '    font-weight: 700;\n' +
+            '    text-transform: uppercase;\n' +
+            '    letter-spacing: 1px;\n' +
+            '    color: var(--text-muted);\n' +
+            '    margin-bottom: 16px;\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    gap: 8px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-section-label::after {\n' +
+            '    content: "";\n' +
+            '    flex: 1;\n' +
+            '    height: 1px;\n' +
+            '    background: var(--border);\n' +
+            '}\n' +
+            '\n' +
+            '/* ITEMS */\n' +
+            '.cd-item {\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    gap: 14px;\n' +
+            '    padding: 14px 16px;\n' +
+            '    background: var(--surface);\n' +
+            '    border: 1px solid var(--border);\n' +
+            '    border-radius: var(--r-md);\n' +
+            '    margin-bottom: 10px;\n' +
+            '    animation: cdSlideIn 0.2s ease;\n' +
+            '    border-left: 4px solid var(--brand);\n' +
+            '    box-shadow: var(--shadow-xs);\n' +
+            '    transition: all 0.2s ease;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item:hover {\n' +
+            '    transform: translateX(2px);\n' +
+            '    box-shadow: var(--shadow-sm);\n' +
+            '}\n' +
+            '\n' +
+            '@@keyframes cdSlideIn {\n' +
+            '    from { opacity: 0; transform: translateX(-8px); }\n' +
+            '    to { opacity: 1; transform: translateX(0); }\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-thumb {\n' +
+            '    width: 56px;\n' +
+            '    height: 56px;\n' +
+            '    border-radius: var(--r-sm);\n' +
+            '    overflow: hidden;\n' +
+            '    flex-shrink: 0;\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    font-size: 24px;\n' +
+            '    color: white;\n' +
+            '    background: linear-gradient(135deg, var(--brand), var(--brand-dark));\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-thumb img {\n' +
+            '    width: 100%;\n' +
+            '    height: 100%;\n' +
+            '    object-fit: cover;\n' +
+            '    display: block;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-info {\n' +
+            '    flex: 1;\n' +
+            '    min-width: 0;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-name {\n' +
+            '    font-size: 16px;\n' +
+            '    font-weight: 700;\n' +
+            '    color: var(--text);\n' +
+            '    white-space: nowrap;\n' +
+            '    overflow: hidden;\n' +
+            '    text-overflow: ellipsis;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-unit {\n' +
+            '    font-size: 12px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-muted);\n' +
+            '    margin-top: 4px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-unit-khr {\n' +
+            '    font-size: 10px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-muted);\n' +
+            '    margin-top: 2px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-right {\n' +
+            '    text-align: right;\n' +
+            '    flex-shrink: 0;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-qty {\n' +
+            '    display: inline-flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    min-width: 36px;\n' +
+            '    height: 36px;\n' +
+            '    background: var(--brand-light);\n' +
+            '    border: 1px solid var(--border);\n' +
+            '    border-radius: var(--r-sm);\n' +
+            '    font-size: 16px;\n' +
+            '    font-weight: 700;\n' +
+            '    color: var(--brand);\n' +
+            '    margin-bottom: 4px;\n' +
+            '    padding: 0 8px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-total {\n' +
+            '    font-size: 16px;\n' +
+            '    font-weight: 700;\n' +
+            '    color: var(--text);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-item-total-khr {\n' +
+            '    font-size: 11px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-muted);\n' +
+            '    margin-top: 2px;\n' +
+            '}\n' +
+            '\n' +
+            '/* SUMMARY FOOTER */\n' +
+            '.cd-summary {\n' +
+            '    background: var(--surface);\n' +
+            '    border-top: 1px solid var(--border);\n' +
+            '    padding: 20px 24px;\n' +
+            '    flex-shrink: 0;\n' +
+            '    box-shadow: var(--shadow-sm);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-sum-row {\n' +
+            '    display: flex;\n' +
+            '    justify-content: space-between;\n' +
+            '    align-items: flex-start;\n' +
+            '    font-size: 15px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--text-sub);\n' +
+            '    margin-bottom: 10px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-sum-row.total {\n' +
+            '    font-size: 22px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--text);\n' +
+            '    border-top: 2px solid var(--border);\n' +
+            '    padding-top: 14px;\n' +
+            '    margin-top: 8px;\n' +
+            '    margin-bottom: 0;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-sum-row.total .cd-total-usd {\n' +
+            '    color: var(--brand);\n' +
+            '}\n' +
+            '\n' +
+            '.cd-sum-khr {\n' +
+            '    font-size: 12px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-muted);\n' +
+            '    text-align: right;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-discount-pill {\n' +
+            '    display: inline-flex;\n' +
+            '    align-items: center;\n' +
+            '    gap: 5px;\n' +
+            '    background: rgba(245, 158, 11, 0.1);\n' +
+            '    border: 1px solid rgba(245, 158, 11, 0.2);\n' +
+            '    color: var(--warning);\n' +
+            '    font-size: 12px;\n' +
+            '    font-weight: 600;\n' +
+            '    padding: 4px 12px;\n' +
+            '    border-radius: var(--r-xl);\n' +
+            '}\n' +
+            '\n' +
+            '/* KHQR FULLSCREEN OVERLAY */\n' +
+            '.khqr-overlay {\n' +
+            '    position: fixed;\n' +
+            '    top: 0;\n' +
+            '    left: 0;\n' +
+            '    right: 0;\n' +
+            '    bottom: 0;\n' +
+            '    background: var(--surface);\n' +
+            '    z-index: 100;\n' +
+            '    display: none;\n' +
+            '    flex-direction: column;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    gap: 24px;\n' +
+            '    padding: 32px;\n' +
+            '    animation: khqrFadeIn 0.35s ease;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-overlay.show {\n' +
+            '    display: flex;\n' +
+            '}\n' +
+            '\n' +
+            '@@keyframes khqrFadeIn {\n' +
+            '    from { opacity: 0; transform: scale(0.98); }\n' +
+            '    to { opacity: 1; transform: scale(1); }\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-header {\n' +
+            '    text-align: center;\n' +
+            '    margin-bottom: 8px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-title {\n' +
+            '    font-size: 32px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--brand);\n' +
+            '    letter-spacing: -0.5px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-subtitle {\n' +
+            '    font-size: 15px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-sub);\n' +
+            '    margin-top: 8px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-container {\n' +
+            '    position: relative;\n' +
+            '    margin: 16px 0;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-frame {\n' +
+            '    position: relative;\n' +
+            '    width: 300px;\n' +
+            '    height: 300px;\n' +
+            '    background: white;\n' +
+            '    border-radius: var(--r-lg);\n' +
+            '    padding: 20px;\n' +
+            '    box-shadow: var(--shadow-lg);\n' +
+            '    border: 2px solid var(--brand);\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-corner {\n' +
+            '    position: absolute;\n' +
+            '    width: 30px;\n' +
+            '    height: 30px;\n' +
+            '    border-color: var(--brand);\n' +
+            '    border-style: solid;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-corner.tl {\n' +
+            '    top: -3px;\n' +
+            '    left: -3px;\n' +
+            '    border-width: 5px 0 0 5px;\n' +
+            '    border-radius: 10px 0 0 0;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-corner.tr {\n' +
+            '    top: -3px;\n' +
+            '    right: -3px;\n' +
+            '    border-width: 5px 5px 0 0;\n' +
+            '    border-radius: 0 10px 0 0;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-corner.bl {\n' +
+            '    bottom: -3px;\n' +
+            '    left: -3px;\n' +
+            '    border-width: 0 0 5px 5px;\n' +
+            '    border-radius: 0 0 0 10px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-corner.br {\n' +
+            '    bottom: -3px;\n' +
+            '    right: -3px;\n' +
+            '    border-width: 0 5px 5px 0;\n' +
+            '    border-radius: 0 0 10px 0;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-inner {\n' +
+            '    width: 100%;\n' +
+            '    height: 100%;\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    background: white;\n' +
+            '    border-radius: var(--r-sm);\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-qr-inner img,\n' +
+            '.khqr-qr-inner canvas {\n' +
+            '    max-width: 100%;\n' +
+            '    max-height: 100%;\n' +
+            '    border-radius: 8px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-pulse-ring {\n' +
+            '    position: absolute;\n' +
+            '    inset: -15px;\n' +
+            '    border-radius: 40px;\n' +
+            '    border: 2px solid var(--brand-glow);\n' +
+            '    animation: khqrPulse 2s ease-in-out infinite;\n' +
+            '    pointer-events: none;\n' +
+            '}\n' +
+            '\n' +
+            '@@keyframes khqrPulse {\n' +
+            '    0%, 100% { transform: scale(1); opacity: 0.6; }\n' +
+            '    50% { transform: scale(1.05); opacity: 0.2; }\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-amount {\n' +
+            '    text-align: center;\n' +
+            '    margin: 20px 0 12px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-amount-usd {\n' +
+            '    font-size: 48px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--brand);\n' +
+            '    letter-spacing: -1px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-amount-khr {\n' +
+            '    font-size: 18px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--text-muted);\n' +
+            '    margin-top: -6px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-merchant {\n' +
+            '    font-size: 16px;\n' +
+            '    font-weight: 700;\n' +
+            '    color: var(--text);\n' +
+            '    margin: 12px 0 4px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-bank {\n' +
+            '    font-size: 13px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-muted);\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    gap: 6px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-timer {\n' +
+            '    width: 100%;\n' +
+            '    max-width: 300px;\n' +
+            '    margin: 24px auto 0;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-timer-bar {\n' +
+            '    background: var(--bg-2);\n' +
+            '    border-radius: var(--r-xl);\n' +
+            '    height: 8px;\n' +
+            '    overflow: hidden;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-timer-fill {\n' +
+            '    height: 100%;\n' +
+            '    background: linear-gradient(90deg, var(--brand), var(--brand-dark));\n' +
+            '    border-radius: var(--r-xl);\n' +
+            '    width: 100%;\n' +
+            '    transition: width 120s linear;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-timer-text {\n' +
+            '    text-align: center;\n' +
+            '    font-size: 12px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--text-muted);\n' +
+            '    margin-top: 10px;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-timer-text span {\n' +
+            '    color: var(--brand);\n' +
+            '    font-weight: 800;\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-close-btn {\n' +
+            '    position: absolute;\n' +
+            '    top: 24px;\n' +
+            '    right: 24px;\n' +
+            '    width: 48px;\n' +
+            '    height: 48px;\n' +
+            '    background: var(--surface);\n' +
+            '    border: 1px solid var(--border);\n' +
+            '    border-radius: 50%;\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    cursor: pointer;\n' +
+            '    transition: all 0.2s;\n' +
+            '    color: var(--text);\n' +
+            '    font-size: 20px;\n' +
+            '    z-index: 101;\n' +
+            '    box-shadow: var(--shadow-sm);\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-close-btn:hover {\n' +
+            '    background: var(--danger-light);\n' +
+            '    border-color: var(--danger);\n' +
+            '    color: var(--danger);\n' +
+            '    transform: scale(1.05);\n' +
+            '}\n' +
+            '\n' +
+            '.khqr-instruction {\n' +
+            '    background: var(--brand-light);\n' +
+            '    border: 1px solid var(--border);\n' +
+            '    border-radius: var(--r-xl);\n' +
+            '    padding: 12px 24px;\n' +
+            '    margin-top: 20px;\n' +
+            '    font-size: 13px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--brand);\n' +
+            '}\n' +
+            '\n' +
+            '/* THANK YOU OVERLAY */\n' +
+            '.thankyou-overlay {\n' +
+            '    position: fixed;\n' +
+            '    top: 0;\n' +
+            '    left: 0;\n' +
+            '    right: 0;\n' +
+            '    bottom: 0;\n' +
+            '    background: var(--surface);\n' +
+            '    z-index: 200;\n' +
+            '    display: none;\n' +
+            '    flex-direction: column;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    gap: 24px;\n' +
+            '    padding: 32px;\n' +
+            '    text-align: center;\n' +
+            '    animation: thankyouFadeIn 0.4s ease;\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-overlay.show {\n' +
+            '    display: flex;\n' +
+            '}\n' +
+            '\n' +
+            '@@keyframes thankyouFadeIn {\n' +
+            '    from { opacity: 0; transform: scale(0.95); }\n' +
+            '    to { opacity: 1; transform: scale(1); }\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-check {\n' +
+            '    width: 100px;\n' +
+            '    height: 100px;\n' +
+            '    background: rgba(0, 184, 148, 0.1);\n' +
+            '    border: 3px solid var(--success);\n' +
+            '    border-radius: 50%;\n' +
+            '    display: flex;\n' +
+            '    align-items: center;\n' +
+            '    justify-content: center;\n' +
+            '    font-size: 48px;\n' +
+            '    color: var(--success);\n' +
+            '    animation: thankyouBounce 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);\n' +
+            '}\n' +
+            '\n' +
+            '@@keyframes thankyouBounce {\n' +
+            '    0% { transform: scale(0.3); opacity: 0; }\n' +
+            '    50% { transform: scale(1.1); }\n' +
+            '    100% { transform: scale(1); opacity: 1; }\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-title {\n' +
+            '    font-size: 36px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--text);\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-amount {\n' +
+            '    font-size: 52px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--brand);\n' +
+            '    letter-spacing: -1px;\n' +
+            '    margin: 8px 0;\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-amount-khr {\n' +
+            '    font-size: 20px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--text-muted);\n' +
+            '    margin-top: -10px;\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-change {\n' +
+            '    background: var(--bg-2);\n' +
+            '    border: 1px solid var(--border);\n' +
+            '    border-radius: var(--r-md);\n' +
+            '    padding: 20px 32px;\n' +
+            '    margin-top: 16px;\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-change-label {\n' +
+            '    font-size: 12px;\n' +
+            '    font-weight: 700;\n' +
+            '    text-transform: uppercase;\n' +
+            '    letter-spacing: 1px;\n' +
+            '    color: var(--success);\n' +
+            '    margin-bottom: 8px;\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-change-usd {\n' +
+            '    font-size: 32px;\n' +
+            '    font-weight: 800;\n' +
+            '    color: var(--success);\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-change-khr {\n' +
+            '    font-size: 14px;\n' +
+            '    font-weight: 600;\n' +
+            '    color: var(--text-muted);\n' +
+            '}\n' +
+            '\n' +
+            '.thankyou-message {\n' +
+            '    font-size: 16px;\n' +
+            '    font-weight: 500;\n' +
+            '    color: var(--text-sub);\n' +
+            '    margin-top: 20px;\n' +
+            '    line-height: 1.6;\n' +
+            '}\n' +
+            '\n' +
+            '/* Scrollbar */\n' +
+            '.cd-main-content::-webkit-scrollbar {\n' +
+            '    width: 6px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-main-content::-webkit-scrollbar-track {\n' +
+            '    background: var(--bg-2);\n' +
+            '    border-radius: 10px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-main-content::-webkit-scrollbar-thumb {\n' +
+            '    background: var(--border);\n' +
+            '    border-radius: 10px;\n' +
+            '}\n' +
+            '\n' +
+            '.cd-main-content::-webkit-scrollbar-thumb:hover {\n' +
+            '    background: var(--brand);\n' +
+            '}\n' +
             '</style>\n' +
             '</head>\n' +
             '<body>\n' +
@@ -755,7 +1504,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '    </div>\n' +
             '    <div class="cd-header-sub">\n' +
             '      <div class="cd-welcome-line1">Customer Display</div>\n' +
-            '      <div style="display:flex;align-items:center;gap:8px;">\n' +
+            '      <div style="display:flex;align-items:center;gap:12px;">\n' +
             '        <div class="cd-currency-toggle" id="cdCurrencyToggle">\n' +
             '          <span class="cd-currency-opt active" data-cd-currency="usd">USD</span>\n' +
             '          <span class="cd-currency-opt" data-cd-currency="khr">KHR</span>\n' +
@@ -769,18 +1518,18 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '  <div class="cd-main-content" id="cdMainContent">\n' +
             '    <!-- IDLE STATE -->\n' +
             '    <div class="cd-idle" id="cdIdle">\n' +
-            '      <div class="cd-idle-icon"><i class="fas fa-concierge-bell" style="font-size:38px;color:var(--cd-brand);"></i></div>\n' +
+            '      <div class="cd-idle-icon"><i class="fas fa-concierge-bell"></i></div>\n' +
             '      <div>\n' +
             '        <div class="cd-idle-title">សូមស្វាគមន៍!</div>\n' +
             '        <div class="cd-idle-sub">ជ្រើសរើសមុខអាហារ<br>ហើយយើងនឹងបម្រើអ្នក</div>\n' +
             '      </div>\n' +
-            '      <div style="background:#141B24;border:1px solid #1E2A38;border-radius:14px;padding:14px 18px;max-width:320px;width:100%;display:flex;align-items:center;gap:12px;">\n' +
-            '        <div style="width:42px;height:42px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">\n' +
-            '          <i class="fas fa-calendar-day" style="font-size:16px;color:var(--cd-brand);"></i>\n' +
+            '      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 20px;max-width:360px;width:100%;display:flex;align-items:center;gap:14px;">\n' +
+            '        <div style="width:44px;height:44px;background:var(--brand-light);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">\n' +
+            '          <i class="fas fa-calendar-day" style="font-size:18px;color:var(--brand);"></i>\n' +
             '        </div>\n' +
             '        <div>\n' +
-            '          <div id="cdIdleDate" style="font-size:15px;font-weight:700;color:var(--cd-text);"></div>\n' +
-            '          <div id="cdIdleDay" style="font-size:12px;font-weight:600;color:var(--cd-muted);margin-top:2px;"></div>\n' +
+            '          <div id="cdIdleDate" style="font-size:15px;font-weight:600;color:var(--text);"></div>\n' +
+            '          <div id="cdIdleDay" style="font-size:13px;font-weight:500;color:var(--text-muted);margin-top:2px;"></div>\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="cd-promo-strip">\n' +
@@ -797,11 +1546,16 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '      </div>\n' +
             '      <div class="cd-summary">\n' +
             '        <div class="cd-sum-row"><span>សរុប</span><span><span id="cdSubtotal">$0.00</span><div class="cd-sum-khr" id="cdSubtotalKhr">0 ៛</div></span></div>\n' +
-            '        <div class="cd-sum-row" id="cdDiscountRow" style="display:none;"><span class="cd-discount-pill"><i class="fas fa-tag"></i><span id="cdDiscountLabel">បញ្ចុះ</span></span><span style="color:#F59E0B;font-weight:800;" id="cdDiscountVal">-$0.00</span></div>\n' +
+            '        <div class="cd-sum-row" id="cdDiscountRow" style="display:none;"><span class="cd-discount-pill"><i class="fas fa-tag"></i><span id="cdDiscountLabel">បញ្ចុះ</span></span><span style="color:var(--warning);font-weight:700;" id="cdDiscountVal">-$0.00</span></div>\n' +
             '        <div class="cd-sum-row total"><span><i class="fas fa-calculator"></i>សរុបទាំងអស់</span><span><span class="cd-total-usd" id="cdTotal">$0.00</span><div class="cd-sum-khr" id="cdTotalKhr">0 ៛</div></span></div>\n' +
             '      </div>\n' +
             '    </div>\n' +
             '  </div>\n' +
+
+            /* FULLSCREEN BUTTON */
+            '<button class="fullscreen-btn" id="fullscreenBtn">\n' +
+            '    <i class="fas fa-expand"></i>\n' +
+            '</button>\n' +
 
             /* KHQR FULLSCREEN OVERLAY */
             '<div class="khqr-overlay" id="khqrOverlay">\n' +
@@ -858,9 +1612,75 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '\n' +
             '</div>\n' +
 
-            /* SCRIPTS */
-            '<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>\n' +
+            /* SCRIPTS - Load QR code library dynamically */
             '<script>\n' +
+            '// Dynamically load QR code library without document.write\n' +
+            'function loadQRCodeLibrary() {\n' +
+            '    return new Promise((resolve, reject) => {\n' +
+            '        if (typeof QRCode !== "undefined") {\n' +
+            '            resolve();\n' +
+            '            return;\n' +
+            '        }\n' +
+            '        var script = document.createElement("script");\n' +
+            '        script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";\n' +
+            '        script.onload = resolve;\n' +
+            '        script.onerror = reject;\n' +
+            '        document.head.appendChild(script);\n' +
+            '    });\n' +
+            '}\n' +
+            '\n' +
+            '// Fullscreen handling with user gesture\n' +
+            'function toggleFullscreen() {\n' +
+            '    const elem = document.documentElement;\n' +
+            '    if (!document.fullscreenElement && !document.webkitFullscreenElement) {\n' +
+            '        if (elem.requestFullscreen) {\n' +
+            '            elem.requestFullscreen();\n' +
+            '        } else if (elem.webkitRequestFullscreen) {\n' +
+            '            elem.webkitRequestFullscreen();\n' +
+            '        } else if (elem.msRequestFullscreen) {\n' +
+            '            elem.msRequestFullscreen();\n' +
+            '        }\n' +
+            '    } else {\n' +
+            '        if (document.exitFullscreen) {\n' +
+            '            document.exitFullscreen();\n' +
+            '        } else if (document.webkitExitFullscreen) {\n' +
+            '            document.webkitExitFullscreen();\n' +
+            '        }\n' +
+            '    }\n' +
+            '}\n' +
+            '\n' +
+            '// Update fullscreen button icon\n' +
+            'function updateFullscreenIcon() {\n' +
+            '    const btn = document.getElementById("fullscreenBtn");\n' +
+            '    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;\n' +
+            '    if (btn) {\n' +
+            '        if (isFullscreen) {\n' +
+            '            btn.innerHTML = \'<i class="fas fa-compress"></i>\';\n' +
+            '        } else {\n' +
+            '            btn.innerHTML = \'<i class="fas fa-expand"></i>\';\n' +
+            '        }\n' +
+            '    }\n' +
+            '}\n' +
+            '\n' +
+            '// Listen for fullscreen changes\n' +
+            'document.addEventListener("fullscreenchange", updateFullscreenIcon);\n' +
+            'document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);\n' +
+            '\n' +
+            '// Add click handler for fullscreen button when DOM is ready\n' +
+            'document.addEventListener("DOMContentLoaded", function() {\n' +
+            '    const fullscreenBtn = document.getElementById("fullscreenBtn");\n' +
+            '    if (fullscreenBtn) {\n' +
+            '        fullscreenBtn.addEventListener("click", toggleFullscreen);\n' +
+            '    }\n' +
+            '});\n' +
+            '\n' +
+            '// Load QR code library and initialize\n' +
+            'loadQRCodeLibrary().then(function() {\n' +
+            '    console.log("✅ QR Code library loaded");\n' +
+            '}).catch(function(err) {\n' +
+            '    console.warn("QR Code library load failed:", err);\n' +
+            '});\n' +
+            '\n' +
             '(function(){\n' +
             '  var EXRATE = 4100;\n' +
             '  var CHG_RATE = 4000;\n' +
@@ -933,7 +1753,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '        QRCode.toCanvas(canvas, text, {\n' +
             '          width: width,\n' +
             '          margin: 1,\n' +
-            '          color: { dark: "#000000", light: "#ffffff" },\n' +
+            '          color: { dark: "#1A1714", light: "#FFFFFF" },\n' +
             '          errorCorrectionLevel: "H"\n' +
             '        }, function(err) {\n' +
             '          if(err) console.warn("QR generation error:", err);\n' +
@@ -1058,7 +1878,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '        : "<i class=\'fas fa-utensils\'></i>";\n' +
             '      \n' +
             '      html += "<div class=\'cd-item\' style=\'--item-color:" + item.color + "\'>";\n' +
-            '      html += "<div class=\'cd-item-thumb\' style=\'background:linear-gradient(135deg," + item.color + ",#2D3561)\'>" + imgHtml + "</div>";\n' +
+            '      html += "<div class=\'cd-item-thumb\' style=\'background:linear-gradient(135deg," + item.color + ",var(--accent-dark))\'>" + imgHtml + "</div>";\n' +
             '      html += "<div class=\'cd-item-info\'><div class=\'cd-item-name\'>" + escapeHtml(item.name) + "</div>";\n' +
             '      html += "<div class=\'cd-item-unit\'>" + priceFormatted.main + " × " + item.quantity + "</div>";\n' +
             '      html += "<div class=\'cd-item-unit-khr\'>" + priceFormatted.secondary + "</div></div>";\n' +
@@ -1135,7 +1955,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '    });\n' +
             '  }\n' +
             '\n' +
-            '  console.log("✅ Customer Display ready with KHQR support");\n' +
+            '  console.log("✅ Customer Display ready with KHQR support and manual fullscreen");\n' +
             '})();\n' +
             '<\/script>\n' +
             '</body>\n' +

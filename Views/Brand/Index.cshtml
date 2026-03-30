@@ -454,8 +454,7 @@
                             <div class="brand-cell">
                                 <div class="brand-logo">
                                     <img src="@(string.IsNullOrEmpty(brand.LogoBrandUrl) 
-                                                  ? Url.Content("~/l60Hf.png") 
-                                                  : brand.LogoBrandUrl)" 
+                                                  ? brand.LogoBrandUrl : "Unknow")" 
                                          alt="@brand.BrandName" />
                                 </div>
                                 <div class="brand-info">

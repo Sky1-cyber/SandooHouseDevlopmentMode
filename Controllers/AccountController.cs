@@ -93,42 +93,51 @@ public class AccountController : Controller
     }
 
     private async Task SendResetEmail(string toEmail, string resetLink)
+{
+    if (string.IsNullOrWhiteSpace(toEmail))
+        throw new ArgumentException("Recipient email cannot be empty.", nameof(toEmail));
+    
+    var fromEmail = Environment.GetEnvironmentVariable("EMAIL_FROM")
+                     ?? _configuration["EmailSettings:From"];
+
+    var smtpHost = Environment.GetEnvironmentVariable("EMAIL_HOST")
+                     ?? _configuration["EmailSettings:SmtpHost"];
+
+    var smtpPortString = Environment.GetEnvironmentVariable("EMAIL_PORT")
+                         ?? _configuration["EmailSettings:SmtpPort"];
+
+    var username = Environment.GetEnvironmentVariable("EMAIL_USER")
+                   ?? _configuration["EmailSettings:Username"];
+
+    var password = Environment.GetEnvironmentVariable("EMAIL_PASS")
+                   ?? _configuration["EmailSettings:Password"];
+    
+    if (string.IsNullOrWhiteSpace(fromEmail) ||
+        string.IsNullOrWhiteSpace(smtpHost) ||
+        string.IsNullOrWhiteSpace(smtpPortString) ||
+        string.IsNullOrWhiteSpace(username) ||
+        string.IsNullOrWhiteSpace(password))
     {
-        // Validate recipient
-        if (string.IsNullOrWhiteSpace(toEmail))
-            throw new ArgumentException("Recipient email cannot be empty.", nameof(toEmail));
+        throw new InvalidOperationException("Email settings are not properly configured.");
+    }
 
-        // Load email settings from configuration
-        var fromEmail = _configuration["EmailSettings:From"];
-        var smtpHost = _configuration["EmailSettings:SmtpHost"];
-        var smtpPortString = _configuration["EmailSettings:SmtpPort"];
-        var username = _configuration["EmailSettings:Username"];
-        var password = _configuration["EmailSettings:Password"];
+    if (!int.TryParse(smtpPortString, out var smtpPort))
+        throw new InvalidOperationException("SMTP port is not valid.");
 
-        if (string.IsNullOrWhiteSpace(fromEmail) || string.IsNullOrWhiteSpace(smtpHost) ||
-            string.IsNullOrWhiteSpace(smtpPortString) || string.IsNullOrWhiteSpace(username) ||
-            string.IsNullOrWhiteSpace(password))
-            throw new InvalidOperationException("Email settings are not properly configured.");
+    var email = new MimeMessage();
 
-        if (!int.TryParse(smtpPortString, out var smtpPort))
-            throw new InvalidOperationException("SMTP port is not valid.");
+    email.From.Add(MailboxAddress.Parse(fromEmail));
+    email.To.Add(MailboxAddress.Parse(toEmail));
+    email.Subject = "Reset Your Password";
 
-        var email = new MimeMessage();
-
-        // From/To
-        email.From.Add(MailboxAddress.Parse(fromEmail));
-        email.To.Add(MailboxAddress.Parse(toEmail));
-        email.Subject = "Reset Your Password";
-
-        // HTML Email Body (Professional)
-        email.Body = new TextPart(TextFormat.Html)
-        {
-            Text = $@"
+    email.Body = new TextPart(TextFormat.Html)
+    {
+        Text = $@"
 <!DOCTYPE html>
 <html>
 <body style='font-family:Arial,sans-serif; background-color:#f4f6f8; padding:20px;'>
 
-  <table align='center' width='100%' max-width='600' cellpadding='0' cellspacing='0'>
+  <table align='center' width='100%' cellpadding='0' cellspacing='0' style='max-width:600px;'>
     <tr>
       <td align='center' style='padding:20px 0;'>
         <h2 style='color:#333;'>Sandoo Kitchen</h2>
@@ -141,7 +150,7 @@ public class AccountController : Controller
 
         <p style='text-align:center; margin:30px 0;'>
           <a href='{resetLink}'
-             style='background:#0d6efd; color:#fff; text-decoration:none; padding:12px 24px; border-radius:6px; display:inline-block;' >
+             style='background:#0d6efd; color:#fff; text-decoration:none; padding:12px 24px; border-radius:6px; display:inline-block;'>
             Reset Password
           </a>
         </p>
@@ -159,34 +168,31 @@ public class AccountController : Controller
 
 </body>
 </html>"
-        };
+    };
 
-        try
-        {
-            using var smtp = new SmtpClient();
+    // ============================
+    // SEND EMAIL
+    // ============================
+    try
+    {
+        using var smtp = new SmtpClient();
 
-            // Connect to Gmail SMTP with TLS
-            await smtp.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+        await smtp.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(username, password);
 
-            // Authenticate using App Password (Gmail)
-            await smtp.AuthenticateAsync(username, password);
-
-            // Send the email
-            await smtp.SendAsync(email);
-            await smtp.DisconnectAsync(true);
-        }
-        catch (AuthenticationException)
-        {
-            // Most common issue: invalid App Password
-            throw new InvalidOperationException(
-                "SMTP authentication failed. Make sure you are using a valid Gmail App Password.");
-        }
-        catch (Exception ex)
-        {
-            // Catch-all for other SMTP issues
-            throw new InvalidOperationException($"Failed to send email: {ex.Message}", ex);
-        }
+        await smtp.SendAsync(email);
+        await smtp.DisconnectAsync(true);
     }
+    catch (AuthenticationException)
+    {
+        throw new InvalidOperationException(
+            "SMTP authentication failed. Use a valid Gmail App Password.");
+    }
+    catch (Exception ex)
+    {
+        throw new InvalidOperationException($"Failed to send email: {ex.Message}", ex);
+    }
+}
 
     [HttpGet]
     public IActionResult ResetPassword(string token, string email)

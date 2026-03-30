@@ -454,8 +454,9 @@
                             <div class="brand-cell">
                                 <div class="brand-logo">
                                     <img src="@(string.IsNullOrEmpty(brand.LogoBrandUrl) 
-                                                  ? brand.LogoBrandUrl : "Unknow")" 
-                                         alt="@brand.BrandName" />
+                                                  ? "https://res.cloudinary.com/dvtoglkwy/image/upload/v1774856283/Admin/lktjcqmvmmgkogq0qjqo.jpg" 
+                                                  : brand.LogoBrandUrl)" 
+                                         alt="@brand.BrandName">
                                 </div>
                                 <div class="brand-info">
                                     <span class="brand-name-text">@brand.BrandName</span>

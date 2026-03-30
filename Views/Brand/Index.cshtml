@@ -453,7 +453,9 @@
                         <td>
                             <div class="brand-cell">
                                 <div class="brand-logo">
-                                    <img src="@Url.Content(!string.IsNullOrEmpty(brand.LogoBrandUrl) ? $"{brand.LogoBrandUrl}" : "~/l60Hf.png")"
+                                    <img src="@(string.IsNullOrEmpty(brand.LogoBrandUrl) 
+                                                  ? Url.Content("~/l60Hf.png") 
+                                                  : brand.LogoBrandUrl)" 
                                          alt="@brand.BrandName" />
                                 </div>
                                 <div class="brand-info">

@@ -1251,7 +1251,7 @@ async function downloadSalesReport() {
     }
 }
 
-function viewOrder(id)  { window.location.href = '/Order/View/' + id; }
+function viewOrder(id)  { window.location.href = '/Order/GetOrderDetails/' + id; }
 function editOrder(id)  { window.location.href = '/Order/EditOrder/' + id; }
 function setDeleteData(id, orderNumber) {
     document.getElementById("orderIdToDelete").value = id;

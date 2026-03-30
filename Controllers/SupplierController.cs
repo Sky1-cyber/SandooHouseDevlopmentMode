@@ -5,6 +5,7 @@ using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Helpers;
 using Sandoohouse.Models;
 using Sandoohouse.Models.ModelViewer.SupplierModelViewer;
+using Sandoohouse.Service;
 
 namespace Sandoohouse.Controllers;
 
@@ -12,9 +13,11 @@ namespace Sandoohouse.Controllers;
 public class SupplierController : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext;
-    public SupplierController(ApplicationDbContext applicationDbContext)
+    private readonly CloudinaryService _cloudinaryService;
+    public SupplierController(ApplicationDbContext applicationDbContext, CloudinaryService cloudinaryService)
     {
         _applicationDbContext = applicationDbContext;
+        _cloudinaryService = cloudinaryService;
     }
     
     // GET Supplier List
@@ -60,27 +63,36 @@ public class SupplierController : Controller
     {
         if (!ModelState.IsValid)
             return View(supplierViewModel);
-        var fileName = await FileUploadHelper.UploadImage(
-            supplierViewModel.CompanyProfileFile,
-            "uploads/suppliers"
+
+        // Upload company profile image to Cloudinary
+        string? imageUrl = null;
+        if (supplierViewModel.CompanyProfileFile != null)
+        {
+            imageUrl = await _cloudinaryService.UploadImageAsync(
+                supplierViewModel.CompanyProfileFile,
+                folder: "Supplier"
             );
+        }
+
         var supplier = new Supplier
         {
-            CompanyName = supplierViewModel.CompanyName!,
-            CompanyProfile = fileName,
-            ContactPerson = supplierViewModel.ContactPerson!,
-            Phone = supplierViewModel.Phone!,
-            Email = supplierViewModel.Email,
-            Address = supplierViewModel.Address,
-            City = supplierViewModel.City,
-            State = supplierViewModel.State,
-            Country = supplierViewModel.Country,
-            Status = supplierViewModel.Status,
-            Notes = supplierViewModel.Notes,
-            CreatedAt = DateTime.UtcNow
+            CompanyName    = supplierViewModel.CompanyName!,
+            CompanyProfile = imageUrl,
+            ContactPerson  = supplierViewModel.ContactPerson!,
+            Phone          = supplierViewModel.Phone!,
+            Email          = supplierViewModel.Email,
+            Address        = supplierViewModel.Address,
+            City           = supplierViewModel.City,
+            State          = supplierViewModel.State,
+            Country        = supplierViewModel.Country,
+            Status         = supplierViewModel.Status,
+            Notes          = supplierViewModel.Notes,
+            CreatedAt      = DateTime.UtcNow
         };
+
         _applicationDbContext.Add(supplier);
         await _applicationDbContext.SaveChangesAsync();
+
         return RedirectToAction("Index", "Supplier");
     }
 
@@ -91,18 +103,13 @@ public class SupplierController : Controller
         var supplier = await _applicationDbContext.Suppliers.FindAsync(id);
         if (supplier == null)
             return NotFound();
-        if (!string.IsNullOrEmpty(supplier.CompanyProfile))
-        {
-            var path = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot/uploads/suppliers",
-                supplier.CompanyProfile
-                );
-            if (System.IO.File.Exists(path))
-                System.IO.File.Delete(path);
-        }
+
+        // Delete company profile image from Cloudinary
+        await _cloudinaryService.DeleteImageAsync(supplier.CompanyProfile);
+
         _applicationDbContext.Remove(supplier);
         await _applicationDbContext.SaveChangesAsync();
+
         TempData["Message"] = "Supplier deleted successfully";
         return RedirectToAction("Index", "Supplier");
     }
@@ -139,39 +146,35 @@ public class SupplierController : Controller
     {
         if (!ModelState.IsValid)
             return View(supplierViewModel);
+
         var supplier = await _applicationDbContext.Suppliers.FindAsync(supplierViewModel.SupplierId);
         if (supplier == null)
             return NotFound();
+
         if (supplierViewModel.CompanyProfileFile != null)
         {
-            if (!string.IsNullOrEmpty(supplierViewModel.CompanyProfile))
-            {
-                var path = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot/uploads/suppliers",
-                    supplierViewModel.CompanyProfile
-                    );
-                if (System.IO.File.Exists(path))
-                    System.IO.File.Delete(path);
-            }
+            await _cloudinaryService.DeleteImageAsync(supplier.CompanyProfile);
 
-            supplier.CompanyProfile = await FileUploadHelper.UploadImage(
+            supplier.CompanyProfile = await _cloudinaryService.UploadImageAsync(
                 supplierViewModel.CompanyProfileFile,
-                "uploads/suppliers"
-                );
+                folder: "Supplier"
+            );
         }
-        supplier.CompanyName = supplierViewModel.CompanyName!;
+
+        supplier.CompanyName   = supplierViewModel.CompanyName!;
         supplier.ContactPerson = supplierViewModel.ContactPerson!;
-        supplier.Phone = supplierViewModel.Phone!;
-        supplier.Email = supplierViewModel.Email;
-        supplier.Address = supplierViewModel.Address;
-        supplier.City = supplierViewModel.City;
-        supplier.State = supplierViewModel.State;
-        supplier.Country = supplierViewModel.Country;
-        supplier.Status = supplierViewModel.Status;
-        supplier.Notes = supplierViewModel.Notes;
-        supplier.UpdatedAt = DateTime.UtcNow;
+        supplier.Phone         = supplierViewModel.Phone!;
+        supplier.Email         = supplierViewModel.Email;
+        supplier.Address       = supplierViewModel.Address;
+        supplier.City          = supplierViewModel.City;
+        supplier.State         = supplierViewModel.State;
+        supplier.Country       = supplierViewModel.Country;
+        supplier.Status        = supplierViewModel.Status;
+        supplier.Notes         = supplierViewModel.Notes;
+        supplier.UpdatedAt     = DateTime.UtcNow;
+
         await _applicationDbContext.SaveChangesAsync();
+
         TempData["Message"] = "Supplier updated successfully";
         return RedirectToAction("Index", "Supplier");
     }

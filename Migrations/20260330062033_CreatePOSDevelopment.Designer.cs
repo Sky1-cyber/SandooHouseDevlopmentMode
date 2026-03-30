@@ -12,8 +12,8 @@ using Sandoohouse.ApplicationProgram;
 namespace Sandoohouse.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260318030340_AddResetPassword")]
-    partial class AddResetPassword
+    [Migration("20260330062033_CreatePOSDevelopment")]
+    partial class CreatePOSDevelopment
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,13 +41,25 @@ namespace Sandoohouse.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("integer");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastLoginIP")
+                        .HasColumnType("text");
+
                     b.Property<string>("LastName")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -168,6 +180,65 @@ namespace Sandoohouse.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Sandoohouse.Models.Expenses", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("Expened");
+                });
+
+            modelBuilder.Entity("Sandoohouse.Models.LoginAttempt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IPAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LoginAttempts");
+                });
+
             modelBuilder.Entity("Sandoohouse.Models.Menu", b =>
                 {
                     b.Property<int>("Id")
@@ -248,6 +319,9 @@ namespace Sandoohouse.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ShiftId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(10,2)");
 
@@ -258,6 +332,8 @@ namespace Sandoohouse.Migrations
 
                     b.HasIndex("OrderNumber")
                         .IsUnique();
+
+                    b.HasIndex("ShiftId");
 
                     b.ToTable("Orders");
                 });
@@ -299,6 +375,45 @@ namespace Sandoohouse.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("Sandoohouse.Models.Shift", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CashierName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ClosedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("OpeningCash")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TotalOrders")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalSales")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Shifts");
+                });
+
             modelBuilder.Entity("Sandoohouse.Models.Supplier", b =>
                 {
                     b.Property<int>("SupplierId")
@@ -334,9 +449,6 @@ namespace Sandoohouse.Migrations
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -378,12 +490,21 @@ namespace Sandoohouse.Migrations
                     b.HasOne("Sandoohouse.Models.Admin", "Admin")
                         .WithMany("Categories")
                         .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("Admin");
 
                     b.Navigation("Brand");
+                });
+
+            modelBuilder.Entity("Sandoohouse.Models.Expenses", b =>
+                {
+                    b.HasOne("Sandoohouse.Models.Admin", "Admin")
+                        .WithMany("Expenses")
+                        .HasForeignKey("CreatedById");
+
+                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("Sandoohouse.Models.Menu", b =>
@@ -394,11 +515,21 @@ namespace Sandoohouse.Migrations
 
                     b.HasOne("Sandoohouse.Models.Admin", "Admin")
                         .WithMany("Menus")
-                        .HasForeignKey("CreatedBy");
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Admin");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Sandoohouse.Models.Order", b =>
+                {
+                    b.HasOne("Sandoohouse.Models.Shift", "Shift")
+                        .WithMany("Orders")
+                        .HasForeignKey("ShiftId");
+
+                    b.Navigation("Shift");
                 });
 
             modelBuilder.Entity("Sandoohouse.Models.OrderItem", b =>
@@ -432,6 +563,8 @@ namespace Sandoohouse.Migrations
                 {
                     b.Navigation("Categories");
 
+                    b.Navigation("Expenses");
+
                     b.Navigation("Menus");
                 });
 
@@ -448,6 +581,11 @@ namespace Sandoohouse.Migrations
             modelBuilder.Entity("Sandoohouse.Models.Order", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("Sandoohouse.Models.Shift", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

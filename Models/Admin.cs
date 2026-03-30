@@ -32,6 +32,13 @@ public class Admin
     [MaxLength(255)]
     public required string Password { get; set; }
 
+    // 🔐 Login Protection
+    public int FailedLoginAttempts { get; set; } = 0;
+    public DateTime? LockoutEnd { get; set; }
+
+    public DateTime? LastLoginAt { get; set; }
+    public string? LastLoginIP { get; set; }
+    
     public Role Role { get; set; } = Role.Manager;
     
     public Status Status { get; set; } = Status.Active;
@@ -44,4 +51,5 @@ public class Admin
     
     public virtual ICollection<Category>? Categories { get; set; }
     public virtual ICollection<Menu>? Menus { get; set; }
+    public virtual ICollection<Expenses>? Expenses { get; set; }
 }

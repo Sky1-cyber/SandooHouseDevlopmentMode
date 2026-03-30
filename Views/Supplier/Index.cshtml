@@ -307,7 +307,7 @@ Layout = "_Layout";
                             <div class="company-avatar">
                                 <img src="@(string.IsNullOrEmpty(supplier.CompanyProfile)
                                 ? Url.Content("~/no-image.png.jpg")
-                                : Url.Content("~/uploads/suppliers/" + supplier.CompanyProfile))"
+                                : Url.Content(supplier.CompanyProfile))"
                                      alt="@supplier.CompanyName" />
                             </div>
                             <div class="company-info">

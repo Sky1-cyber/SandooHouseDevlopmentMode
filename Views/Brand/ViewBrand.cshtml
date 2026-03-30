@@ -362,7 +362,7 @@
             @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
             {
                 <div class="bd-logo-wrap">
-                    <img src="@Url.Content($"~/BrandImage/{Model.LogoBrandUrl}")" alt="@Model.BrandName" />
+                    <img src="@Model.LogoBrandUrl" alt="@Model.BrandName" />
                 </div>
             }
             else

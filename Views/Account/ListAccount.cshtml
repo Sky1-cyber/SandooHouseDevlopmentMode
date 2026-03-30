@@ -475,7 +475,7 @@ ViewData["Title"] = "Account List";
                     <td>
                         <div class="admin-cell">
                             <div class="admin-avatar">
-                                <img src="@Url.Content(admin.ProfileImageFile != null ? $"~/Admin/{admin.ProfileImageFile}" : "~/l60Hf.png")"
+                                <img src="@Url.Content(admin.ProfileImageFile != null ? $"{admin.ProfileImageFile}" : "~/l60Hf.png")"
                                      alt="@admin.FirstName @admin.LastName" />
                             </div>
                             <div class="admin-info">

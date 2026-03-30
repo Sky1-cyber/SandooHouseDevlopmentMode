@@ -477,7 +477,7 @@
                         <td>
                             <div class="category-cell">
                                 <div class="category-logo">
-                                    <img src="@Url.Content(!string.IsNullOrEmpty(category.CategoryImageUrl) ? $"~/Category/{category.CategoryImageUrl}" : "~/l60Hf.png")"
+                                    <img src="@Url.Content(!string.IsNullOrEmpty(category.CategoryImageUrl) ? $"{category.CategoryImageUrl}" : "~/l60Hf.png")"
                                          alt="@category.CategoryName" />
                                 </div>
                                 <div class="category-info">
@@ -516,7 +516,7 @@
                                 @if (!string.IsNullOrEmpty(category.Brand?.LogoBrandUrl))
                                 {
                                     <div class="brand-thumb">
-                                        <img src="~/BrandImage/@category.Brand.LogoBrandUrl" alt="@category.Brand.BrandName" />
+                                        <img src="@category.Brand.LogoBrandUrl" alt="@category.Brand.BrandName" />
                                     </div>
                                 }
                                 <span class="brand-inline-name">@(category.Brand?.BrandName ?? "No Brand")</span>

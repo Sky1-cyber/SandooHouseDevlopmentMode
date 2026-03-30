@@ -567,7 +567,7 @@
 
                         <div class="em-img-box" onclick="document.getElementById('menuImageInput').click();">
                             <img id="previewImage"
-                                 src="@Url.Content(!string.IsNullOrEmpty(Model.ImageMenuUrl) ? $"~/Menu/{Model.ImageMenuUrl}" : "~/no-image.png.jpg")"
+                                 src="@Url.Content(!string.IsNullOrEmpty(Model.ImageMenuUrl) ? $"{Model.ImageMenuUrl}" : "~/no-image.png.jpg")"
                                  alt="@Model.MenuName" />
                             <div class="em-img-cover">
                                 <i class="bi bi-camera-fill"></i>

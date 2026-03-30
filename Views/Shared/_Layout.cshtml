@@ -8,7 +8,7 @@
   var phone = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.MobilePhone)?.Value;
   var profileImage = User.Claims.FirstOrDefault(c => c.Type == "ProfileImageFile")?.Value;
   var profileImagePath = !string.IsNullOrEmpty(profileImage)
-    ? Url.Content($"~/Admin/{profileImage}")
+    ? Url.Content($"{profileImage}")
     : Url.Content("~/l60Hf.png");
   
   var currentController = ViewContext.RouteData.Values["controller"]?.ToString();

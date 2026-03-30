@@ -5,15 +5,18 @@ using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Helpers;
 using Sandoohouse.Models;
 using Sandoohouse.Models.ModelViewer.BrandModelViewer;
+using Sandoohouse.Service;
 
 namespace Sandoohouse.Controllers;
 
 public class BrandController : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext;
-    public BrandController(ApplicationDbContext applicationDbContext)
+    private readonly CloudinaryService _cloudinaryService;
+    public BrandController(ApplicationDbContext applicationDbContext, CloudinaryService cloudinaryService)
     {
         _applicationDbContext = applicationDbContext;
+        _cloudinaryService = cloudinaryService;
     }
     
     // GET
@@ -41,22 +44,30 @@ public class BrandController : Controller
     {
         if (!ModelState.IsValid)
             return View(brandViewerModel);
-        string? filename = null;
+ 
+        // Upload logo to Cloudinary (returns a permanent URL, not a local path)
+        string? logoUrl = null;
         if (brandViewerModel.LogoFile != null)
         {
-            filename = await FileUploadHelper.UploadImage(brandViewerModel.LogoFile, "BrandImage");
+            logoUrl = await _cloudinaryService.UploadImageAsync(
+                brandViewerModel.LogoFile,
+                folder: "BrandImage"
+            );
         }
-
+ 
         var brand = new Brand
         {
-            BrandName = brandViewerModel.BrandName,
-            Description = brandViewerModel.Description,
-            LogoBrandUrl = filename,
-            Status = brandViewerModel.Status,
-            CreatedAt = DateTime.UtcNow,
+            BrandName    = brandViewerModel.BrandName,
+            Description  = brandViewerModel.Description,
+            LogoBrandUrl = logoUrl,          // stores the Cloudinary HTTPS URL
+            Status       = brandViewerModel.Status,
+            CreatedAt    = DateTime.UtcNow,
         };
+ 
         _applicationDbContext.Brands.Add(brand);
         await _applicationDbContext.SaveChangesAsync();
+ 
+        TempData["Success"] = "Brand created successfully.";
         return RedirectToAction("Index", "Brand");
     }
 
@@ -98,50 +109,34 @@ public class BrandController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
-    public async Task<IActionResult> EditBrand(BrandViewerModel model)
+    [Authorize(Roles = "SuperAdmin,Owner")]
+    public async Task<IActionResult> EditBrand(BrandViewerModel brandViewerModel)
     {
         if (!ModelState.IsValid)
-            return View(model);
-
-        var brand = await _applicationDbContext.Brands.FindAsync(model.Id);
-
+            return View(brandViewerModel);
+ 
+        var brand = await _applicationDbContext.Brands.FindAsync(brandViewerModel.Id);
         if (brand == null)
             return NotFound();
-
-        string? fileName = brand.LogoBrandUrl;
-
-        // Upload new logo
-        if (model.LogoFile != null)
+ 
+        if (brandViewerModel.LogoFile != null)
         {
-            // Delete old logo
-            if (!string.IsNullOrEmpty(brand.LogoBrandUrl))
-            {
-                var oldPath = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    "BrandImage",
-                    brand.LogoBrandUrl
-                );
-
-                if (System.IO.File.Exists(oldPath))
-                {
-                    System.IO.File.Delete(oldPath);
-                }
-            }
-
-            fileName = await FileUploadHelper.UploadImage(model.LogoFile, "BrandImage");
+            await _cloudinaryService.DeleteImageAsync(brand.LogoBrandUrl);
+ 
+            brand.LogoBrandUrl = await _cloudinaryService.UploadImageAsync(
+                brandViewerModel.LogoFile,
+                folder: "BrandImage"
+            );
         }
-
-        brand.BrandName = model.BrandName;
-        brand.Description = model.Description;
-        brand.LogoBrandUrl = fileName;
-        brand.Status = model.Status;
-        brand.UpdatedAt = DateTime.UtcNow;
-
-        _applicationDbContext.Brands.Update(brand);
+ 
+        brand.BrandName   = brandViewerModel.BrandName;
+        brand.Description = brandViewerModel.Description;
+        brand.Status      = brandViewerModel.Status;
+        brand.UpdatedAt   = DateTime.UtcNow;
+        
         await _applicationDbContext.SaveChangesAsync();
-
+        TempData["Success"] = "Brand updated successfully.";
+        
         return RedirectToAction("Index", "Brand");
     }
     
@@ -154,25 +149,10 @@ public class BrandController : Controller
             return NotFound();
 
         var brand = await _applicationDbContext.Brands.FindAsync(id);
-
         if (brand == null)
             return NotFound();
-
-        // Delete logo from BrandImage folder
-        if (!string.IsNullOrEmpty(brand.LogoBrandUrl))
-        {
-            var filePath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot",
-                "BrandImage",
-                brand.LogoBrandUrl
-            );
-
-            if (System.IO.File.Exists(filePath))
-            {
-                System.IO.File.Delete(filePath);
-            }
-        }
+        
+        await _cloudinaryService.DeleteImageAsync(brand.LogoBrandUrl);
 
         _applicationDbContext.Brands.Remove(brand);
         await _applicationDbContext.SaveChangesAsync();

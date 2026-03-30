@@ -13,6 +13,7 @@ using Sandoohouse.Helpers;
 using Sandoohouse.Models;
 using Sandoohouse.Models.Enum;
 using Sandoohouse.Models.ModelViewer.AdminModelViewer;
+using Sandoohouse.Service;
 
 namespace Sandoohouse.Controllers;
 
@@ -20,11 +21,13 @@ public class AccountController : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly IConfiguration _configuration;
+    private readonly CloudinaryService _cloudinaryService;
 
-    public AccountController(ApplicationDbContext applicationDbContext, IConfiguration configuration)
+    public AccountController(ApplicationDbContext applicationDbContext, IConfiguration configuration, CloudinaryService cloudinaryService)
     {
         _applicationDbContext = applicationDbContext;
         _configuration = configuration;
+        _cloudinaryService = cloudinaryService;
     }
 
     // GET Profile image
@@ -247,29 +250,32 @@ public class AccountController : Controller
             return View(model);
         }
 
+        // Upload profile image to Cloudinary
+        string? imageUrl = null;
         if (model.ProfileImageUrl != null)
         {
-            var fileName = await FileUploadHelper.UploadImage(model.ProfileImageUrl, "Admin");
-
-            var admin = new Admin
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email!,
-                PhoneNumber = model.PhoneNumber,
-                Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                ProfileImageFile = fileName,
-                Status = Status.Active,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _applicationDbContext.Admins.Add(admin);
+            imageUrl = await _cloudinaryService.UploadImageAsync(
+                model.ProfileImageUrl,
+                folder: "Admin"
+            );
         }
 
+        var admin = new Admin
+        {
+            FirstName        = model.FirstName,
+            LastName         = model.LastName,
+            Email            = model.Email!,
+            PhoneNumber      = model.PhoneNumber,
+            Password         = BCrypt.Net.BCrypt.HashPassword(model.Password),
+            ProfileImageFile = imageUrl,
+            Status           = Status.Active,
+            CreatedAt        = DateTime.UtcNow
+        };
+
+        _applicationDbContext.Admins.Add(admin);
         await _applicationDbContext.SaveChangesAsync();
 
         TempData["Success"] = "Register Success";
-
         return RedirectToAction("ListAccount", "Account");
     }
 
@@ -300,21 +306,13 @@ public class AccountController : Controller
         if (admin == null)
             return NotFound();
 
-        // Delete profile image if exists
-        if (!string.IsNullOrEmpty(admin.ProfileImageFile))
-        {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(),
-                "wwwroot/Admin",
-                admin.ProfileImageFile);
-
-            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
-        }
+        // Delete profile image from Cloudinary
+        await _cloudinaryService.DeleteImageAsync(admin.ProfileImageFile);
 
         _applicationDbContext.Admins.Remove(admin);
         await _applicationDbContext.SaveChangesAsync();
 
         TempData["Message"] = "Account deleted successfully";
-
         return RedirectToAction("ListAccount", "Account");
     }
 
@@ -338,37 +336,33 @@ public class AccountController : Controller
         if (admin == null)
             return NotFound();
 
-        admin.FirstName = model.FirstName;
-        admin.LastName = model.LastName;
-        admin.Email = model.Email;
-        admin.Role = model.Role;
-        admin.Status = model.Status;
+        admin.FirstName   = model.FirstName;
+        admin.LastName    = model.LastName;
+        admin.Email       = model.Email;
+        admin.Role        = model.Role;
+        admin.Status      = model.Status;
         admin.PhoneNumber = model.PhoneNumber;
 
-        if (!string.IsNullOrEmpty(model.Password)) admin.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
+        if (!string.IsNullOrEmpty(model.Password))
+            admin.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
+        // If a new profile image was uploaded, delete the old one and upload the new one
         if (ProfileImageUrl != null)
         {
-            if (!string.IsNullOrEmpty(admin.ProfileImageFile))
-            {
-                var oldPath = Path.Combine(Directory.GetCurrentDirectory(),
-                    "wwwroot/Admin",
-                    admin.ProfileImageFile);
+            // Delete old image from Cloudinary
+            await _cloudinaryService.DeleteImageAsync(admin.ProfileImageFile);
 
-                if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
-            }
-
-            var fileName = await FileUploadHelper.UploadImage(ProfileImageUrl, "Admin");
-
-            admin.ProfileImageFile = fileName;
+            // Upload new image
+            admin.ProfileImageFile = await _cloudinaryService.UploadImageAsync(
+                ProfileImageUrl,
+                folder: "Admin"
+            );
         }
 
         _applicationDbContext.Admins.Update(admin);
-
         await _applicationDbContext.SaveChangesAsync();
 
         TempData["Success"] = "Account Updated Successfully";
-
         return RedirectToAction("ListAccount", "Account");
     }
 }

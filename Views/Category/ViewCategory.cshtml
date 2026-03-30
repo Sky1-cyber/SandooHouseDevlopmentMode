@@ -330,7 +330,7 @@
             @if (!string.IsNullOrEmpty(Model.CategoryImageUrl))
             {
                 <div class="cd-logo-wrap">
-                    <img src="@Url.Content($"~/Category/{Model.CategoryImageUrl}")" alt="@Model.CategoryName" />
+                    <img src="@Url.Content($"{Model.CategoryImageUrl}")" alt="@Model.CategoryName" />
                 </div>
             }
             else
@@ -444,7 +444,7 @@
                             <div class="cd-menu-img">
                                 @if (!string.IsNullOrEmpty(menu.ImageMenuUrl))
                                 {
-                                    <img src="@Url.Content($"~/Menu/{menu.ImageMenuUrl}")" alt="@menu.MenuName" />
+                                    <img src="@Url.Content($"{menu.ImageMenuUrl}")" alt="@menu.MenuName" />
                                 }
                                 else
                                 {
@@ -492,7 +492,7 @@
                         @if (!string.IsNullOrEmpty(Model.Brand.LogoBrandUrl))
                         {
                             <div class="cd-brand-thumb">
-                                <img src="@Url.Content($"~/BrandImage/{Model.Brand.LogoBrandUrl}")" alt="@Model.Brand.BrandName" />
+                                <img src="@Url.Content($"{Model.Brand.LogoBrandUrl}")" alt="@Model.Brand.BrandName" />
                             </div>
                         }
                         else

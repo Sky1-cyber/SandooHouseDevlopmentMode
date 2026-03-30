@@ -133,6 +133,27 @@ public class OrderController : Controller
 
     [HttpGet]
     [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> GetOrderDetails(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var order = await _applicationDbContext.Orders
+            .Include(o => o.OrderItems)!
+            .ThenInclude(oi => oi.Menu)
+            .ThenInclude(m => m!.Category)
+            .ThenInclude(c => c!.Brand)
+            .Include(o => o.Shift)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (order == null)
+            return NotFound();
+
+        return View(order);
+    }
+    
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public async Task<IActionResult> EditOrder(int? id)
     {
         if (id == null) return NotFound();

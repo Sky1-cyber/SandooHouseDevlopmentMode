@@ -1,4 +1,10 @@
-﻿@{ Layout = null; }
+﻿@{
+Layout = null;
+
+bool   isLockout      = TempData["IsLockout"]      as bool?   ?? false;
+int    lockoutSeconds = TempData["LockoutSeconds"] as int?    ?? 300;
+string errorMessage   = TempData["ErrorMessage"]   as string  ?? "";
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +49,6 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            /* subtle dot grid */
             background-image: radial-gradient(circle, #DDD7CE 1px, transparent 1px);
             background-size: 28px 28px;
         }
@@ -118,7 +123,7 @@
         }
         .login-greeting p { font-size: 13px; color: var(--text-light); font-weight: 500; margin: 0; }
 
-        /* ── Error alert ── */
+        /* ── Normal error alert ── */
         .login-alert {
             display: flex; align-items: center; gap: 10px;
             background: var(--danger-bg);
@@ -130,6 +135,88 @@
             font-size: 13px; font-weight: 500; color: var(--danger);
         }
         .login-alert i { font-size: 15px; flex-shrink: 0; }
+
+        /* ── Lockout alert wrapper ── */
+        .lockout-alert {
+            background: var(--danger-bg);
+            border: 1px solid rgba(232,69,69,.2);
+            border-left: 3px solid var(--danger);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            transition: background .4s, border-color .4s;
+        }
+        .lockout-alert.unlocked {
+            background: rgba(0,184,148,.07);
+            border-color: rgba(0,184,148,.25);
+            border-left-color: var(--success);
+        }
+        .lockout-top {
+            display: flex; align-items: center; gap: 9px;
+            font-size: 13px; font-weight: 600; color: var(--danger);
+            margin-bottom: 14px;
+        }
+        .lockout-top i { font-size: 15px; }
+        .lockout-alert.unlocked .lockout-top { color: var(--success); }
+
+        /* ── Clock ── */
+        .cd-clock {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px;
+        }
+        .cd-seg {
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .cd-num {
+            width: 60px; height: 56px;
+            background: var(--surface);
+            border: 1.5px solid rgba(232,69,69,.22);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 800;
+            color: var(--danger);
+            line-height: 1;
+            transition: background .25s, border-color .25s;
+        }
+        .cd-num.urgent {
+            animation: urgentPulse .55s ease infinite alternate;
+        }
+        @@keyframes urgentPulse {
+            from { background: var(--surface);              border-color: rgba(232,69,69,.22); }
+            to   { background: rgba(232,69,69,.14); border-color: rgba(232,69,69,.5); }
+        }
+        .cd-label {
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .08em; color: var(--text-light);
+        }
+        .cd-colon {
+            font-size: 26px; font-weight: 800;
+            color: rgba(232,69,69,.3);
+            margin-bottom: 16px;
+            animation: colonBlink 1s step-end infinite;
+        }
+        @@keyframes colonBlink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: .2; }
+        }
+        .cd-hint {
+            text-align: center; margin-top: 12px;
+            font-size: 11px; font-weight: 500; color: var(--text-light);
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+
+        /* ── Disabled form ── */
+        .form-locked {
+            pointer-events: none;
+            opacity: .42;
+            user-select: none;
+        }
+        .btn-login:disabled {
+            opacity: .5 !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
 
         /* ── Field ── */
         .login-field { margin-bottom: 18px; }
@@ -222,8 +309,8 @@
             box-shadow: 0 5px 20px rgba(255,107,53,.35);
             transition: all .18s;
         }
-        .btn-login:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,107,53,.4); }
-        .btn-login:active { transform: translateY(0); }
+        .btn-login:hover:not(:disabled) { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,107,53,.4); }
+        .btn-login:active:not(:disabled) { transform: translateY(0); }
 
         /* ── Footer ── */
         .login-footer {
@@ -235,25 +322,11 @@
         }
         .login-footer span { color: var(--brand); font-weight: 700; }
 
-        /* ── Divider ── */
-        .login-divider {
-            display: flex; align-items: center; gap: 12px;
-            margin: 20px 0;
-        }
-        .login-divider::before,
-        .login-divider::after {
-            content: ''; flex: 1; height: 1px; background: var(--border);
-        }
-        .login-divider span {
-            font-size: 11px; font-weight: 600; color: var(--text-light);
-            white-space: nowrap;
-        }
-
-        /* ── Responsive ── */
         @@media (max-width: 480px) {
-        .login-brand { padding: 22px 22px 20px; }
-        .login-card  { padding: 24px 22px 22px; }
-        .login-wrap  { max-width: 100%; }
+            .login-brand { padding: 22px 22px 20px; }
+            .login-card  { padding: 24px 22px 22px; }
+            .login-wrap  { max-width: 100%; }
+            .cd-num      { width: 52px; height: 48px; font-size: 24px; }
         }
     </style>
 </head>
@@ -280,15 +353,44 @@
             <p>Sign in to continue to your dashboard</p>
         </div>
 
-        @if (TempData["ErrorMessage"] != null)
+        @* ── LOCKOUT ALERT with live countdown ── *@
+        @if (isLockout)
         {
-        <div class="login-alert" id="loginAlert">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            @TempData["ErrorMessage"]
+        <div class="lockout-alert" id="lockoutAlert">
+            <div class="lockout-top" id="lockoutTop">
+                <i class="bi bi-lock-fill" id="lockoutIcon"></i>
+                <span id="lockoutTitle">Account temporarily locked</span>
+            </div>
+            <div class="cd-clock" id="cdClock">
+                <div class="cd-seg">
+                    <div class="cd-num" id="cdMin">05</div>
+                    <div class="cd-label">Min</div>
+                </div>
+                <div class="cd-colon" id="cdColon">:</div>
+                <div class="cd-seg">
+                    <div class="cd-num" id="cdSec">00</div>
+                    <div class="cd-label">Sec</div>
+                </div>
+            </div>
+            <div class="cd-hint" id="cdHint">
+                <i class="bi bi-hourglass-split"></i>
+                Please wait before trying again
+            </div>
         </div>
         }
 
-        <form asp-controller="Home" asp-action="Login" method="post">
+        @* ── NORMAL ERROR ALERT (auto-dismiss after 3.5s) ── *@
+        @if (!isLockout && !string.IsNullOrEmpty(errorMessage))
+        {
+        <div class="login-alert" id="loginAlert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            @Html.Raw(errorMessage)
+        </div>
+        }
+
+        @* ── FORM — grayed out while locked ── *@
+        <form asp-controller="Home" asp-action="Login" method="post"
+              id="loginForm" class="@(isLockout ? "form-locked" : "")">
 
             <!-- Email -->
             <div class="login-field">
@@ -326,7 +428,7 @@
             </div>
 
             <!-- Submit -->
-            <button type="submit" class="btn-login">
+            <button type="submit" class="btn-login" id="loginBtn" @(isLockout ? "disabled" : "")>
                 <i class="bi bi-box-arrow-in-right"></i>
                 Sign In
             </button>
@@ -345,20 +447,97 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Auto-dismiss error alert
+    /* ── Auto-dismiss normal error alert after 3.5 s ── */
     setTimeout(function () {
-        const a = document.getElementById('loginAlert');
-        if (a) { a.style.transition = 'opacity .4s'; a.style.opacity = '0'; setTimeout(() => a.remove(), 400); }
+        var a = document.getElementById('loginAlert');
+        if (a) {
+            a.style.transition = 'opacity .4s';
+            a.style.opacity    = '0';
+            setTimeout(function () { if (a) a.remove(); }, 400);
+        }
     }, 3500);
 
-    // Toggle password visibility
+    /* ── Toggle password visibility ── */
     function togglePwd() {
-        const inp  = document.getElementById('passwordInput');
-        const icon = document.getElementById('eyeIcon');
-        const show = inp.type === 'password';
-        inp.type = show ? 'text' : 'password';
+        var inp  = document.getElementById('passwordInput');
+        var icon = document.getElementById('eyeIcon');
+        var show = inp.type === 'password';
+        inp.type       = show ? 'text' : 'password';
         icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
     }
+
+    /* ══════════════════════════════════════════════════════
+       COUNTDOWN TIMER
+       totalSecs is injected directly by Razor from the
+       exact remaining seconds stored in TempData.
+    ══════════════════════════════════════════════════════ */
+    (function () {
+        var isLockout = @(isLockout ? "true" : "false");
+        if (!isLockout) return;
+
+        var totalSecs  = @lockoutSeconds;   /* e.g. 287 if 13 s have already passed */
+        var elMin      = document.getElementById('cdMin');
+        var elSec      = document.getElementById('cdSec');
+        var elHint     = document.getElementById('cdHint');
+        var elAlert    = document.getElementById('lockoutAlert');
+        var elTop      = document.getElementById('lockoutTop');
+        var elIcon     = document.getElementById('lockoutIcon');
+        var elTitle    = document.getElementById('lockoutTitle');
+        var elClock    = document.getElementById('cdClock');
+        var elColon    = document.getElementById('cdColon');
+        var loginForm  = document.getElementById('loginForm');
+        var loginBtn   = document.getElementById('loginBtn');
+
+        function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+
+        function updateDisplay() {
+            var m = Math.floor(totalSecs / 60);
+            var s = totalSecs % 60;
+            elMin.textContent = pad(m);
+            elSec.textContent = pad(s);
+
+            /* pulse both digit boxes when ≤ 30 s remain */
+            [elMin, elSec].forEach(function (el) {
+                if (totalSecs <= 30) el.classList.add('urgent');
+                else                 el.classList.remove('urgent');
+            });
+
+            /* update hint */
+            if (totalSecs <= 60) {
+                elHint.innerHTML = '<i class="bi bi-hourglass-bottom"></i> Almost there, just a moment…';
+            } else {
+                elHint.innerHTML = '<i class="bi bi-hourglass-split"></i> Please wait before trying again';
+            }
+        }
+
+        function unlock() {
+            /* swap alert to success green */
+            elAlert.classList.add('unlocked');
+            elIcon.className  = 'bi bi-unlock-fill';
+            elTitle.textContent = 'Lockout ended — you can try again!';
+            elTop.style.color = 'var(--success)';
+            elClock.style.display  = 'none';
+            elColon.style.display  = 'none';
+            elHint.style.color     = 'var(--success)';
+            elHint.innerHTML = '<i class="bi bi-check-circle-fill"></i> Enter your credentials below';
+
+            /* re-enable form */
+            if (loginForm) loginForm.classList.remove('form-locked');
+            if (loginBtn)  loginBtn.disabled = false;
+        }
+
+        function tick() {
+            if (totalSecs <= 0) { unlock(); return; }
+            updateDisplay();
+            totalSecs--;
+            setTimeout(tick, 1000);
+        }
+
+        /* start immediately */
+        updateDisplay();
+        totalSecs--;
+        setTimeout(tick, 1000);
+    })();
 </script>
 </body>
 </html>

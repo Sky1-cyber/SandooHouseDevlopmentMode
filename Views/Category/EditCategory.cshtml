@@ -584,7 +584,7 @@ bool isEdit = Model.Id != 0;
                             @if (!string.IsNullOrEmpty(Model.CategoryImageUrl))
                             {
                             <img id="imagePreview"
-                                 src="~/Category/@Model.CategoryImageUrl"
+                                 src="@Model.CategoryImageUrl"
                                  alt="Category image" />
                             <div id="imgEmpty" class="cc-img-empty" style="display:none;">
                                 <i class="bi bi-cloud-arrow-up"></i>

@@ -372,7 +372,7 @@ ViewData["Title"] = "Account Profile";
                 <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;">
                     <div class="ap-avatar-wrap">
                         <div class="ap-avatar">
-                            <img src="@Url.Content(Model.ProfileImageFile != null ? $"~/Admin/{Model.ProfileImageFile}" : "~/l60Hf.png")"
+                            <img src="@Url.Content(Model.ProfileImageFile != null ? $"{Model.ProfileImageFile}" : "~/l60Hf.png")"
                                  alt="@Model.FirstName @Model.LastName" />
                         </div>
                         <span class="ap-avatar-status @(Model.Status == Status.Active ? "active" : "inactive")"></span>

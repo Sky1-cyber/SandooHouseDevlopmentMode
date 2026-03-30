@@ -337,7 +337,7 @@ ViewData["Title"] = "Edit Supplier";
                         <div class="es-logo-wrap" onclick="document.getElementById('companyImageInput').click();">
                             <div class="es-logo-img">
                                 <img id="previewImage"
-                                     src="@(!string.IsNullOrEmpty(Model.CompanyProfile) ? Url.Content($"~/uploads/suppliers/{Model.CompanyProfile}") : "~/images/default-company.png")"
+                                     src="@(!string.IsNullOrEmpty(Model.CompanyProfile) ? Url.Content($"{Model.CompanyProfile}") : "~/images/default-company.png")"
                                      onerror="this.src='https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.CompanyName ?? "Co")&background=FF6B35&color=fff&size=90'"
                                      alt="@Model.CompanyName" />
                             </div>

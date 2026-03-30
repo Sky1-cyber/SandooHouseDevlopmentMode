@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Models;
 using Sandoohouse.Models.Enum;
-using BCrypt.Net;
+using Sandoohouse.Service;
+
+// ← ADD THIS
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,8 @@ else
 
 // --- Services ---
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<SecurityService>();
+builder.Services.AddScoped<CloudinaryService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -51,10 +55,6 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// // ✅ Render PORT fix
-// var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
-// app.Urls.Add($"http://*:{port}");
-
 // --- Database Migration + Safe Seeding ---
 using (var scope = app.Services.CreateScope())
 {
@@ -75,6 +75,7 @@ using (var scope = app.Services.CreateScope())
                     Email = "admin@example.com",
                     PhoneNumber = "0000000000",
                     Password = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                    Role = Role.SuperAdmin,
                     Status = Status.Active,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -96,7 +97,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

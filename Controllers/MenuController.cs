@@ -5,15 +5,18 @@ using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Helpers;
 using Sandoohouse.Models;
 using Sandoohouse.Models.ModelViewer.MenuModelViewer;
+using Sandoohouse.Service;
 
 namespace Sandoohouse.Controllers;
 
 public class MenuController : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext;
-    public MenuController(ApplicationDbContext applicationDbContext)
+    private readonly CloudinaryService _cloudinaryService;
+    public MenuController(ApplicationDbContext applicationDbContext, CloudinaryService cloudinaryService)
     {
         _applicationDbContext = applicationDbContext;
+        _cloudinaryService = cloudinaryService;
     }
     
     // GET
@@ -69,31 +72,33 @@ public class MenuController : Controller
         if (existingMenu)
         {
             ModelState.AddModelError("MenuName", "Menu name already exists.");
-
             ViewBag.Categories = await _applicationDbContext.Categories
                 .Where(c => c.Status)
                 .ToListAsync();
-
             return View(model);
         }
 
-        string? fileName = null;
+        // Upload image to Cloudinary
+        string? imageUrl = null;
         if (model.ImageFile != null)
         {
-            fileName = await FileUploadHelper.UploadImage(model.ImageFile, "Menu");
+            imageUrl = await _cloudinaryService.UploadImageAsync(
+                model.ImageFile,
+                folder: "Menu"
+            );
         }
 
         var adminId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
 
         var menu = new Menu
         {
-            MenuName = model.MenuName,
-            Price = model.Price,
+            MenuName      = model.MenuName,
+            Price         = model.Price,
             DiscountPrice = model.DiscountPrice,
-            Status = model.Status,
-            CategoryId = model.CategoryId,
-            ImageMenuUrl = fileName,
-            CreatedBy = adminId
+            Status        = model.Status,
+            CategoryId    = model.CategoryId,
+            ImageMenuUrl  = imageUrl,
+            CreatedBy     = adminId
         };
 
         _applicationDbContext.Menus.Add(menu);
@@ -161,7 +166,6 @@ public class MenuController : Controller
             ViewBag.Categories = await _applicationDbContext.Categories
                 .Where(c => c.Status)
                 .ToListAsync();
-
             return View(model);
         }
 
@@ -173,7 +177,7 @@ public class MenuController : Controller
 
         var exists = await _applicationDbContext.Menus
             .AnyAsync(m => m.MenuName == model.MenuName && m.Id != model.Id);
-        
+
         if (exists)
         {
             ModelState.AddModelError("MenuName", "Menu name already exists.");
@@ -183,24 +187,25 @@ public class MenuController : Controller
             return View(model);
         }
 
+        // If a new image was uploaded, delete the old one and upload the new one
         if (model.ImageFile != null)
         {
-            if (!string.IsNullOrEmpty(menu.ImageMenuUrl))
-            {
-                var oldFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Menu", menu.ImageMenuUrl);
-                if (System.IO.File.Exists(oldFile))
-                    System.IO.File.Delete(oldFile);
-            }
+            // Delete old image from Cloudinary
+            await _cloudinaryService.DeleteImageAsync(menu.ImageMenuUrl);
 
-            menu.ImageMenuUrl = await FileUploadHelper.UploadImage(model.ImageFile, "Menu");
+            // Upload new image
+            menu.ImageMenuUrl = await _cloudinaryService.UploadImageAsync(
+                model.ImageFile,
+                folder: "Menu"
+            );
         }
 
-        menu.MenuName = model.MenuName;
-        menu.Price = model.Price;
+        menu.MenuName      = model.MenuName;
+        menu.Price         = model.Price;
         menu.DiscountPrice = model.DiscountPrice;
-        menu.Status = model.Status;
-        menu.CategoryId = model.CategoryId;
-        menu.UpdatedAt = DateTime.UtcNow;
+        menu.Status        = model.Status;
+        menu.CategoryId    = model.CategoryId;
+        menu.UpdatedAt     = DateTime.UtcNow;
 
         _applicationDbContext.Menus.Update(menu);
         await _applicationDbContext.SaveChangesAsync();
@@ -219,16 +224,8 @@ public class MenuController : Controller
         if (menu == null)
             return NotFound();
 
-        // Delete menu image if exists
-        if (!string.IsNullOrEmpty(menu.ImageMenuUrl))
-        {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(),
-                "wwwroot/Menu",
-                menu.ImageMenuUrl);
-
-            if (System.IO.File.Exists(filePath))
-                System.IO.File.Delete(filePath);
-        }
+        // Delete image from Cloudinary
+        await _cloudinaryService.DeleteImageAsync(menu.ImageMenuUrl);
 
         _applicationDbContext.Menus.Remove(menu);
         await _applicationDbContext.SaveChangesAsync();

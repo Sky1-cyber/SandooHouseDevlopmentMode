@@ -38,13 +38,25 @@ namespace Sandoohouse.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("integer");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastLoginIP")
+                        .HasColumnType("text");
+
                     b.Property<string>("LastName")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -163,6 +175,65 @@ namespace Sandoohouse.Migrations
                     b.HasIndex("CreatedById");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("Sandoohouse.Models.Expenses", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.ToTable("Expened");
+                });
+
+            modelBuilder.Entity("Sandoohouse.Models.LoginAttempt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("IPAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LoginAttempts");
                 });
 
             modelBuilder.Entity("Sandoohouse.Models.Menu", b =>
@@ -424,6 +495,15 @@ namespace Sandoohouse.Migrations
                     b.Navigation("Brand");
                 });
 
+            modelBuilder.Entity("Sandoohouse.Models.Expenses", b =>
+                {
+                    b.HasOne("Sandoohouse.Models.Admin", "Admin")
+                        .WithMany("Expenses")
+                        .HasForeignKey("CreatedById");
+
+                    b.Navigation("Admin");
+                });
+
             modelBuilder.Entity("Sandoohouse.Models.Menu", b =>
                 {
                     b.HasOne("Sandoohouse.Models.Category", "Category")
@@ -479,6 +559,8 @@ namespace Sandoohouse.Migrations
             modelBuilder.Entity("Sandoohouse.Models.Admin", b =>
                 {
                     b.Navigation("Categories");
+
+                    b.Navigation("Expenses");
 
                     b.Navigation("Menus");
                 });

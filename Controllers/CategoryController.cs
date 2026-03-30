@@ -7,16 +7,18 @@ using Sandoohouse.ApplicationProgram;
 using Sandoohouse.Helpers;
 using Sandoohouse.Models;
 using Sandoohouse.Models.ModelViewer.CategoryModelViewer;
+using Sandoohouse.Service;
 
 namespace Sandoohouse.Controllers;
 
 public class CategoryController : Controller
 {
     private readonly ApplicationDbContext _applicationDbContext;
-
-    public CategoryController(ApplicationDbContext applicationDbContext)
+    private readonly CloudinaryService _cloudinaryService;
+    public CategoryController(ApplicationDbContext applicationDbContext, CloudinaryService cloudinaryService)
     {
         _applicationDbContext = applicationDbContext;
+        _cloudinaryService = cloudinaryService;
     }
 
     // GET to get list of category
@@ -34,52 +36,53 @@ public class CategoryController : Controller
     // GET From to create category
     [HttpGet]
     [Authorize(Roles = "SuperAdmin,Owner")]
-    public async Task<IActionResult> CreateCategory()  // Make this async
+    public async Task<IActionResult> CreateCategory()
     {
         var brands = await _applicationDbContext.Brands
             .Where(b => b.Status)
             .OrderBy(b => b.BrandName)
             .ToListAsync();
     
-        // FIX: Create SelectList for the dropdown
         ViewBag.Brands = new SelectList(brands, "Id", "BrandName");
     
         var model = new CategoryViewerModel();
         return View(model);
     }
 
-    // POST To posting data of Category to database
     [HttpPost]
     [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> CreateCategory(CategoryViewerModel model)
     {
-        // FIX: Repopulate brands if validation fails
         if (!ModelState.IsValid)
         {
-            var brands = await _applicationDbContext.Brands
+            var brandsRetry = await _applicationDbContext.Brands
                 .Where(b => b.Status)
                 .OrderBy(b => b.BrandName)
                 .ToListAsync();
-            ViewBag.Brands = new SelectList(brands, "Id", "BrandName", model.BrandId); // Pass selected value
+            ViewBag.Brands = new SelectList(brandsRetry, "Id", "BrandName", model.BrandId);
             return View(model);
         }
 
-        string? fileName = null;
-
-        // Only handle uploaded file, not string
-        if (model.ImageFile != null) 
-            fileName = await FileUploadHelper.UploadImage(model.ImageFile, "Category");
+        // Upload image to Cloudinary
+        string? imageUrl = null;
+        if (model.ImageFile != null)
+        {
+            imageUrl = await _cloudinaryService.UploadImageAsync(
+                model.ImageFile,
+                folder: "Category"
+            );
+        }
 
         var adminId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         var category = new Category
         {
-            CategoryName = model.CategoryName,
-            Description = model.Description,
-            CategoryImageUrl = fileName,
-            Status = model.Status,
-            CreatedById = adminId,
-            BrandId = model.BrandId  // FIX: Add this line to save the BrandId
+            CategoryName     = model.CategoryName,
+            Description      = model.Description,
+            CategoryImageUrl = imageUrl,
+            Status           = model.Status,
+            CreatedById      = adminId,
+            BrandId          = model.BrandId
         };
 
         _applicationDbContext.Categories.Add(category);
@@ -144,54 +147,41 @@ public class CategoryController : Controller
     {
         if (!ModelState.IsValid)
         {
-            // Repopulate brands if model validation fails
             var brands = await _applicationDbContext.Brands
                 .Where(b => b.Status)
                 .OrderBy(b => b.BrandName)
                 .ToListAsync();
             ViewBag.Brands = new SelectList(brands, "Id", "BrandName", model.BrandId);
-
             return View(model);
         }
 
-        // Find the existing category
         var category = await _applicationDbContext.Categories
             .FirstOrDefaultAsync(c => c.Id == model.Id);
 
         if (category == null)
             return NotFound();
 
-        var fileName = category.CategoryImageUrl;
-
-        // Handle image removal
         if (model.RemoveImage == "true" && !string.IsNullOrEmpty(category.CategoryImageUrl))
         {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Category", category.CategoryImageUrl);
-            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
-            fileName = null;
+            await _cloudinaryService.DeleteImageAsync(category.CategoryImageUrl);
+            category.CategoryImageUrl = null;
         }
 
-        // Handle new image upload
         if (model.ImageFile != null)
         {
-            fileName = await FileUploadHelper.UploadImage(model.ImageFile, "Category");
+            await _cloudinaryService.DeleteImageAsync(category.CategoryImageUrl);
 
-            // Delete old image if exists
-            if (!string.IsNullOrEmpty(category.CategoryImageUrl))
-            {
-                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Category",
-                    category.CategoryImageUrl);
-                if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
-            }
+            category.CategoryImageUrl = await _cloudinaryService.UploadImageAsync(
+                model.ImageFile,
+                folder: "Category"
+            );
         }
 
-        // Update category properties
         category.CategoryName = model.CategoryName;
-        category.Description = model.Description;
-        category.Status = model.Status;
-        category.CategoryImageUrl = fileName;
-        category.BrandId = model.BrandId; // <-- Update Brand
-        category.UpdatedAt = DateTime.UtcNow;
+        category.Description  = model.Description;
+        category.Status       = model.Status;
+        category.BrandId      = model.BrandId;
+        category.UpdatedAt    = DateTime.UtcNow;
 
         _applicationDbContext.Categories.Update(category);
         await _applicationDbContext.SaveChangesAsync();
@@ -199,33 +189,28 @@ public class CategoryController : Controller
         return RedirectToAction("Index", "Category");
     }
 
-    //POST to delete category from database
     [HttpPost]
     [Authorize(Roles = "SuperAdmin,Owner")]
     public async Task<IActionResult> DeleteCategory(int? id)
     {
         if (id == null)
             return NotFound();
-        var category = await _applicationDbContext.Categories
-            .FindAsync(id);
+
+        var category = await _applicationDbContext.Categories.FindAsync(id);
         if (category == null)
             return NotFound();
+
         var menus = await _applicationDbContext.Menus
             .Where(m => m.CategoryId == id)
             .ToListAsync();
 
         foreach (var menu in menus) menu.CategoryId = null;
-        if (!string.IsNullOrEmpty(category.CategoryImageUrl))
-        {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(),
-                "wwwroot/Category",
-                category.CategoryImageUrl);
 
-            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
-        }
+        await _cloudinaryService.DeleteImageAsync(category.CategoryImageUrl);
 
         _applicationDbContext.Categories.Remove(category);
         await _applicationDbContext.SaveChangesAsync();
+
         return RedirectToAction("Index", "Category");
     }
 }

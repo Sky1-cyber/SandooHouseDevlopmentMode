@@ -324,7 +324,7 @@
                     <div class="ea-avatar-wrap" onclick="document.getElementById('profileImageInput').click();">
                         <div class="ea-avatar">
                             <img id="previewImage"
-                                 src="@Url.Content(Model.ProfileImageFile != null ? $"~/Admin/{Model.ProfileImageFile}" : "~/l60Hf.png")"
+                                 src="@Url.Content(Model.ProfileImageFile != null ? $"{Model.ProfileImageFile}" : "~/l60Hf.png")"
                                  alt="@Model.FirstName @Model.LastName" />
                         </div>
                         <div class="ea-avatar-overlay">

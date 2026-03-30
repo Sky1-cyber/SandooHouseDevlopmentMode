@@ -538,7 +538,7 @@
 
                         <div class="eb-logo-box" onclick="document.getElementById('logoInput').click();">
                             <img id="previewImage"
-                                 src="@(string.IsNullOrEmpty(Model.LogoBrandUrl) ? "/no-image.png.jpg" : Url.Content($"~/BrandImage/{Model.LogoBrandUrl}"))"
+                                 src="@(string.IsNullOrEmpty(Model.LogoBrandUrl) ? "/no-image.png.jpg" : Url.Content($"{Model.LogoBrandUrl}"))"
                                  alt="@Model.BrandName logo" />
                             <div class="eb-logo-cover">
                                 <i class="bi bi-camera-fill"></i>

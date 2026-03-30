@@ -15,6 +15,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Shift> Shifts { get; set; }
+    public DbSet<Expenses> Expened { get; set; }
+    public DbSet<LoginAttempt> LoginAttempts { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

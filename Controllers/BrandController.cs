@@ -37,39 +37,39 @@ public class BrandController : Controller
         return View();
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "SuperAdmin,Owner")]
-    public async Task<IActionResult> CreateBrand(BrandViewerModel brandViewerModel)
-    {
-        if (!ModelState.IsValid)
-            return View(brandViewerModel);
- 
-        // Upload logo to Cloudinary (returns a permanent URL, not a local path)
-        string? logoUrl = null;
-        if (brandViewerModel.LogoFile != null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "SuperAdmin,Owner")]
+        public async Task<IActionResult> CreateBrand(BrandViewerModel brandViewerModel)
         {
-            logoUrl = await _cloudinaryService.UploadImageAsync(
-                brandViewerModel.LogoFile,
-                folder: "BrandImage"
-            );
+            if (!ModelState.IsValid)
+                return View(brandViewerModel);
+     
+            // Upload logo to Cloudinary (returns a permanent URL, not a local path)
+            string? logoUrl = null;
+            if (brandViewerModel.LogoFile != null)
+            {
+                logoUrl = await _cloudinaryService.UploadImageAsync(
+                    brandViewerModel.LogoFile,
+                    folder: "BrandImage"
+                );
+            }
+     
+            var brand = new Brand
+            {
+                BrandName    = brandViewerModel.BrandName,
+                Description  = brandViewerModel.Description,
+                LogoBrandUrl = logoUrl,          // stores the Cloudinary HTTPS URL
+                Status       = brandViewerModel.Status,
+                CreatedAt    = DateTime.UtcNow,
+            };
+     
+            _applicationDbContext.Brands.Add(brand);
+            await _applicationDbContext.SaveChangesAsync();
+     
+            TempData["Success"] = "Brand created successfully.";
+            return RedirectToAction("Index", "Brand");
         }
- 
-        var brand = new Brand
-        {
-            BrandName    = brandViewerModel.BrandName,
-            Description  = brandViewerModel.Description,
-            LogoBrandUrl = logoUrl,          // stores the Cloudinary HTTPS URL
-            Status       = brandViewerModel.Status,
-            CreatedAt    = DateTime.UtcNow,
-        };
- 
-        _applicationDbContext.Brands.Add(brand);
-        await _applicationDbContext.SaveChangesAsync();
- 
-        TempData["Success"] = "Brand created successfully.";
-        return RedirectToAction("Index", "Brand");
-    }
 
     [HttpGet]
     [Authorize(Roles = "SuperAdmin,Owner")]

@@ -43,6 +43,7 @@ public class OrderController : Controller
             .Include(m => m.Category)
             .ThenInclude(c => c.Brand) // Include brand through category
             .Where(m => m.Status == true)
+            .OrderByDescending(o => o.Id)
             .ToListAsync();
 
         ViewBag.Menus = menus;

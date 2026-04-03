@@ -475,7 +475,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
     // Function to get second screen coordinates
     async function getSecondScreenCoordinates() {
         try {
-            // Try to get screen details using modern API
             if (window.getScreenDetails) {
                 const details = await window.getScreenDetails();
                 if (details.screens.length > 1) {
@@ -490,8 +489,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                     }
                 }
             }
-
-            // Fallback: try to detect second monitor by checking if screen width is larger than window
             if (window.screen.availWidth > window.screen.width) {
                 return {
                     left: window.screen.width,
@@ -500,41 +497,23 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                     height: window.screen.availHeight
                 };
             }
-
-            // Default: place on right side of primary monitor
-            return {
-                left: window.screen.availWidth,
-                top: 0,
-                width: 1024,
-                height: 768
-            };
+            return { left: window.screen.availWidth, top: 0, width: 1024, height: 768 };
         } catch(e) {
             console.warn('Error detecting second screen:', e);
-            return {
-                left: window.screen.availWidth,
-                top: 0,
-                width: 1024,
-                height: 768
-            };
+            return { left: window.screen.availWidth, top: 0, width: 1024, height: 768 };
         }
     }
 
-    // Open customer display on second monitor
     async function openCustomerDisplay() {
         const coords = await getSecondScreenCoordinates();
-        const w = coords.width;
-        const h = coords.height;
-        const left = coords.left;
-        const top = coords.top;
+        const w = coords.width, h = coords.height, left = coords.left, top = coords.top;
 
         if (customerWindow && !customerWindow.closed) {
-            // Try to move existing window to second monitor
             try {
                 customerWindow.moveTo(left, top);
                 customerWindow.resizeTo(w, h);
                 customerWindow.focus();
             } catch(e) {
-                console.warn('Cannot move existing window, reopening');
                 customerWindow.close();
                 customerWindow = null;
             }
@@ -546,72 +525,46 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 'width='+w+',height='+h+',left='+left+',top='+top+
                 ',resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no'
             );
-
-            if (!customerWindow) {
-                notify('Browser ទប់ Popup — សូម Allow popup', 'error');
-                return false;
-            }
-
+            if (!customerWindow) { notify('Browser ទប់ Popup — សូម Allow popup', 'error'); return false; }
             customerWindow.document.open();
             customerWindow.document.write(buildCustomerWindowHtml());
             customerWindow.document.close();
-
-            // Update status indicator
             document.getElementById('customerScreenStatus').innerHTML = '🟢';
             document.getElementById('customerScreenBtn').classList.add('shift-open');
-
-            // Watch for close
             var checkClosed = setInterval(function() {
                 if (!customerWindow || customerWindow.closed) {
                     clearInterval(checkClosed);
                     customerWindow = null;
                     document.getElementById('customerScreenStatus').innerHTML = '🔴';
                     document.getElementById('customerScreenBtn').classList.remove('shift-open');
-
-                    // Auto-reopen if shift is still open
                     if (customerDisplayAutoOpen && shift.isOpen) {
                         setTimeout(() => openCustomerDisplay(), 2000);
                     }
                 }
             }, 1000);
         }
-
         return true;
     }
 
-    // Close customer display
     function closeCustomerDisplay() {
-        if (customerWindow && !customerWindow.closed) {
-            customerWindow.close();
-        }
+        if (customerWindow && !customerWindow.closed) customerWindow.close();
         customerWindow = null;
         document.getElementById('customerScreenStatus').innerHTML = '🔴';
         document.getElementById('customerScreenBtn').classList.remove('shift-open');
     }
 
-    // Toggle customer display
     async function toggleCustomerDisplay() {
-        if (customerWindow && !customerWindow.closed) {
-            closeCustomerDisplay();
-            customerDisplayAutoOpen = false;
-        } else {
-            await openCustomerDisplay();
-            customerDisplayAutoOpen = true;
-        }
+        if (customerWindow && !customerWindow.closed) { closeCustomerDisplay(); customerDisplayAutoOpen = false; }
+        else { await openCustomerDisplay(); customerDisplayAutoOpen = true; }
     }
 
-    // Keep customer display alive while shift is open
     function maintainCustomerDisplay() {
         if (shift.isOpen && customerDisplayAutoOpen) {
             if (!customerWindow || customerWindow.closed) {
                 openCustomerDisplay();
             } else {
-                // Keep it on second monitor
                 getSecondScreenCoordinates().then(coords => {
-                    try {
-                        customerWindow.moveTo(coords.left, coords.top);
-                        customerWindow.resizeTo(coords.width, coords.height);
-                    } catch(e) {}
+                    try { customerWindow.moveTo(coords.left, coords.top); customerWindow.resizeTo(coords.width, coords.height); } catch(e) {}
                 });
             }
         }
@@ -636,914 +589,147 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">\n' +
             '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>\n' +
             '<style>\n' +
-            '* {\n' +
-            '    margin: 0;\n' +
-            '    padding: 0;\n' +
-            '    box-sizing: border-box;\n' +
-            '}\n' +
-            '\n' +
-            'html, body {\n' +
-            '    width: 100%;\n' +
-            '    height: 100%;\n' +
-            '    overflow: hidden;\n' +
-            '    font-family: \'Sora\', \'Noto Sans Khmer\', sans-serif;\n' +
-            '    background: var(--bg);\n' +
-            '    color: var(--text);\n' +
-            '    -webkit-font-smoothing: antialiased;\n' +
-            '    -moz-osx-font-smoothing: grayscale;\n' +
-            '}\n' +
-            '\n' +
+            '* { margin: 0; padding: 0; box-sizing: border-box; }\n' +
+            'html, body { width: 100%; height: 100%; overflow: hidden; font-family: \'Sora\', \'Noto Sans Khmer\', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }\n' +
             ':root {\n' +
-            '    --brand: #FF6B35;\n' +
-            '    --brand-dark: #E85520;\n' +
-            '    --brand-light: #FFF3EE;\n' +
-            '    --brand-glow: rgba(255,107,53,.18);\n' +
-            '    --accent: #2D3561;\n' +
-            '    --accent-dark: #1C2140;\n' +
-            '    --accent-light: #3D4880;\n' +
-            '    --success: #00B894;\n' +
-            '    --warning: #F59E0B;\n' +
-            '    --danger: #EF4444;\n' +
-            '    --danger-light: #FEE2E2;\n' +
-            '\n' +
-            '    /* Surfaces */\n' +
-            '    --bg: #F4F1ED;\n' +
-            '    --bg-2: #EDE9E3;\n' +
-            '    --surface: #FFFFFF;\n' +
-            '    --surface-2: #FAFAF8;\n' +
-            '    --surface-3: #F5F3F0;\n' +
-            '    --border: #E2DDD7;\n' +
-            '    --border-light: #EDE9E4;\n' +
-            '\n' +
-            '    /* Text */\n' +
-            '    --text: #1A1714;\n' +
-            '    --text-sub: #574F47;\n' +
-            '    --text-muted: #9C9189;\n' +
-            '\n' +
-            '    /* Shadows */\n' +
-            '    --shadow-xs: 0 1px 3px rgba(26,23,20,.06);\n' +
-            '    --shadow-sm: 0 2px 10px rgba(26,23,20,.08);\n' +
-            '    --shadow-md: 0 8px 24px rgba(26,23,20,.10);\n' +
-            '    --shadow-lg: 0 20px 48px rgba(26,23,20,.15);\n' +
+            '    --brand: #FF6B35; --brand-dark: #E85520; --brand-light: #FFF3EE; --brand-glow: rgba(255,107,53,.18);\n' +
+            '    --accent: #2D3561; --accent-dark: #1C2140; --accent-light: #3D4880;\n' +
+            '    --success: #00B894; --warning: #F59E0B; --danger: #EF4444; --danger-light: #FEE2E2;\n' +
+            '    --bg: #F4F1ED; --bg-2: #EDE9E3; --surface: #FFFFFF; --surface-2: #FAFAF8; --surface-3: #F5F3F0;\n' +
+            '    --border: #E2DDD7; --border-light: #EDE9E4;\n' +
+            '    --text: #1A1714; --text-sub: #574F47; --text-muted: #9C9189;\n' +
+            '    --shadow-xs: 0 1px 3px rgba(26,23,20,.06); --shadow-sm: 0 2px 10px rgba(26,23,20,.08);\n' +
+            '    --shadow-md: 0 8px 24px rgba(26,23,20,.10); --shadow-lg: 0 20px 48px rgba(26,23,20,.15);\n' +
             '    --shadow-brand: 0 8px 24px rgba(255,107,53,.25);\n' +
-            '\n' +
-            '    /* Radii */\n' +
-            '    --r-xs: 6px;\n' +
-            '    --r-sm: 10px;\n' +
-            '    --r-md: 14px;\n' +
-            '    --r-lg: 20px;\n' +
-            '    --r-xl: 28px;\n' +
-            '}\n' +
-            '\n' +
-            '/* Fullscreen container */\n' +
-            '.pos-cd {\n' +
-            '    position: fixed;\n' +
-            '    top: 0;\n' +
-            '    left: 0;\n' +
-            '    right: 0;\n' +
-            '    bottom: 0;\n' +
-            '    width: 100vw;\n' +
-            '    height: 100vh;\n' +
-            '    display: flex;\n' +
-            '    flex-direction: column;\n' +
-            '    background: var(--bg);\n' +
-            '    overflow: hidden;\n' +
-            '    position: relative;\n' +
-            '}\n' +
-            '\n' +
-            '/* Fullscreen button */\n' +
-            '.fullscreen-btn {\n' +
-            '    position: fixed;\n' +
-            '    bottom: 20px;\n' +
-            '    right: 20px;\n' +
-            '    width: 48px;\n' +
-            '    height: 48px;\n' +
-            '    background: var(--surface);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    cursor: pointer;\n' +
-            '    z-index: 1000;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '    transition: all 0.3s ease;\n' +
-            '    color: var(--brand);\n' +
-            '    font-size: 20px;\n' +
-            '}\n' +
-            '\n' +
-            '.fullscreen-btn:hover {\n' +
-            '    transform: scale(1.1);\n' +
-            '    background: var(--brand);\n' +
-            '    color: white;\n' +
-            '    border-color: var(--brand);\n' +
-            '    box-shadow: var(--shadow-brand);\n' +
-            '}\n' +
-            '\n' +
-            '/* HEADER */\n' +
-            '.cd-header {\n' +
-            '    background: var(--surface);\n' +
-            '    border-bottom: 1px solid var(--border);\n' +
-            '    padding: 16px 24px;\n' +
-            '    flex-shrink: 0;\n' +
-            '    box-shadow: var(--shadow-xs);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-header-top {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: space-between;\n' +
-            '    margin-bottom: 12px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-area {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-dot {\n' +
-            '    width: 10px;\n' +
-            '    height: 10px;\n' +
-            '    background: var(--brand);\n' +
-            '    border-radius: 50%;\n' +
-            '    box-shadow: 0 0 14px rgba(255, 107, 53, 0.9);\n' +
-            '    animation: cdPulse 2.5s ease-in-out infinite;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes cdPulse {\n' +
-            '    0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(255, 107, 53, 0.6); }\n' +
-            '    50% { opacity: 0.7; box-shadow: 0 0 22px rgba(255, 107, 53, 0.9); }\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-text {\n' +
-            '    font-size: 20px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '    letter-spacing: -0.3px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-text span {\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-clock {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border: 1px solid var(--border-light);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    padding: 6px 16px;\n' +
-            '    font-size: 15px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text);\n' +
-            '    font-variant-numeric: tabular-nums;\n' +
-            '    letter-spacing: 0.5px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-header-sub {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: space-between;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-welcome-line1 {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    letter-spacing: 0.3px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-currency-toggle {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 6px;\n' +
-            '    background: var(--bg-2);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    padding: 4px;\n' +
-            '    border: 1px solid var(--border-light);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-currency-opt {\n' +
-            '    padding: 4px 14px;\n' +
-            '    border-radius: 30px;\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 600;\n' +
-            '    cursor: pointer;\n' +
-            '    transition: all 0.2s;\n' +
-            '    background: transparent;\n' +
-            '    color: var(--text-sub);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-currency-opt.active {\n' +
-            '    background: var(--brand);\n' +
-            '    color: white;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-live-dot {\n' +
-            '    font-size: 10px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 5px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-live-dot::before {\n' +
-            '    content: "";\n' +
-            '    width: 6px;\n' +
-            '    height: 6px;\n' +
-            '    border-radius: 50%;\n' +
-            '    background: var(--success);\n' +
-            '    animation: livePulse 2s infinite;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes livePulse {\n' +
-            '    0%, 100% { opacity: 1; }\n' +
-            '    50% { opacity: 0.3; }\n' +
-            '}\n' +
-            '\n' +
-            '/* MAIN CONTENT */\n' +
-            '.cd-main-content {\n' +
-            '    flex: 1;\n' +
-            '    min-height: 0;\n' +
-            '    overflow-y: auto;\n' +
-            '    transition: all 0.3s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content.qr-active {\n' +
-            '    overflow: hidden;\n' +
-            '}\n' +
-            '\n' +
-            '/* IDLE */\n' +
-            '.cd-idle {\n' +
-            '    height: 100%;\n' +
-            '    display: flex;\n' +
-            '    flex-direction: column;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    gap: 24px;\n' +
-            '    padding: 32px;\n' +
-            '    text-align: center;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-icon {\n' +
-            '    width: 100px;\n' +
-            '    height: 100px;\n' +
-            '    background: var(--brand-light);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-icon i {\n' +
-            '    font-size: 42px;\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-title {\n' +
-            '    font-size: 32px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '    letter-spacing: -0.5px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-sub {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    line-height: 1.6;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-promo-strip {\n' +
-            '    background: linear-gradient(135deg, var(--brand-light), #FFF);\n' +
-            '    border: 1px solid var(--border-light);\n' +
-            '    border-radius: var(--r-md);\n' +
-            '    padding: 16px 24px;\n' +
-            '    max-width: 420px;\n' +
-            '    width: 100%;\n' +
-            '    text-align: center;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-promo-label {\n' +
-            '    font-size: 11px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--brand);\n' +
-            '    text-transform: uppercase;\n' +
-            '    letter-spacing: 1px;\n' +
-            '    margin-bottom: 6px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-promo-text {\n' +
-            '    font-size: 14px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    line-height: 1.6;\n' +
-            '}\n' +
-            '\n' +
-            '/* ORDER SECTION */\n' +
-            '.cd-order-section {\n' +
-            '    padding: 20px 24px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-section-label {\n' +
-            '    font-size: 11px;\n' +
-            '    font-weight: 700;\n' +
-            '    text-transform: uppercase;\n' +
-            '    letter-spacing: 1px;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-bottom: 16px;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-section-label::after {\n' +
-            '    content: "";\n' +
-            '    flex: 1;\n' +
-            '    height: 1px;\n' +
-            '    background: var(--border);\n' +
-            '}\n' +
-            '\n' +
-            '/* ITEMS */\n' +
-            '.cd-item {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 14px;\n' +
-            '    padding: 14px 16px;\n' +
-            '    background: var(--surface);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-md);\n' +
-            '    margin-bottom: 10px;\n' +
-            '    animation: cdSlideIn 0.2s ease;\n' +
-            '    border-left: 4px solid var(--brand);\n' +
-            '    box-shadow: var(--shadow-xs);\n' +
-            '    transition: all 0.2s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item:hover {\n' +
-            '    transform: translateX(2px);\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes cdSlideIn {\n' +
-            '    from { opacity: 0; transform: translateX(-8px); }\n' +
-            '    to { opacity: 1; transform: translateX(0); }\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-thumb {\n' +
-            '    width: 56px;\n' +
-            '    height: 56px;\n' +
-            '    border-radius: var(--r-sm);\n' +
-            '    overflow: hidden;\n' +
-            '    flex-shrink: 0;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    font-size: 24px;\n' +
-            '    color: white;\n' +
-            '    background: linear-gradient(135deg, var(--brand), var(--brand-dark));\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-thumb img {\n' +
-            '    width: 100%;\n' +
-            '    height: 100%;\n' +
-            '    object-fit: cover;\n' +
-            '    display: block;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-info {\n' +
-            '    flex: 1;\n' +
-            '    min-width: 0;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-name {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--text);\n' +
-            '    white-space: nowrap;\n' +
-            '    overflow: hidden;\n' +
-            '    text-overflow: ellipsis;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-unit {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 4px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-unit-khr {\n' +
-            '    font-size: 10px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 2px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-right {\n' +
-            '    text-align: right;\n' +
-            '    flex-shrink: 0;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-qty {\n' +
-            '    display: inline-flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    min-width: 36px;\n' +
-            '    height: 36px;\n' +
-            '    background: var(--brand-light);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-sm);\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--brand);\n' +
-            '    margin-bottom: 4px;\n' +
-            '    padding: 0 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-total {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--text);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-total-khr {\n' +
-            '    font-size: 11px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 2px;\n' +
-            '}\n' +
-            '\n' +
-            '/* SUMMARY FOOTER */\n' +
-            '.cd-summary {\n' +
-            '    background: var(--surface);\n' +
-            '    border-top: 1px solid var(--border);\n' +
-            '    padding: 20px 24px;\n' +
-            '    flex-shrink: 0;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-row {\n' +
-            '    display: flex;\n' +
-            '    justify-content: space-between;\n' +
-            '    align-items: flex-start;\n' +
-            '    font-size: 15px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-sub);\n' +
-            '    margin-bottom: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-row.total {\n' +
-            '    font-size: 22px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '    border-top: 2px solid var(--border);\n' +
-            '    padding-top: 14px;\n' +
-            '    margin-top: 8px;\n' +
-            '    margin-bottom: 0;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-row.total .cd-total-usd {\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-khr {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    text-align: right;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-discount-pill {\n' +
-            '    display: inline-flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 5px;\n' +
-            '    background: rgba(245, 158, 11, 0.1);\n' +
-            '    border: 1px solid rgba(245, 158, 11, 0.2);\n' +
-            '    color: var(--warning);\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 600;\n' +
-            '    padding: 4px 12px;\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '}\n' +
-            '\n' +
-            '/* KHQR FULLSCREEN OVERLAY */\n' +
-            '.khqr-overlay {\n' +
-            '    position: fixed;\n' +
-            '    top: 0;\n' +
-            '    left: 0;\n' +
-            '    right: 0;\n' +
-            '    bottom: 0;\n' +
-            '    background: var(--surface);\n' +
-            '    z-index: 100;\n' +
-            '    display: none;\n' +
-            '    flex-direction: column;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    gap: 24px;\n' +
-            '    padding: 32px;\n' +
-            '    animation: khqrFadeIn 0.35s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-overlay.show {\n' +
-            '    display: flex;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes khqrFadeIn {\n' +
-            '    from { opacity: 0; transform: scale(0.98); }\n' +
-            '    to { opacity: 1; transform: scale(1); }\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-header {\n' +
-            '    text-align: center;\n' +
-            '    margin-bottom: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-title {\n' +
-            '    font-size: 32px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--brand);\n' +
-            '    letter-spacing: -0.5px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-subtitle {\n' +
-            '    font-size: 15px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    margin-top: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-container {\n' +
-            '    position: relative;\n' +
-            '    margin: 16px 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-frame {\n' +
-            '    position: relative;\n' +
-            '    width: 300px;\n' +
-            '    height: 300px;\n' +
-            '    background: white;\n' +
-            '    border-radius: var(--r-lg);\n' +
-            '    padding: 20px;\n' +
-            '    box-shadow: var(--shadow-lg);\n' +
-            '    border: 2px solid var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner {\n' +
-            '    position: absolute;\n' +
-            '    width: 30px;\n' +
-            '    height: 30px;\n' +
-            '    border-color: var(--brand);\n' +
-            '    border-style: solid;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.tl {\n' +
-            '    top: -3px;\n' +
-            '    left: -3px;\n' +
-            '    border-width: 5px 0 0 5px;\n' +
-            '    border-radius: 10px 0 0 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.tr {\n' +
-            '    top: -3px;\n' +
-            '    right: -3px;\n' +
-            '    border-width: 5px 5px 0 0;\n' +
-            '    border-radius: 0 10px 0 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.bl {\n' +
-            '    bottom: -3px;\n' +
-            '    left: -3px;\n' +
-            '    border-width: 0 0 5px 5px;\n' +
-            '    border-radius: 0 0 0 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.br {\n' +
-            '    bottom: -3px;\n' +
-            '    right: -3px;\n' +
-            '    border-width: 0 5px 5px 0;\n' +
-            '    border-radius: 0 0 10px 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-inner {\n' +
-            '    width: 100%;\n' +
-            '    height: 100%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    background: white;\n' +
-            '    border-radius: var(--r-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-inner img,\n' +
-            '.khqr-qr-inner canvas {\n' +
-            '    max-width: 100%;\n' +
-            '    max-height: 100%;\n' +
-            '    border-radius: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-pulse-ring {\n' +
-            '    position: absolute;\n' +
-            '    inset: -15px;\n' +
-            '    border-radius: 40px;\n' +
-            '    border: 2px solid var(--brand-glow);\n' +
-            '    animation: khqrPulse 2s ease-in-out infinite;\n' +
-            '    pointer-events: none;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes khqrPulse {\n' +
-            '    0%, 100% { transform: scale(1); opacity: 0.6; }\n' +
-            '    50% { transform: scale(1.05); opacity: 0.2; }\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-amount {\n' +
-            '    text-align: center;\n' +
-            '    margin: 20px 0 12px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-amount-usd {\n' +
-            '    font-size: 48px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--brand);\n' +
-            '    letter-spacing: -1px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-amount-khr {\n' +
-            '    font-size: 18px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: -6px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-merchant {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--text);\n' +
-            '    margin: 12px 0 4px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-bank {\n' +
-            '    font-size: 13px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 6px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer {\n' +
-            '    width: 100%;\n' +
-            '    max-width: 300px;\n' +
-            '    margin: 24px auto 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-bar {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    height: 8px;\n' +
-            '    overflow: hidden;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-fill {\n' +
-            '    height: 100%;\n' +
-            '    background: linear-gradient(90deg, var(--brand), var(--brand-dark));\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    width: 100%;\n' +
-            '    transition: width 120s linear;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-text {\n' +
-            '    text-align: center;\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-text span {\n' +
-            '    color: var(--brand);\n' +
-            '    font-weight: 800;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-close-btn {\n' +
-            '    position: absolute;\n' +
-            '    top: 24px;\n' +
-            '    right: 24px;\n' +
-            '    width: 48px;\n' +
-            '    height: 48px;\n' +
-            '    background: var(--surface);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    cursor: pointer;\n' +
-            '    transition: all 0.2s;\n' +
-            '    color: var(--text);\n' +
-            '    font-size: 20px;\n' +
-            '    z-index: 101;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-close-btn:hover {\n' +
-            '    background: var(--danger-light);\n' +
-            '    border-color: var(--danger);\n' +
-            '    color: var(--danger);\n' +
-            '    transform: scale(1.05);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-instruction {\n' +
-            '    background: var(--brand-light);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    padding: 12px 24px;\n' +
-            '    margin-top: 20px;\n' +
-            '    font-size: 13px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '/* THANK YOU OVERLAY */\n' +
-            '.thankyou-overlay {\n' +
-            '    position: fixed;\n' +
-            '    top: 0;\n' +
-            '    left: 0;\n' +
-            '    right: 0;\n' +
-            '    bottom: 0;\n' +
-            '    background: var(--surface);\n' +
-            '    z-index: 200;\n' +
-            '    display: none;\n' +
-            '    flex-direction: column;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    gap: 24px;\n' +
-            '    padding: 32px;\n' +
-            '    text-align: center;\n' +
-            '    animation: thankyouFadeIn 0.4s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-overlay.show {\n' +
-            '    display: flex;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes thankyouFadeIn {\n' +
-            '    from { opacity: 0; transform: scale(0.95); }\n' +
-            '    to { opacity: 1; transform: scale(1); }\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-check {\n' +
-            '    width: 100px;\n' +
-            '    height: 100px;\n' +
-            '    background: rgba(0, 184, 148, 0.1);\n' +
-            '    border: 3px solid var(--success);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    font-size: 48px;\n' +
-            '    color: var(--success);\n' +
-            '    animation: thankyouBounce 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes thankyouBounce {\n' +
-            '    0% { transform: scale(0.3); opacity: 0; }\n' +
-            '    50% { transform: scale(1.1); }\n' +
-            '    100% { transform: scale(1); opacity: 1; }\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-title {\n' +
-            '    font-size: 36px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-amount {\n' +
-            '    font-size: 52px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--brand);\n' +
-            '    letter-spacing: -1px;\n' +
-            '    margin: 8px 0;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-amount-khr {\n' +
-            '    font-size: 20px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: -10px;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-md);\n' +
-            '    padding: 20px 32px;\n' +
-            '    margin-top: 16px;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change-label {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 700;\n' +
-            '    text-transform: uppercase;\n' +
-            '    letter-spacing: 1px;\n' +
-            '    color: var(--success);\n' +
-            '    margin-bottom: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change-usd {\n' +
-            '    font-size: 32px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--success);\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change-khr {\n' +
-            '    font-size: 14px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-message {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    margin-top: 20px;\n' +
-            '    line-height: 1.6;\n' +
-            '}\n' +
-            '\n' +
-            '/* Scrollbar */\n' +
-            '.cd-main-content::-webkit-scrollbar {\n' +
-            '    width: 6px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content::-webkit-scrollbar-track {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border-radius: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content::-webkit-scrollbar-thumb {\n' +
-            '    background: var(--border);\n' +
-            '    border-radius: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content::-webkit-scrollbar-thumb:hover {\n' +
-            '    background: var(--brand);\n' +
-            '}\n' +
+            '    --r-xs: 6px; --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px;\n' +
+            '}\n' +
+            '.pos-cd { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }\n' +
+            '.fullscreen-btn { position: fixed; bottom: 20px; right: 20px; width: 48px; height: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; box-shadow: var(--shadow-sm); transition: all 0.3s ease; color: var(--brand); font-size: 20px; }\n' +
+            '.fullscreen-btn:hover { transform: scale(1.1); background: var(--brand); color: white; border-color: var(--brand); box-shadow: var(--shadow-brand); }\n' +
+            '.cd-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; flex-shrink: 0; box-shadow: var(--shadow-xs); }\n' +
+            '.cd-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }\n' +
+            '.cd-logo-area { display: flex; align-items: center; gap: 10px; }\n' +
+            '.cd-logo-dot { width: 10px; height: 10px; background: var(--brand); border-radius: 50%; box-shadow: 0 0 14px rgba(255, 107, 53, 0.9); animation: cdPulse 2.5s ease-in-out infinite; }\n' +
+            '@@keyframes cdPulse { 0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(255, 107, 53, 0.6); } 50% { opacity: 0.7; box-shadow: 0 0 22px rgba(255, 107, 53, 0.9); } }\n' +
+            '.cd-logo-text { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }\n' +
+            '.cd-logo-text span { color: var(--brand); }\n' +
+            '.cd-clock { background: var(--bg-2); border: 1px solid var(--border-light); border-radius: var(--r-xl); padding: 6px 16px; font-size: 15px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }\n' +
+            '.cd-header-sub { display: flex; align-items: center; justify-content: space-between; }\n' +
+            '.cd-welcome-line1 { font-size: 12px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.3px; }\n' +
+            '.cd-currency-toggle { display: flex; align-items: center; gap: 6px; background: var(--bg-2); border-radius: var(--r-xl); padding: 4px; border: 1px solid var(--border-light); }\n' +
+            '.cd-currency-opt { padding: 4px 14px; border-radius: 30px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-sub); }\n' +
+            '.cd-currency-opt.active { background: var(--brand); color: white; box-shadow: var(--shadow-sm); }\n' +
+            '.cd-live-dot { font-size: 10px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }\n' +
+            '.cd-live-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: livePulse 2s infinite; }\n' +
+            '@@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }\n' +
+            '.cd-main-content { flex: 1; min-height: 0; overflow-y: auto; transition: all 0.3s ease; }\n' +
+            '.cd-main-content.qr-active { overflow: hidden; }\n' +
+            '.cd-idle { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 32px; text-align: center; }\n' +
+            '.cd-idle-icon { width: 100px; height: 100px; background: var(--brand-light); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }\n' +
+            '.cd-idle-icon i { font-size: 42px; color: var(--brand); }\n' +
+            '.cd-idle-title { font-size: 32px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }\n' +
+            '.cd-idle-sub { font-size: 16px; font-weight: 500; color: var(--text-sub); line-height: 1.6; }\n' +
+            '.cd-promo-strip { background: linear-gradient(135deg, var(--brand-light), #FFF); border: 1px solid var(--border-light); border-radius: var(--r-md); padding: 16px 24px; max-width: 420px; width: 100%; text-align: center; }\n' +
+            '.cd-promo-label { font-size: 11px; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }\n' +
+            '.cd-promo-text { font-size: 14px; font-weight: 500; color: var(--text-sub); line-height: 1.6; }\n' +
+            '.cd-order-section { padding: 20px 24px; }\n' +
+            '.cd-section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }\n' +
+            '.cd-section-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }\n' +
+            '.cd-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); margin-bottom: 10px; animation: cdSlideIn 0.2s ease; border-left: 4px solid var(--brand); box-shadow: var(--shadow-xs); transition: all 0.2s ease; }\n' +
+            '.cd-item:hover { transform: translateX(2px); box-shadow: var(--shadow-sm); }\n' +
+            '@@keyframes cdSlideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }\n' +
+            '.cd-item-thumb { width: 56px; height: 56px; border-radius: var(--r-sm); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); }\n' +
+            '.cd-item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }\n' +
+            '.cd-item-info { flex: 1; min-width: 0; }\n' +
+            '.cd-item-name { font-size: 16px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n' +
+            '.cd-item-unit { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-top: 4px; }\n' +
+            '.cd-item-unit-khr { font-size: 10px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }\n' +
+            '.cd-item-right { text-align: right; flex-shrink: 0; }\n' +
+            '.cd-item-qty { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; background: var(--brand-light); border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 16px; font-weight: 700; color: var(--brand); margin-bottom: 4px; padding: 0 8px; }\n' +
+            '.cd-item-total { font-size: 16px; font-weight: 700; color: var(--text); }\n' +
+            '.cd-item-total-khr { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }\n' +
+            '.cd-summary { background: var(--surface); border-top: 1px solid var(--border); padding: 20px 24px; flex-shrink: 0; box-shadow: var(--shadow-sm); }\n' +
+            '.cd-sum-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 15px; font-weight: 600; color: var(--text-sub); margin-bottom: 10px; }\n' +
+            '.cd-sum-row.total { font-size: 22px; font-weight: 800; color: var(--text); border-top: 2px solid var(--border); padding-top: 14px; margin-top: 8px; margin-bottom: 0; }\n' +
+            '.cd-sum-row.total .cd-total-usd { color: var(--brand); }\n' +
+            '.cd-sum-khr { font-size: 12px; font-weight: 500; color: var(--text-muted); text-align: right; }\n' +
+            '.cd-discount-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--warning); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: var(--r-xl); }\n' +
+            '.khqr-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--surface); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 32px; animation: khqrFadeIn 0.35s ease; }\n' +
+            '.khqr-overlay.show { display: flex; }\n' +
+            '@@keyframes khqrFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }\n' +
+            '.khqr-header { text-align: center; margin-bottom: 8px; }\n' +
+            '.khqr-title { font-size: 32px; font-weight: 800; color: var(--brand); letter-spacing: -0.5px; }\n' +
+            '.khqr-subtitle { font-size: 15px; font-weight: 500; color: var(--text-sub); margin-top: 8px; }\n' +
+            '.khqr-qr-container { position: relative; margin: 16px 0; }\n' +
+            '.khqr-qr-frame { position: relative; width: 300px; height: 300px; background: white; border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow-lg); border: 2px solid var(--brand); }\n' +
+            '.khqr-qr-corner { position: absolute; width: 30px; height: 30px; border-color: var(--brand); border-style: solid; }\n' +
+            '.khqr-qr-corner.tl { top: -3px; left: -3px; border-width: 5px 0 0 5px; border-radius: 10px 0 0 0; }\n' +
+            '.khqr-qr-corner.tr { top: -3px; right: -3px; border-width: 5px 5px 0 0; border-radius: 0 10px 0 0; }\n' +
+            '.khqr-qr-corner.bl { bottom: -3px; left: -3px; border-width: 0 0 5px 5px; border-radius: 0 0 0 10px; }\n' +
+            '.khqr-qr-corner.br { bottom: -3px; right: -3px; border-width: 0 5px 5px 0; border-radius: 0 0 10px 0; }\n' +
+            '.khqr-qr-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: white; border-radius: var(--r-sm); }\n' +
+            '.khqr-qr-inner img, .khqr-qr-inner canvas { max-width: 100%; max-height: 100%; border-radius: 8px; }\n' +
+            '.khqr-pulse-ring { position: absolute; inset: -15px; border-radius: 40px; border: 2px solid var(--brand-glow); animation: khqrPulse 2s ease-in-out infinite; pointer-events: none; }\n' +
+            '@@keyframes khqrPulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 0.2; } }\n' +
+            '.khqr-amount { text-align: center; margin: 20px 0 12px; }\n' +
+            '.khqr-amount-usd { font-size: 48px; font-weight: 800; color: var(--brand); letter-spacing: -1px; }\n' +
+            '.khqr-amount-khr { font-size: 18px; font-weight: 600; color: var(--text-muted); margin-top: -6px; }\n' +
+            '.khqr-merchant { font-size: 16px; font-weight: 700; color: var(--text); margin: 12px 0 4px; }\n' +
+            '.khqr-bank { font-size: 13px; font-weight: 500; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }\n' +
+            '.khqr-timer { width: 100%; max-width: 300px; margin: 24px auto 0; }\n' +
+            '.khqr-timer-bar { background: var(--bg-2); border-radius: var(--r-xl); height: 8px; overflow: hidden; }\n' +
+            '.khqr-timer-fill { height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-dark)); border-radius: var(--r-xl); width: 100%; transition: width 120s linear; }\n' +
+            '.khqr-timer-text { text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 10px; }\n' +
+            '.khqr-timer-text span { color: var(--brand); font-weight: 800; }\n' +
+            '.khqr-close-btn { position: absolute; top: 24px; right: 24px; width: 48px; height: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; color: var(--text); font-size: 20px; z-index: 101; box-shadow: var(--shadow-sm); }\n' +
+            '.khqr-close-btn:hover { background: var(--danger-light); border-color: var(--danger); color: var(--danger); transform: scale(1.05); }\n' +
+            '.khqr-instruction { background: var(--brand-light); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 12px 24px; margin-top: 20px; font-size: 13px; font-weight: 600; color: var(--brand); }\n' +
+            '.thankyou-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--surface); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 32px; text-align: center; animation: thankyouFadeIn 0.4s ease; }\n' +
+            '.thankyou-overlay.show { display: flex; }\n' +
+            '@@keyframes thankyouFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }\n' +
+            '.thankyou-check { width: 100px; height: 100px; background: rgba(0, 184, 148, 0.1); border: 3px solid var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--success); animation: thankyouBounce 0.5s cubic-bezier(0.34, 1.2, 0.64, 1); }\n' +
+            '@@keyframes thankyouBounce { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }\n' +
+            '.thankyou-title { font-size: 36px; font-weight: 800; color: var(--text); }\n' +
+            '.thankyou-amount { font-size: 52px; font-weight: 800; color: var(--brand); letter-spacing: -1px; margin: 8px 0; }\n' +
+            '.thankyou-amount-khr { font-size: 20px; font-weight: 600; color: var(--text-muted); margin-top: -10px; }\n' +
+            '.thankyou-change { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 20px 32px; margin-top: 16px; }\n' +
+            '.thankyou-change-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--success); margin-bottom: 8px; }\n' +
+            '.thankyou-change-usd { font-size: 32px; font-weight: 800; color: var(--success); }\n' +
+            '.thankyou-change-khr { font-size: 14px; font-weight: 600; color: var(--text-muted); }\n' +
+            '.thankyou-message { font-size: 16px; font-weight: 500; color: var(--text-sub); margin-top: 20px; line-height: 1.6; }\n' +
+            '.cd-main-content::-webkit-scrollbar { width: 6px; }\n' +
+            '.cd-main-content::-webkit-scrollbar-track { background: var(--bg-2); border-radius: 10px; }\n' +
+            '.cd-main-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }\n' +
+            '.cd-main-content::-webkit-scrollbar-thumb:hover { background: var(--brand); }\n' +
             '</style>\n' +
             '</head>\n' +
             '<body>\n' +
             '<div class="pos-cd">\n' +
-
-            /* HEADER */
             '  <div class="cd-header">\n' +
             '    <div class="cd-header-top">\n' +
-            '      <div class="cd-logo-area">\n' +
-            '        <div class="cd-logo-dot"></div>\n' +
-            '        <div class="cd-logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div>\n' +
-            '      </div>\n' +
+            '      <div class="cd-logo-area"><div class="cd-logo-dot"></div><div class="cd-logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div></div>\n' +
             '      <div class="cd-clock" id="cdClock">00:00:00</div>\n' +
             '    </div>\n' +
             '    <div class="cd-header-sub">\n' +
             '      <div class="cd-welcome-line1">Customer Display</div>\n' +
             '      <div style="display:flex;align-items:center;gap:12px;">\n' +
-            '        <div class="cd-currency-toggle" id="cdCurrencyToggle">\n' +
-            '          <span class="cd-currency-opt active" data-cd-currency="usd">USD</span>\n' +
-            '          <span class="cd-currency-opt" data-cd-currency="khr">KHR</span>\n' +
-            '        </div>\n' +
+            '        <div class="cd-currency-toggle" id="cdCurrencyToggle"><span class="cd-currency-opt active" data-cd-currency="usd">USD</span><span class="cd-currency-opt" data-cd-currency="khr">KHR</span></div>\n' +
             '        <div class="cd-live-dot">LIVE</div>\n' +
             '      </div>\n' +
             '    </div>\n' +
             '  </div>\n' +
-
-            /* MAIN CONTENT AREA */
             '  <div class="cd-main-content" id="cdMainContent">\n' +
-            '    <!-- IDLE STATE -->\n' +
             '    <div class="cd-idle" id="cdIdle">\n' +
             '      <div class="cd-idle-icon"><i class="fas fa-concierge-bell"></i></div>\n' +
-            '      <div>\n' +
-            '        <div class="cd-idle-title">សូមស្វាគមន៍!</div>\n' +
-            '        <div class="cd-idle-sub">ជ្រើសរើសមុខអាហារ<br>ហើយយើងនឹងបម្រើអ្នក</div>\n' +
-            '      </div>\n' +
+            '      <div><div class="cd-idle-title">សូមស្វាគមន៍!</div><div class="cd-idle-sub">ជ្រើសរើសមុខអាហារ<br>ហើយយើងនឹងបម្រើអ្នក</div></div>\n' +
             '      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 20px;max-width:360px;width:100%;display:flex;align-items:center;gap:14px;">\n' +
-            '        <div style="width:44px;height:44px;background:var(--brand-light);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">\n' +
-            '          <i class="fas fa-calendar-day" style="font-size:18px;color:var(--brand);"></i>\n' +
-            '        </div>\n' +
-            '        <div>\n' +
-            '          <div id="cdIdleDate" style="font-size:15px;font-weight:600;color:var(--text);"></div>\n' +
-            '          <div id="cdIdleDay" style="font-size:13px;font-weight:500;color:var(--text-muted);margin-top:2px;"></div>\n' +
-            '        </div>\n' +
+            '        <div style="width:44px;height:44px;background:var(--brand-light);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-calendar-day" style="font-size:18px;color:var(--brand);"></i></div>\n' +
+            '        <div><div id="cdIdleDate" style="font-size:15px;font-weight:600;color:var(--text);"></div><div id="cdIdleDay" style="font-size:13px;font-weight:500;color:var(--text-muted);margin-top:2px;"></div></div>\n' +
             '      </div>\n' +
-            '      <div class="cd-promo-strip">\n' +
-            '        <div class="cd-promo-label">ប្រម៉ូសិយ៉ូន</div>\n' +
-            '        <div class="cd-promo-text">ទទួលការបញ្ចុះតម្លៃ 10%<br>នៅពេលបញ្ជាទិញលើសពី $20</div>\n' +
-            '      </div>\n' +
+            '      <div class="cd-promo-strip"><div class="cd-promo-label">ប្រម៉ូសិយ៉ូន</div><div class="cd-promo-text">ទទួលការបញ្ចុះតម្លៃ 10%<br>នៅពេលបញ្ជាទិញលើសពី $20</div></div>\n' +
             '    </div>\n' +
-            '    \n' +
-            '    <!-- ORDER STATE -->\n' +
             '    <div id="cdOrderState" style="display:none;">\n' +
-            '      <div class="cd-order-section">\n' +
-            '        <div class="cd-section-label">បញ្ជីការកម្មង់</div>\n' +
-            '        <div id="cdItemsList"></div>\n' +
-            '      </div>\n' +
+            '      <div class="cd-order-section"><div class="cd-section-label">បញ្ជីការកម្មង់</div><div id="cdItemsList"></div></div>\n' +
             '      <div class="cd-summary">\n' +
             '        <div class="cd-sum-row"><span>សរុប</span><span><span id="cdSubtotal">$0.00</span><div class="cd-sum-khr" id="cdSubtotalKhr">0 ៛</div></span></div>\n' +
             '        <div class="cd-sum-row" id="cdDiscountRow" style="display:none;"><span class="cd-discount-pill"><i class="fas fa-tag"></i><span id="cdDiscountLabel">បញ្ចុះ</span></span><span style="color:var(--warning);font-weight:700;" id="cdDiscountVal">-$0.00</span></div>\n' +
@@ -1551,411 +737,59 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             '      </div>\n' +
             '    </div>\n' +
             '  </div>\n' +
-
-            /* FULLSCREEN BUTTON */
-            '<button class="fullscreen-btn" id="fullscreenBtn">\n' +
-            '    <i class="fas fa-expand"></i>\n' +
-            '</button>\n' +
-
-            /* KHQR FULLSCREEN OVERLAY */
+            '<button class="fullscreen-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></button>\n' +
             '<div class="khqr-overlay" id="khqrOverlay">\n' +
-            '  <div class="khqr-close-btn" id="khqrCloseBtn">\n' +
-            '    <i class="fas fa-times"></i>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-header">\n' +
-            '    <div class="khqr-title">ទូទាត់តាម KHQR</div>\n' +
-            '    <div class="khqr-subtitle">ស្កែន QR Code ដើម្បីបង់ប្រាក់</div>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-qr-container">\n' +
-            '    <div class="khqr-qr-frame">\n' +
-            '      <div class="khqr-pulse-ring"></div>\n' +
-            '      <div class="khqr-qr-corner tl"></div>\n' +
-            '      <div class="khqr-qr-corner tr"></div>\n' +
-            '      <div class="khqr-qr-corner bl"></div>\n' +
-            '      <div class="khqr-qr-corner br"></div>\n' +
-            '      <div class="khqr-qr-inner">\n' +
-            '        <img src="' + origin + '/khqr-code.png" alt="KHQR" id="khqrImage" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display=\'none\';document.getElementById(\'khqrCanvas\').style.display=\'block\';">\n' +
-            '        <canvas id="khqrCanvas" width="240" height="240" style="display:none;"></canvas>\n' +
-            '      </div>\n' +
-            '    </div>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-amount">\n' +
-            '    <div class="khqr-amount-usd" id="khqrAmountUsd">$0.00</div>\n' +
-            '    <div class="khqr-amount-khr" id="khqrAmountKhr">0 ៛</div>\n' +
-            '  </div>\n' +
+            '  <div class="khqr-close-btn" id="khqrCloseBtn"><i class="fas fa-times"></i></div>\n' +
+            '  <div class="khqr-header"><div class="khqr-title">ទូទាត់តាម KHQR</div><div class="khqr-subtitle">ស្កែន QR Code ដើម្បីបង់ប្រាក់</div></div>\n' +
+            '  <div class="khqr-qr-container"><div class="khqr-qr-frame"><div class="khqr-pulse-ring"></div><div class="khqr-qr-corner tl"></div><div class="khqr-qr-corner tr"></div><div class="khqr-qr-corner bl"></div><div class="khqr-qr-corner br"></div><div class="khqr-qr-inner"><img src="' + origin + '/khqr-code.png" alt="KHQR" id="khqrImage" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display=\'none\';document.getElementById(\'khqrCanvas\').style.display=\'block\';"><canvas id="khqrCanvas" width="240" height="240" style="display:none;"></canvas></div></div></div>\n' +
+            '  <div class="khqr-amount"><div class="khqr-amount-usd" id="khqrAmountUsd">$0.00</div><div class="khqr-amount-khr" id="khqrAmountKhr">0 ៛</div></div>\n' +
             '  <div class="khqr-merchant">ផ្ទះបាយសេនឌូ</div>\n' +
             '  <div class="khqr-bank"><i class="fas fa-university"></i> ABA Bank · 0000 1234 5678</div>\n' +
-            '  <div class="khqr-timer">\n' +
-            '    <div class="khqr-timer-bar"><div class="khqr-timer-fill" id="khqrTimerFill"></div></div>\n' +
-            '    <div class="khqr-timer-text">ផុតកំណត់ក្នុង <span id="khqrTimerLabel">2:00</span></div>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-instruction">\n' +
-            '    <i class="fas fa-mobile-alt"></i> បើកកម្មវិធី ABA / ACLEDA / Wing ហើយស្កែន QR\n' +
-            '  </div>\n' +
+            '  <div class="khqr-timer"><div class="khqr-timer-bar"><div class="khqr-timer-fill" id="khqrTimerFill"></div></div><div class="khqr-timer-text">ផុតកំណត់ក្នុង <span id="khqrTimerLabel">2:00</span></div></div>\n' +
+            '  <div class="khqr-instruction"><i class="fas fa-mobile-alt"></i> បើកកម្មវិធី ABA / ACLEDA / Wing ហើយស្កែន QR</div>\n' +
             '</div>\n' +
-
-            /* THANK YOU OVERLAY */
             '<div class="thankyou-overlay" id="thankyouOverlay">\n' +
             '  <div class="thankyou-check"><i class="fas fa-check"></i></div>\n' +
             '  <div class="thankyou-title">សូមអរគុណ! 🙏</div>\n' +
-            '  <div>\n' +
-            '    <div class="thankyou-amount" id="tyAmount">$0.00</div>\n' +
-            '    <div class="thankyou-amount-khr" id="tyAmountKhr">0 ៛</div>\n' +
-            '  </div>\n' +
-            '  <div class="thankyou-change" id="tyChangeBox" style="display:none;">\n' +
-            '    <div class="thankyou-change-label">ប្រាក់អាប់</div>\n' +
-            '    <div class="thankyou-change-usd" id="tyChangeUsd">$0.00</div>\n' +
-            '    <div class="thankyou-change-khr" id="tyChangeKhr">0 ៛</div>\n' +
-            '  </div>\n' +
+            '  <div><div class="thankyou-amount" id="tyAmount">$0.00</div><div class="thankyou-amount-khr" id="tyAmountKhr">0 ៛</div></div>\n' +
+            '  <div class="thankyou-change" id="tyChangeBox" style="display:none;"><div class="thankyou-change-label">ប្រាក់អាប់</div><div class="thankyou-change-usd" id="tyChangeUsd">$0.00</div><div class="thankyou-change-khr" id="tyChangeKhr">0 ៛</div></div>\n' +
             '  <div class="thankyou-message">អរគុណសម្រាប់ការញ៉ាំ<br>សូមអញ្ជើញមកម្តងទៀត!</div>\n' +
             '</div>\n' +
-            '\n' +
             '</div>\n' +
-
-            /* SCRIPTS - Load QR code library dynamically */
             '<script>\n' +
-            '// Dynamically load QR code library without document.write\n' +
-            'function loadQRCodeLibrary() {\n' +
-            '    return new Promise((resolve, reject) => {\n' +
-            '        if (typeof QRCode !== "undefined") {\n' +
-            '            resolve();\n' +
-            '            return;\n' +
-            '        }\n' +
-            '        var script = document.createElement("script");\n' +
-            '        script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";\n' +
-            '        script.onload = resolve;\n' +
-            '        script.onerror = reject;\n' +
-            '        document.head.appendChild(script);\n' +
-            '    });\n' +
-            '}\n' +
-            '\n' +
-            '// Fullscreen handling with user gesture\n' +
-            'function toggleFullscreen() {\n' +
-            '    const elem = document.documentElement;\n' +
-            '    if (!document.fullscreenElement && !document.webkitFullscreenElement) {\n' +
-            '        if (elem.requestFullscreen) {\n' +
-            '            elem.requestFullscreen();\n' +
-            '        } else if (elem.webkitRequestFullscreen) {\n' +
-            '            elem.webkitRequestFullscreen();\n' +
-            '        } else if (elem.msRequestFullscreen) {\n' +
-            '            elem.msRequestFullscreen();\n' +
-            '        }\n' +
-            '    } else {\n' +
-            '        if (document.exitFullscreen) {\n' +
-            '            document.exitFullscreen();\n' +
-            '        } else if (document.webkitExitFullscreen) {\n' +
-            '            document.webkitExitFullscreen();\n' +
-            '        }\n' +
-            '    }\n' +
-            '}\n' +
-            '\n' +
-            '// Update fullscreen button icon\n' +
-            'function updateFullscreenIcon() {\n' +
-            '    const btn = document.getElementById("fullscreenBtn");\n' +
-            '    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;\n' +
-            '    if (btn) {\n' +
-            '        if (isFullscreen) {\n' +
-            '            btn.innerHTML = \'<i class="fas fa-compress"></i>\';\n' +
-            '        } else {\n' +
-            '            btn.innerHTML = \'<i class="fas fa-expand"></i>\';\n' +
-            '        }\n' +
-            '    }\n' +
-            '}\n' +
-            '\n' +
-            '// Listen for fullscreen changes\n' +
-            'document.addEventListener("fullscreenchange", updateFullscreenIcon);\n' +
-            'document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);\n' +
-            '\n' +
-            '// Add click handler for fullscreen button when DOM is ready\n' +
-            'document.addEventListener("DOMContentLoaded", function() {\n' +
-            '    const fullscreenBtn = document.getElementById("fullscreenBtn");\n' +
-            '    if (fullscreenBtn) {\n' +
-            '        fullscreenBtn.addEventListener("click", toggleFullscreen);\n' +
-            '    }\n' +
-            '});\n' +
-            '\n' +
-            '// Load QR code library and initialize\n' +
-            'loadQRCodeLibrary().then(function() {\n' +
-            '    console.log("✅ QR Code library loaded");\n' +
-            '}).catch(function(err) {\n' +
-            '    console.warn("QR Code library load failed:", err);\n' +
-            '});\n' +
-            '\n' +
+            'function loadQRCodeLibrary(){return new Promise((resolve,reject)=>{if(typeof QRCode!=="undefined"){resolve();return;}var script=document.createElement("script");script.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});}\n' +
+            'function toggleFullscreen(){const elem=document.documentElement;if(!document.fullscreenElement&&!document.webkitFullscreenElement){if(elem.requestFullscreen)elem.requestFullscreen();else if(elem.webkitRequestFullscreen)elem.webkitRequestFullscreen();}else{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}}\n' +
+            'function updateFullscreenIcon(){const btn=document.getElementById("fullscreenBtn");const isFullscreen=document.fullscreenElement||document.webkitFullscreenElement;if(btn){btn.innerHTML=isFullscreen?\'<i class="fas fa-compress"></i>\':\'<i class="fas fa-expand"></i>\';}}\n' +
+            'document.addEventListener("fullscreenchange",updateFullscreenIcon);document.addEventListener("webkitfullscreenchange",updateFullscreenIcon);\n' +
+            'document.addEventListener("DOMContentLoaded",function(){const btn=document.getElementById("fullscreenBtn");if(btn)btn.addEventListener("click",toggleFullscreen);});\n' +
+            'loadQRCodeLibrary().then(function(){console.log("✅ QR Code library loaded");}).catch(function(err){console.warn("QR Code library load failed:",err);});\n' +
             '(function(){\n' +
-            '  var EXRATE = 4100;\n' +
-            '  var CHG_RATE = 4000;\n' +
-            '  var displayCurrency = "usd";\n' +
-            '  var currentOrderData = null;\n' +
-            '  var qrTimerInterval = null;\n' +
-            '  \n' +
+            '  var EXRATE=4100,CHG_RATE=4000,displayCurrency="usd",currentOrderData=null,qrTimerInterval=null;\n' +
             '  function fmtUsd(n){return "$"+parseFloat(n).toFixed(2);}\n' +
             '  function fmtKhr(n){return Math.round(n).toLocaleString()+" ៛";}\n' +
             '  function toKhr(usd){return Math.round(usd*EXRATE);}\n' +
             '  function toKhrCustomer(usd){return Math.round(usd*CHG_RATE);}\n' +
             '  function roundK(v){return Math.round(v/100)*100;}\n' +
-            '\n' +
-            '  /* Currency toggle */\n' +
-            '  function setDisplayCurrency(currency) {\n' +
-            '    displayCurrency = currency;\n' +
-            '    document.querySelectorAll(".cd-currency-opt").forEach(opt => {\n' +
-            '      if(opt.dataset.cdCurrency === currency) opt.classList.add("active");\n' +
-            '      else opt.classList.remove("active");\n' +
-            '    });\n' +
-            '    if(currentOrderData && !currentOrderData.isEmpty) renderOrder(currentOrderData);\n' +
+            '  function setDisplayCurrency(currency){\n' +
+            '    displayCurrency=currency;\n' +
+            '    document.querySelectorAll(".cd-currency-opt").forEach(opt=>{if(opt.dataset.cdCurrency===currency)opt.classList.add("active");else opt.classList.remove("active");});\n' +
+            '    if(currentOrderData&&!currentOrderData.isEmpty)renderOrder(currentOrderData);\n' +
             '  }\n' +
-            '  \n' +
-            '  var toggle = document.getElementById("cdCurrencyToggle");\n' +
-            '  if(toggle) {\n' +
-            '    toggle.addEventListener("click", function(e) {\n' +
-            '      var target = e.target.closest(".cd-currency-opt");\n' +
-            '      if(target && target.dataset.cdCurrency) {\n' +
-            '        setDisplayCurrency(target.dataset.cdCurrency);\n' +
-            '      }\n' +
-            '    });\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Clock */\n' +
-            '  function updateClock(){\n' +
-            '    var now=new Date();\n' +
-            '    var h=String(now.getHours()).padStart(2,"0");\n' +
-            '    var m=String(now.getMinutes()).padStart(2,"0");\n' +
-            '    var s=String(now.getSeconds()).padStart(2,"0");\n' +
-            '    var clockEl = document.getElementById("cdClock");\n' +
-            '    if(clockEl) clockEl.textContent=h+":"+m+":"+s;\n' +
-            '  }\n' +
-            '  setInterval(updateClock,1000); updateClock();\n' +
-            '\n' +
-            '  /* Idle date */\n' +
-            '  (function(){\n' +
-            '    var now=new Date();\n' +
-            '    var dEl=document.getElementById("cdIdleDate");\n' +
-            '    var dayEl=document.getElementById("cdIdleDay");\n' +
-            '    if(dEl) dEl.textContent=now.toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});\n' +
-            '    if(dayEl) dayEl.textContent=now.toLocaleDateString("en-GB",{weekday:"long"});\n' +
-            '  })();\n' +
-            '\n' +
-            '  /* Format based on display currency */\n' +
-            '  function formatAmount(usdValue, khrValue) {\n' +
-            '    if(displayCurrency === "usd") {\n' +
-            '      return { main: fmtUsd(usdValue), secondary: fmtKhr(khrValue) };\n' +
-            '    } else {\n' +
-            '      return { main: fmtKhr(khrValue), secondary: fmtUsd(usdValue) };\n' +
-            '    }\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Generate QR Code */\n' +
-            '  function generateQRCode(canvasId, text, width, height) {\n' +
-            '    var canvas = document.getElementById(canvasId);\n' +
-            '    if(!canvas) return false;\n' +
-            '    \n' +
-            '    if(typeof QRCode !== "undefined" && QRCode.toCanvas) {\n' +
-            '      try {\n' +
-            '        QRCode.toCanvas(canvas, text, {\n' +
-            '          width: width,\n' +
-            '          margin: 1,\n' +
-            '          color: { dark: "#1A1714", light: "#FFFFFF" },\n' +
-            '          errorCorrectionLevel: "H"\n' +
-            '        }, function(err) {\n' +
-            '          if(err) console.warn("QR generation error:", err);\n' +
-            '        });\n' +
-            '        return true;\n' +
-            '      } catch(e) {\n' +
-            '        console.warn("QRCode error:", e);\n' +
-            '        return false;\n' +
-            '      }\n' +
-            '    }\n' +
-            '    return false;\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Show KHQR Overlay */\n' +
-            '  function showKHQR(amountUsd, amountKhr) {\n' +
-            '    var overlay = document.getElementById("khqrOverlay");\n' +
-            '    var mainContent = document.getElementById("cdMainContent");\n' +
-            '    \n' +
-            '    document.getElementById("khqrAmountUsd").textContent = fmtUsd(amountUsd);\n' +
-            '    document.getElementById("khqrAmountKhr").textContent = fmtKhr(amountKhr);\n' +
-            '    \n' +
-            '    // Generate QR code with amount\n' +
-            '    var qrText = "KHQR|SandooHouse|ABA|0000123456|USD|" + amountUsd.toFixed(2) + "|" + Date.now();\n' +
-            '    var canvas = document.getElementById("khqrCanvas");\n' +
-            '    var img = document.getElementById("khqrImage");\n' +
-            '    \n' +
-            '    if(generateQRCode("khqrCanvas", qrText, 240, 240)) {\n' +
-            '      if(img) img.style.display = "none";\n' +
-            '      if(canvas) canvas.style.display = "block";\n' +
-            '    } else {\n' +
-            '      if(img) img.style.display = "block";\n' +
-            '      if(canvas) canvas.style.display = "none";\n' +
-            '    }\n' +
-            '    \n' +
-            '    // Start timer\n' +
-            '    if(qrTimerInterval) clearInterval(qrTimerInterval);\n' +
-            '    var seconds = 120;\n' +
-            '    var fill = document.getElementById("khqrTimerFill");\n' +
-            '    var label = document.getElementById("khqrTimerLabel");\n' +
-            '    \n' +
-            '    if(fill) {\n' +
-            '      fill.style.transition = "width 120s linear";\n' +
-            '      fill.style.width = "0%";\n' +
-            '    }\n' +
-            '    \n' +
-            '    qrTimerInterval = setInterval(function() {\n' +
-            '      seconds--;\n' +
-            '      var m = Math.floor(seconds / 60);\n' +
-            '      var s = String(seconds % 60).padStart(2, "0");\n' +
-            '      if(label) label.textContent = m + ":" + s;\n' +
-            '      if(seconds <= 0) {\n' +
-            '        clearInterval(qrTimerInterval);\n' +
-            '        hideKHQR();\n' +
-            '      }\n' +
-            '    }, 1000);\n' +
-            '    \n' +
-            '    if(overlay) overlay.classList.add("show");\n' +
-            '    if(mainContent) mainContent.classList.add("qr-active");\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Hide KHQR Overlay */\n' +
-            '  function hideKHQR() {\n' +
-            '    var overlay = document.getElementById("khqrOverlay");\n' +
-            '    var mainContent = document.getElementById("cdMainContent");\n' +
-            '    \n' +
-            '    if(qrTimerInterval) {\n' +
-            '      clearInterval(qrTimerInterval);\n' +
-            '      qrTimerInterval = null;\n' +
-            '    }\n' +
-            '    \n' +
-            '    if(overlay) overlay.classList.remove("show");\n' +
-            '    if(mainContent) mainContent.classList.remove("qr-active");\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Show Thank You Overlay */\n' +
-            '  function showThankYou(d) {\n' +
-            '    var totalFormatted = formatAmount(d.total, d.totalKhr || toKhrCustomer(d.total));\n' +
-            '    document.getElementById("tyAmount").textContent = totalFormatted.main;\n' +
-            '    document.getElementById("tyAmountKhr").textContent = totalFormatted.secondary;\n' +
-            '    \n' +
-            '    if(d.paymentMethod === "សាច់ប្រាក់" && d.changeUsd > 0) {\n' +
-            '      var khrChg = roundK(d.changeUsd * (d.paymentCurrency === "ដុល្លារ" ? CHG_RATE : EXRATE));\n' +
-            '      var changeFormatted = formatAmount(d.changeUsd, khrChg);\n' +
-            '      document.getElementById("tyChangeUsd").textContent = changeFormatted.main;\n' +
-            '      document.getElementById("tyChangeKhr").textContent = changeFormatted.secondary;\n' +
-            '      document.getElementById("tyChangeBox").style.display = "flex";\n' +
-            '    } else {\n' +
-            '      document.getElementById("tyChangeBox").style.display = "none";\n' +
-            '    }\n' +
-            '    \n' +
-            '    var ty = document.getElementById("thankyouOverlay");\n' +
-            '    if(ty) ty.classList.add("show");\n' +
-            '    \n' +
-            '    setTimeout(function() {\n' +
-            '      if(ty) ty.classList.remove("show");\n' +
-            '      renderOrder({isEmpty: true, items: []});\n' +
-            '    }, 5000);\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Render Order */\n' +
-            '  function renderOrder(d) {\n' +
-            '    currentOrderData = d;\n' +
-            '    var isEmpty = d.isEmpty || !d.items || d.items.length === 0;\n' +
-            '    \n' +
-            '    var idleDiv = document.getElementById("cdIdle");\n' +
-            '    var orderState = document.getElementById("cdOrderState");\n' +
-            '    \n' +
-            '    if(idleDiv) idleDiv.style.display = isEmpty ? "flex" : "none";\n' +
-            '    if(orderState) orderState.style.display = isEmpty ? "none" : "block";\n' +
-            '    \n' +
-            '    if(isEmpty) return;\n' +
-            '\n' +
-            '    var html = "";\n' +
-            '    d.items.forEach(function(item) {\n' +
-            '      var tot = item.price * item.quantity;\n' +
-            '      var totKhr = toKhrCustomer(tot);\n' +
-            '      var priceFormatted = formatAmount(item.price, toKhrCustomer(item.price));\n' +
-            '      var totalFormatted = formatAmount(tot, totKhr);\n' +
-            '      \n' +
-            '      var imgHtml = item.icon\n' +
-            '        ? "<img src=\'" + item.icon + "\' alt=\'" + escapeHtml(item.name) + "\' onerror=\'this.onerror=null;this.parentElement.innerHTML=\\\"<i class=\\\\\\\"fas fa-utensils\\\\\\\"></i>\\\";\'>"\n' +
-            '        : "<i class=\'fas fa-utensils\'></i>";\n' +
-            '      \n' +
-            '      html += "<div class=\'cd-item\' style=\'--item-color:" + item.color + "\'>";\n' +
-            '      html += "<div class=\'cd-item-thumb\' style=\'background:linear-gradient(135deg," + item.color + ",var(--accent-dark))\'>" + imgHtml + "</div>";\n' +
-            '      html += "<div class=\'cd-item-info\'><div class=\'cd-item-name\'>" + escapeHtml(item.name) + "</div>";\n' +
-            '      html += "<div class=\'cd-item-unit\'>" + priceFormatted.main + " × " + item.quantity + "</div>";\n' +
-            '      html += "<div class=\'cd-item-unit-khr\'>" + priceFormatted.secondary + "</div></div>";\n' +
-            '      html += "<div class=\'cd-item-right\'><div class=\'cd-item-qty\'>" + item.quantity + "</div>";\n' +
-            '      html += "<div class=\'cd-item-total\'>" + totalFormatted.main + "</div>";\n' +
-            '      html += "<div class=\'cd-item-total-khr\'>" + totalFormatted.secondary + "</div></div>";\n' +
-            '      html += "</div>";\n' +
-            '    });\n' +
-            '    \n' +
-            '    var itemsList = document.getElementById("cdItemsList");\n' +
-            '    if(itemsList) itemsList.innerHTML = html;\n' +
-            '\n' +
-            '    var subtotalKhr = toKhrCustomer(d.subtotal);\n' +
-            '    var subtotalFormatted = formatAmount(d.subtotal, subtotalKhr);\n' +
-            '    document.getElementById("cdSubtotal").textContent = subtotalFormatted.main;\n' +
-            '    document.getElementById("cdSubtotalKhr").textContent = subtotalFormatted.secondary;\n' +
-            '\n' +
-            '    var discRow = document.getElementById("cdDiscountRow");\n' +
-            '    if(d.discount > 0) {\n' +
-            '      var lbl = d.discountType === "percentage" ? "បញ្ចុះ " + d.discountAmount + "%" : "បញ្ចុះ";\n' +
-            '      document.getElementById("cdDiscountLabel").textContent = lbl;\n' +
-            '      var discountFormatted = formatAmount(d.discount, toKhrCustomer(d.discount));\n' +
-            '      document.getElementById("cdDiscountVal").textContent = "-" + discountFormatted.main;\n' +
-            '      discRow.style.display = "flex";\n' +
-            '    } else if(discRow) {\n' +
-            '      discRow.style.display = "none";\n' +
-            '    }\n' +
-            '\n' +
-            '    var totalKhr = toKhrCustomer(d.total);\n' +
-            '    var totalFormatted = formatAmount(d.total, totalKhr);\n' +
-            '    document.getElementById("cdTotal").textContent = totalFormatted.main;\n' +
-            '    document.getElementById("cdTotalKhr").textContent = totalFormatted.secondary;\n' +
-            '  }\n' +
-            '\n' +
-            '  function escapeHtml(str) {\n' +
-            '    if(!str) return "";\n' +
-            '    return str.replace(/[&<>]/g, function(m) {\n' +
-            '      if(m === "&") return "&amp;";\n' +
-            '      if(m === "<") return "&lt;";\n' +
-            '      if(m === ">") return "&gt;";\n' +
-            '      return m;\n' +
-            '    });\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Message listener from main POS */\n' +
-            '  window.addEventListener("message", function(e) {\n' +
-            '    if(!e.data || !e.data.type) return;\n' +
-            '    \n' +
-            '    switch(e.data.type) {\n' +
-            '      case "CD_SYNC":\n' +
-            '        renderOrder(e.data);\n' +
-            '        break;\n' +
-            '      case "CD_THANKYOU":\n' +
-            '        showThankYou(e.data);\n' +
-            '        break;\n' +
-            '      case "CD_QR":\n' +
-            '        showKHQR(e.data.total, e.data.totalKhr);\n' +
-            '        break;\n' +
-            '      case "CD_QR_HIDE":\n' +
-            '        hideKHQR();\n' +
-            '        break;\n' +
-            '    }\n' +
-            '  });\n' +
-            '\n' +
-            '  /* Close KHQR button */\n' +
-            '  var closeBtn = document.getElementById("khqrCloseBtn");\n' +
-            '  if(closeBtn) {\n' +
-            '    closeBtn.addEventListener("click", function() {\n' +
-            '      hideKHQR();\n' +
-            '      // Notify main POS that QR was cancelled\n' +
-            '      if(window.opener) {\n' +
-            '        window.opener.postMessage({ type: "KHQR_CANCELLED" }, "*");\n' +
-            '      }\n' +
-            '    });\n' +
-            '  }\n' +
-            '\n' +
-            '  console.log("✅ Customer Display ready with KHQR support and manual fullscreen");\n' +
+            '  var toggle=document.getElementById("cdCurrencyToggle");\n' +
+            '  if(toggle){toggle.addEventListener("click",function(e){var target=e.target.closest(".cd-currency-opt");if(target&&target.dataset.cdCurrency)setDisplayCurrency(target.dataset.cdCurrency);});}\n' +
+            '  function updateClock(){var now=new Date();var h=String(now.getHours()).padStart(2,"0");var m=String(now.getMinutes()).padStart(2,"0");var s=String(now.getSeconds()).padStart(2,"0");var clockEl=document.getElementById("cdClock");if(clockEl)clockEl.textContent=h+":"+m+":"+s;}\n' +
+            '  setInterval(updateClock,1000);updateClock();\n' +
+            '  (function(){var now=new Date();var dEl=document.getElementById("cdIdleDate");var dayEl=document.getElementById("cdIdleDay");if(dEl)dEl.textContent=now.toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});if(dayEl)dayEl.textContent=now.toLocaleDateString("en-GB",{weekday:"long"});})();\n' +
+            '  function formatAmount(usdValue,khrValue){if(displayCurrency==="usd")return{main:fmtUsd(usdValue),secondary:fmtKhr(khrValue)};else return{main:fmtKhr(khrValue),secondary:fmtUsd(usdValue)};}\n' +
+            '  function generateQRCode(canvasId,text,width,height){var canvas=document.getElementById(canvasId);if(!canvas)return false;if(typeof QRCode!=="undefined"&&QRCode.toCanvas){try{QRCode.toCanvas(canvas,text,{width:width,margin:1,color:{dark:"#1A1714",light:"#FFFFFF"},errorCorrectionLevel:"H"},function(err){if(err)console.warn("QR generation error:",err);});return true;}catch(e){console.warn("QRCode error:",e);return false;}}return false;}\n' +
+            '  function showKHQR(amountUsd,amountKhr){var overlay=document.getElementById("khqrOverlay");var mainContent=document.getElementById("cdMainContent");document.getElementById("khqrAmountUsd").textContent=fmtUsd(amountUsd);document.getElementById("khqrAmountKhr").textContent=fmtKhr(amountKhr);var qrText="KHQR|SandooHouse|ABA|0000123456|USD|"+amountUsd.toFixed(2)+"|"+Date.now();var canvas=document.getElementById("khqrCanvas");var img=document.getElementById("khqrImage");if(generateQRCode("khqrCanvas",qrText,240,240)){if(img)img.style.display="none";if(canvas)canvas.style.display="block";}else{if(img)img.style.display="block";if(canvas)canvas.style.display="none";}if(qrTimerInterval)clearInterval(qrTimerInterval);var seconds=120;var fill=document.getElementById("khqrTimerFill");var label=document.getElementById("khqrTimerLabel");if(fill){fill.style.transition="width 120s linear";fill.style.width="0%";}qrTimerInterval=setInterval(function(){seconds--;var m=Math.floor(seconds/60);var s=String(seconds%60).padStart(2,"0");if(label)label.textContent=m+":"+s;if(seconds<=0){clearInterval(qrTimerInterval);hideKHQR();}},1000);if(overlay)overlay.classList.add("show");if(mainContent)mainContent.classList.add("qr-active");}\n' +
+            '  function hideKHQR(){var overlay=document.getElementById("khqrOverlay");var mainContent=document.getElementById("cdMainContent");if(qrTimerInterval){clearInterval(qrTimerInterval);qrTimerInterval=null;}if(overlay)overlay.classList.remove("show");if(mainContent)mainContent.classList.remove("qr-active");}\n' +
+            '  function showThankYou(d){var totalFormatted=formatAmount(d.total,d.totalKhr||toKhrCustomer(d.total));document.getElementById("tyAmount").textContent=totalFormatted.main;document.getElementById("tyAmountKhr").textContent=totalFormatted.secondary;if(d.paymentMethod==="សាច់ប្រាក់"&&d.changeUsd>0){var khrChg=roundK(d.changeUsd*(d.paymentCurrency==="ដុល្លារ"?CHG_RATE:EXRATE));var changeFormatted=formatAmount(d.changeUsd,khrChg);document.getElementById("tyChangeUsd").textContent=changeFormatted.main;document.getElementById("tyChangeKhr").textContent=changeFormatted.secondary;document.getElementById("tyChangeBox").style.display="flex";}else{document.getElementById("tyChangeBox").style.display="none";}var ty=document.getElementById("thankyouOverlay");if(ty)ty.classList.add("show");setTimeout(function(){if(ty)ty.classList.remove("show");renderOrder({isEmpty:true,items:[]});},5000);}\n' +
+            '  function renderOrder(d){currentOrderData=d;var isEmpty=d.isEmpty||!d.items||d.items.length===0;var idleDiv=document.getElementById("cdIdle");var orderState=document.getElementById("cdOrderState");if(idleDiv)idleDiv.style.display=isEmpty?"flex":"none";if(orderState)orderState.style.display=isEmpty?"none":"block";if(isEmpty)return;var html="";d.items.forEach(function(item){var tot=item.price*item.quantity;var totKhr=toKhrCustomer(tot);var priceFormatted=formatAmount(item.price,toKhrCustomer(item.price));var totalFormatted=formatAmount(tot,totKhr);var imgHtml=item.icon?"<img src=\'"+item.icon+"\' alt=\'"+escapeHtml(item.name)+"\' onerror=\'this.onerror=null;this.parentElement.innerHTML=\\\"<i class=\\\\\\\"fas fa-utensils\\\\\\\"></i>\\\";\'>":"<i class=\'fas fa-utensils\'></i>";html+="<div class=\'cd-item\' style=\'--item-color:"+item.color+"\'>";html+="<div class=\'cd-item-thumb\' style=\'background:linear-gradient(135deg,"+item.color+",var(--accent-dark))\'>"+imgHtml+"</div>";html+="<div class=\'cd-item-info\'><div class=\'cd-item-name\'>"+escapeHtml(item.name)+"</div>";html+="<div class=\'cd-item-unit\'>"+priceFormatted.main+" × "+item.quantity+"</div>";html+="<div class=\'cd-item-unit-khr\'>"+priceFormatted.secondary+"</div></div>";html+="<div class=\'cd-item-right\'><div class=\'cd-item-qty\'>"+item.quantity+"</div>";html+="<div class=\'cd-item-total\'>"+totalFormatted.main+"</div>";html+="<div class=\'cd-item-total-khr\'>"+totalFormatted.secondary+"</div></div>";html+="</div>";});var itemsList=document.getElementById("cdItemsList");if(itemsList)itemsList.innerHTML=html;var subtotalKhr=toKhrCustomer(d.subtotal);var subtotalFormatted=formatAmount(d.subtotal,subtotalKhr);document.getElementById("cdSubtotal").textContent=subtotalFormatted.main;document.getElementById("cdSubtotalKhr").textContent=subtotalFormatted.secondary;var discRow=document.getElementById("cdDiscountRow");if(d.discount>0){var lbl=d.discountType==="percentage"?"បញ្ចុះ "+d.discountAmount+"%":"បញ្ចុះ";document.getElementById("cdDiscountLabel").textContent=lbl;var discountFormatted=formatAmount(d.discount,toKhrCustomer(d.discount));document.getElementById("cdDiscountVal").textContent="-"+discountFormatted.main;discRow.style.display="flex";}else if(discRow){discRow.style.display="none";}var totalKhr=toKhrCustomer(d.total);var totalFormatted=formatAmount(d.total,totalKhr);document.getElementById("cdTotal").textContent=totalFormatted.main;document.getElementById("cdTotalKhr").textContent=totalFormatted.secondary;}\n' +
+            '  function escapeHtml(str){if(!str)return"";return str.replace(/[&<>]/g,function(m){if(m==="&")return"&amp;";if(m==="<")return"&lt;";if(m===">")return"&gt;";return m;});}\n' +
+            '  window.addEventListener("message",function(e){if(!e.data||!e.data.type)return;switch(e.data.type){case"CD_SYNC":renderOrder(e.data);break;case"CD_THANKYOU":showThankYou(e.data);break;case"CD_QR":showKHQR(e.data.total,e.data.totalKhr);break;case"CD_QR_HIDE":hideKHQR();break;}});\n' +
+            '  var closeBtn=document.getElementById("khqrCloseBtn");if(closeBtn){closeBtn.addEventListener("click",function(){hideKHQR();if(window.opener)window.opener.postMessage({type:"KHQR_CANCELLED"},"*");});}\n' +
+            '  console.log("✅ Customer Display ready");\n' +
             '})();\n' +
             '<\/script>\n' +
             '</body>\n' +
@@ -2064,7 +898,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             });
         }
 
-        /* ════ CUSTOMER THANK-YOU ════ */
         function showCustomerThankYou(order) {
             postToCustomer({
                 type: 'CD_THANKYOU',
@@ -2324,69 +1157,40 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             notify('ផ្អាកការកម្មង់', 'success');
         });
 
-        /* ════ KHQR FLOW - Only shows on Customer Display ════ */
+        /* ════ KHQR FLOW ════ */
         let _khqrActive = false;
         let qrModalTimer = null;
 
         async function openKhqrFlow(totalUsd) {
             const totalKhr = roundKhr100(toKhr(totalUsd));
-
-            // Send KHQR data to customer display only
-            postToCustomer({
-                type: 'CD_QR',
-                total: totalUsd,
-                totalKhr: totalKhr
-            });
-
-            // Show modal on cashier side with instructions
+            postToCustomer({ type: 'CD_QR', total: totalUsd, totalKhr: totalKhr });
             showCashierQrModal(totalUsd, totalKhr);
-
             _khqrActive = true;
         }
 
         function showCashierQrModal(totalUsd, totalKhr) {
-            // Update the cashier modal with amount
             $('#cqrAmount').text(fmtUsd(totalUsd));
             $('#cqrKhr').text(fmtKhr(totalKhr));
-
-            // Show the modal
             $('#cashierQrModal').addClass('show');
-
-            // Set timer for auto-cancel after 2 minutes
             if (qrModalTimer) clearTimeout(qrModalTimer);
             qrModalTimer = setTimeout(function() {
-                if ($('#cashierQrModal').hasClass('show')) {
-                    closeKhqrFlow();
-                    notify('KHQR ផុតកំណត់', 'warning');
-                }
+                if ($('#cashierQrModal').hasClass('show')) { closeKhqrFlow(); notify('KHQR ផុតកំណត់', 'warning'); }
             }, 120000);
         }
 
         function closeKhqrFlow() {
             _khqrActive = false;
-
-            // Hide cashier modal
             $('#cashierQrModal').removeClass('show');
-
-            // Hide QR on customer display
             postToCustomer({ type: 'CD_QR_HIDE' });
-
-            // Clear timer
-            if (qrModalTimer) {
-                clearTimeout(qrModalTimer);
-                qrModalTimer = null;
-            }
+            if (qrModalTimer) { clearTimeout(qrModalTimer); qrModalTimer = null; }
         }
 
         /* ════ PAY BUTTON ════ */
         $('#payBtn').on('click', async function () {
             const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const totalUsd = sub - calcDiscount(sub);
-            if (currentPaymentMethod === 'qr') {
-                await openKhqrFlow(totalUsd);
-            } else {
-                openCashConfirm();
-            }
+            if (currentPaymentMethod === 'qr') { await openKhqrFlow(totalUsd); }
+            else { openCashConfirm(); }
         });
 
         /* ════ CASH CONFIRM MODAL ════ */
@@ -2510,15 +1314,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         }
 
         /* ── QR Modal Buttons ── */
-        $('#cqrConfirmBtn').off('click').on('click', function() {
-            closeKhqrFlow();
-            runPayFlow();
-        });
-
-        $('#cqrCancelBtn').off('click').on('click', function() {
-            closeKhqrFlow();
-            notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning');
-        });
+        $('#cqrConfirmBtn').off('click').on('click', function() { closeKhqrFlow(); runPayFlow(); });
+        $('#cqrCancelBtn').off('click').on('click', function() { closeKhqrFlow(); notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning'); });
 
         /* ── Invoice ── */
         function showInvoice(order) {
@@ -2653,21 +1450,45 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             if (e.key === '/' && !$(e.target).is('input,textarea,select')) { e.preventDefault(); $('#productSearch').focus(); }
         });
 
-        console.log('%c✅ POS Ready — KHQR shows only on Customer Display', 'color:#00B894;font-weight:bold');
+        console.log('%c✅ POS Ready', 'color:#00B894;font-weight:bold');
     });
 
-    /* ════════════════════════════════════════════════
-       SHIFT MANAGEMENT — with auto customer display
-    ════════════════════════════════════════════════ */
+    /* ════════════════════════════════════════════════════════════════
+       SHIFT MANAGEMENT — timezone-safe (FIXED)
+       All DateTime strings from the server are treated as UTC.
+       parseUTC() normalises any ISO string to a correct UTC epoch ms.
+    ════════════════════════════════════════════════════════════════ */
     const shift = {
         isOpen:       false,
         shiftId:      null,
-        startTime:    null,
+        startTime:    null,   // always UTC epoch ms
         openingCash:  0,
         orderCount:   0,
         revenue:      0,
         elapsedTimer: null
     };
+
+    /**
+     * Safely parse a datetime string from the server.
+     * .NET can emit  "2025-04-03T08:00:00"  (no Z → ambiguous)  or
+     *               "2025-04-03T08:00:00Z"  (UTC, correct)       or
+     *               "2025-04-03T08:00:00+07:00" (offset, correct)
+     * Without a timezone designator, browsers interpret the string as LOCAL
+     * time, which is wrong when the server runs in a different timezone.
+     * We force UTC by appending Z if no offset is present.
+     */
+    function parseUTC(str) {
+        if (!str) return Date.now();
+        const hasOffset = str.endsWith('Z') || /[+\-]\d{2}:\d{2}$/.test(str);
+        const normalised = hasOffset ? str : str + 'Z';
+        const ms = new Date(normalised).getTime();
+        return isNaN(ms) ? Date.now() : ms;
+    }
+
+    /** Convert a UTC epoch ms to a human-readable local time string */
+    function epochToLocalTime(ms) {
+        return new Date(ms).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
 
     (async function loadShiftState() {
         try {
@@ -2676,21 +1497,21 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             if (data.isOpen) {
                 shift.isOpen      = true;
                 shift.shiftId     = data.shiftId;
-                shift.startTime   = new Date(data.startTime).getTime();
+                shift.startTime   = parseUTC(data.startTime);          // FIXED
                 shift.openingCash = data.openingCash;
                 shift.orderCount  = data.orderCount;
                 shift.revenue     = data.revenue;
 
                 document.getElementById('shiftBtn').classList.add('shift-open');
-                document.getElementById('shiftOpenCashDisplay').textContent = '$' + parseFloat(data.openingCash).toFixed(2);
+                document.getElementById('shiftOpenCashDisplay').textContent =
+                    '$' + parseFloat(data.openingCash).toFixed(2);
                 document.getElementById('shiftStartedTime').textContent =
-                    'ចាប់ផ្ដើម — ' + new Date(data.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    'ចាប់ផ្ដើម — ' + epochToLocalTime(shift.startTime); // FIXED: browser local display
 
                 clearInterval(shift.elapsedTimer);
                 shift.elapsedTimer = setInterval(updateShiftStats, 10000);
                 updateShiftStats();
 
-                // Auto-open customer display when shift opens
                 setTimeout(() => {
                     customerDisplayAutoOpen = true;
                     openCustomerDisplay();
@@ -2724,8 +1545,9 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
     function updateShiftStats() {
         if (!shift.startTime) return;
         const elapsed = Math.floor((Date.now() - shift.startTime) / 1000);
-        const hrs     = Math.floor(elapsed / 3600);
-        const mins    = Math.floor((elapsed % 3600) / 60);
+        if (elapsed < 0) return; // FIXED: guard against negative elapsed from clock skew
+        const hrs  = Math.floor(elapsed / 3600);
+        const mins = Math.floor((elapsed % 3600) / 60);
         document.getElementById('shiftElapsed').textContent    = `${hrs}:${String(mins).padStart(2,'0')}`;
         document.getElementById('shiftOrderCount').textContent = shift.orderCount;
         document.getElementById('shiftRevenue').textContent    = '$' + shift.revenue.toFixed(2);
@@ -2747,17 +1569,17 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
             shift.isOpen      = true;
             shift.shiftId     = data.shiftId;
-            shift.startTime   = Date.now();
+            // FIXED: use the server-returned start time; fall back to client time only if absent
+            shift.startTime   = data.startTime ? parseUTC(data.startTime) : Date.now();
             shift.openingCash = openCash;
             shift.orderCount  = 0;
             shift.revenue     = 0;
 
             document.getElementById('shiftBtn').classList.add('shift-open');
-
-            const now     = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('shiftStartedTime').textContent     = 'ចាប់ផ្ដើម — ' + timeStr;
-            document.getElementById('shiftOpenCashDisplay').textContent = '$' + openCash.toFixed(2);
+            document.getElementById('shiftStartedTime').textContent =
+                'ចាប់ផ្ដើម — ' + epochToLocalTime(shift.startTime); // FIXED: local display
+            document.getElementById('shiftOpenCashDisplay').textContent =
+                '$' + openCash.toFixed(2);
 
             clearInterval(shift.elapsedTimer);
             shift.elapsedTimer = setInterval(updateShiftStats, 10000);
@@ -2766,7 +1588,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             document.getElementById('shiftOpenView').style.display   = 'block';
             updateShiftStats();
 
-            // Auto-open customer display when shift starts
             customerDisplayAutoOpen = true;
             setTimeout(() => openCustomerDisplay(), 500);
 
@@ -2801,7 +1622,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             shift.revenue     = 0;
             shift.openingCash = 0;
 
-            // Close customer display when shift ends
             customerDisplayAutoOpen = false;
             closeCustomerDisplay();
 

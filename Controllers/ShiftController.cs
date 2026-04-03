@@ -25,11 +25,13 @@ public class ShiftController : Controller
             .FirstOrDefaultAsync(s => !s.IsClosed);
     }
 
-    // ── Helper: force DateTime to have UTC kind so JSON serialiser
-    //    always appends "Z" — without this, ASP.NET may emit
-    //    "2025-04-03T08:00:00" (no Z) which browsers read as LOCAL time.
+    // ── Helper: force DateTime to UTC kind for JSON serialiser ────────────
+    // Uses new DateTime(ticks, Utc) instead of SpecifyKind() because
+    // EF Core on Postgres/SQLite returns Kind=Unspecified — SpecifyKind()
+    // alone doesn't fix that in all serialisers, but reconstructing via
+    // ticks is always safe and always emits the "Z" suffix in JSON.
     private static DateTime AsUtc(DateTime dt)
-        => DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+        => new DateTime(dt.Ticks, DateTimeKind.Utc);
 
     // ── GET /Shift/GetCurrentShiftInfo ──────────────────────────────────────
     [HttpGet]

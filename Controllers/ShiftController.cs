@@ -25,8 +25,13 @@ public class ShiftController : Controller
             .FirstOrDefaultAsync(s => !s.IsClosed);
     }
 
+    // ── Helper: force DateTime to have UTC kind so JSON serialiser
+    //    always appends "Z" — without this, ASP.NET may emit
+    //    "2025-04-03T08:00:00" (no Z) which browsers read as LOCAL time.
+    private static DateTime AsUtc(DateTime dt)
+        => DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+
     // ── GET /Shift/GetCurrentShiftInfo ──────────────────────────────────────
-    // Called by the POS on page load to restore shift state in the JS.
     [HttpGet]
     public async Task<IActionResult> GetCurrentShiftInfo()
     {
@@ -43,11 +48,11 @@ public class ShiftController : Controller
 
         return Ok(new
         {
-            isOpen = true,
-            shiftId = shift.Id,
-            startTime = shift.StartTime,
+            isOpen      = true,
+            shiftId     = shift.Id,
+            startTime   = AsUtc(shift.StartTime),   // ✅ "Z" suffix guaranteed
             openingCash = shift.OpeningCash,
-            orderCount = orders.Count,
+            orderCount  = orders.Count,
             revenue
         });
     }
@@ -58,24 +63,24 @@ public class ShiftController : Controller
     {
         var existing = await GetCurrentShift();
 
-        // If a shift is already open, return its ID so the frontend can sync.
         if (existing != null)
             return Ok(new
             {
-                success = true,
+                success     = true,
                 alreadyOpen = true,
-                shiftId = existing.Id,
-                message = "Shift already open"
+                shiftId     = existing.Id,
+                startTime   = AsUtc(existing.StartTime), // ✅ send with Z
+                message     = "Shift already open"
             });
 
         var firstName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "";
-        var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value ?? "";
-        var cashier = $"{firstName} {lastName}".Trim();
+        var lastName  = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value ?? "";
+        var cashier   = $"{firstName} {lastName}".Trim();
 
         var shift = new Shift
         {
-            StartTime = DateTime.UtcNow,
-            IsClosed = false,
+            StartTime   = DateTime.UtcNow,  // ✅ always UTC
+            IsClosed    = false,
             OpeningCash = request.OpeningCash,
             CashierName = cashier
         };
@@ -85,9 +90,10 @@ public class ShiftController : Controller
 
         return Ok(new
         {
-            success = true,
-            shiftId = shift.Id,
-            message = "Shift opened"
+            success   = true,
+            shiftId   = shift.Id,
+            startTime = AsUtc(shift.StartTime), // ✅ JS parseUTC gets "Z" suffix
+            message   = "Shift opened"
         });
     }
 
@@ -100,36 +106,32 @@ public class ShiftController : Controller
         if (shift == null)
             return Ok(new { success = false, message = "No active shift found" });
 
-        // Pull every order that was linked to this shift.
         var orders = await _applicationDbContext.Orders
             .Where(o => o.ShiftId == shift.Id)
             .ToListAsync();
 
-        // TotalAmount is assumed to already reflect post-discount total.
-        // DiscountAmount is tracked separately for reporting.
-        shift.TotalSales = orders.Sum(o => (decimal?)o.TotalAmount ?? 0);
+        shift.TotalSales  = orders.Sum(o => (decimal?)o.TotalAmount ?? 0);
         shift.TotalOrders = orders.Count;
-        shift.EndTime = DateTime.UtcNow;
-        shift.IsClosed = true;
-        shift.ClosedBy = User.Identity?.Name;
+        shift.EndTime     = DateTime.UtcNow;    // ✅ always UTC
+        shift.IsClosed    = true;
+        shift.ClosedBy    = User.Identity?.Name;
 
         await _applicationDbContext.SaveChangesAsync();
 
-        // Duration in minutes
         var durationMinutes = (shift.EndTime.Value - shift.StartTime).TotalMinutes;
 
         return Ok(new
         {
-            success = true,
-            shiftId = shift.Id,
-            totalSales = shift.TotalSales,
-            totalOrders = shift.TotalOrders,
-            openingCash = shift.OpeningCash,
-            estimatedDrawer = shift.OpeningCash + shift.TotalSales,
-            startTime = shift.StartTime,
-            endTime = shift.EndTime,
-            durationMinutes = Math.Round(durationMinutes, 1),
-            cashier = shift.CashierName ?? shift.ClosedBy
+            success          = true,
+            shiftId          = shift.Id,
+            totalSales       = shift.TotalSales,
+            totalOrders      = shift.TotalOrders,
+            openingCash      = shift.OpeningCash,
+            estimatedDrawer  = shift.OpeningCash + shift.TotalSales,
+            startTime        = AsUtc(shift.StartTime),    // ✅
+            endTime          = AsUtc(shift.EndTime.Value), // ✅
+            durationMinutes  = Math.Round(durationMinutes, 1),
+            cashier          = shift.CashierName ?? shift.ClosedBy
         });
     }
 

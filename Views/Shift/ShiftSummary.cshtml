@@ -56,7 +56,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ── animated bg dots ── */
         body::before {
             content: '';
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -67,7 +66,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
 
         .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
 
-        /* ── topbar ── */
         .topbar {
             display: flex; align-items: center; gap: 12px;
             padding: 14px 20px; background: var(--bg2);
@@ -97,7 +95,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
         }
         .topbar-print:hover { opacity: .88; }
 
-        /* ── hero header ── */
         .hero {
             margin-top: 36px; margin-bottom: 32px;
             display: flex; flex-direction: column; gap: 6px;
@@ -134,7 +131,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
             letter-spacing: .4px;
         }
 
-        /* ── stat cards grid ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -163,7 +159,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
             font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 5px;
         }
 
-        /* ── section ── */
         .section {
             background: var(--bg2); border: 1px solid var(--border);
             border-radius: 14px; margin-bottom: 20px;
@@ -185,7 +180,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
             font-size: 11px; font-weight: 700; color: var(--brand);
         }
 
-        /* ── cash summary rows ── */
         .cash-rows { padding: 6px 0; }
         .cash-row {
             display: flex; align-items: center; justify-content: space-between;
@@ -212,7 +206,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
         .cash-row-usd.success { color: var(--success); }
         .cash-row-khr { font-size: 11px; font-weight: 600; color: var(--muted); }
 
-        /* ── orders table ── */
         .orders-table { width: 100%; border-collapse: collapse; }
         .orders-table th {
             padding: 10px 20px; font-size: 10px; font-weight: 700;
@@ -239,7 +232,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
         .order-total-usd { font-size: 14px; font-weight: 800; color: var(--text); }
         .order-total-khr { font-size: 10.5px; font-weight: 600; color: var(--muted); }
 
-        /* ── empty state ── */
         .empty-state {
             display: flex; flex-direction: column; align-items: center;
             gap: 10px; padding: 48px 20px; color: var(--muted);
@@ -247,9 +239,8 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
         .empty-state i { font-size: 28px; color: var(--border); }
         .empty-state p { font-size: 13px; font-weight: 600; }
 
-        /* ── timeline ── */
         .timeline {
-            display: flex; align-items: center; gap: 0;
+            display: flex; align-items: center;
             padding: 20px 24px; flex-wrap: wrap; gap: 0;
         }
         .tl-block {
@@ -269,7 +260,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
             font-size: 12px; font-weight: 700; color: var(--brand);
         }
 
-        /* ── print styles ── */
         @@media print {
             body { background: #fff !important; color: #000 !important; }
             .topbar, .topbar-back, .topbar-print { display: none !important; }
@@ -280,10 +270,13 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
             .hero-meta-chip, .order-total-khr { color: #555 !important; }
         }
 
-        /* ── animations ── */
         @@keyframes fadeUp {
             from { opacity: 0; transform: translateY(14px); }
             to   { opacity: 1; transform: translateY(0); }
+        }
+        @@keyframes pulse {
+            0%,100% { opacity:1; }
+            50%      { opacity:.4; }
         }
     </style>
 </head>
@@ -357,7 +350,8 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
         <div class="stat-card">
             <div class="stat-label">ចំណូលលក់</div>
             <div class="stat-val brand">$@Model.TotalSales.ToString("F2")</div>
-            <div class="stat-sub">@(Math.Round(Model.TotalSales * 4100)).ToString("N0") ៛</div>
+
+            <div class="stat-sub">@(Math.Round(Model.TotalSales * 4100).ToString("N0")) ៛</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">ប្រាក់ចំណូលដំបូង</div>
@@ -433,6 +427,7 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
                 </div>
                 <div class="cash-row-val">
                     <span class="cash-row-usd">$@Model.OpeningCash.ToString("F2")</span>
+
                     <span class="cash-row-khr">@(Math.Round(Model.OpeningCash * 4100).ToString("N0")) ៛</span>
                 </div>
             </div>
@@ -442,6 +437,7 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
                 </div>
                 <div class="cash-row-val">
                     <span class="cash-row-usd brand">+$@Model.TotalSales.ToString("F2")</span>
+
                     <span class="cash-row-khr">@(Math.Round(Model.TotalSales * 4100).ToString("N0")) ៛</span>
                 </div>
             </div>
@@ -451,6 +447,7 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
                 </div>
                 <div class="cash-row-val">
                     <span class="cash-row-usd success" style="font-size:20px;">$@totalInDrawer.ToString("F2")</span>
+
                     <span class="cash-row-khr">@(Math.Round(totalInDrawer * 4100).ToString("N0")) ៛</span>
                 </div>
             </div>
@@ -499,6 +496,7 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
                 </td>
                 <td>
                     <div class="order-total-usd">$@order.TotalAmount.ToString("F2")</div>
+
                     <div class="order-total-khr">@(Math.Round(order.TotalAmount * 4100).ToString("N0")) ៛</div>
                 </td>
             </tr>
@@ -509,13 +507,6 @@ var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
     </div>
 
 </div>
-
-<style>
-    @@keyframes pulse {
-        0%,100% { opacity:1; }
-        50%      { opacity:.4; }
-    }
-</style>
 
 </body>
 </html>

@@ -96,40 +96,40 @@ public class ShiftController : Controller
     public async Task<IActionResult> CloseShift()
     {
         var shift = await GetCurrentShift();
- 
+
         if (shift == null)
             return Ok(new { success = false, message = "No active shift found" });
- 
+
+        // Pull every order that was linked to this shift.
         var orders = await _applicationDbContext.Orders
             .Where(o => o.ShiftId == shift.Id)
             .ToListAsync();
- 
-        shift.TotalSales  = orders.Sum(o => (decimal?)o.TotalAmount ?? 0);
+
+        // TotalAmount is assumed to already reflect post-discount total.
+        // DiscountAmount is tracked separately for reporting.
+        shift.TotalSales = orders.Sum(o => (decimal?)o.TotalAmount ?? 0);
         shift.TotalOrders = orders.Count;
-        shift.EndTime     = DateTime.UtcNow;
-        shift.IsClosed    = true;
-        shift.ClosedBy    = User.Identity?.Name;
- 
+        shift.EndTime = DateTime.UtcNow;
+        shift.IsClosed = true;
+        shift.ClosedBy = User.Identity?.Name;
+
         await _applicationDbContext.SaveChangesAsync();
- 
-        // Both sides forced to UTC ticks before subtracting — safe on any DB driver
-        var startUtc       = new DateTime(shift.StartTime.Ticks, DateTimeKind.Utc);
-        var endUtc         = new DateTime(shift.EndTime!.Value.Ticks, DateTimeKind.Utc);
-        var durationMinutes = (endUtc - startUtc).TotalMinutes;
- 
+
+        // Duration in minutes
+        var durationMinutes = (shift.EndTime.Value - shift.StartTime).TotalMinutes;
+
         return Ok(new
         {
-            success         = true,
-            shiftId         = shift.Id,
-            totalSales      = shift.TotalSales,
-            totalOrders     = shift.TotalOrders,
-            openingCash     = shift.OpeningCash,
+            success = true,
+            shiftId = shift.Id,
+            totalSales = shift.TotalSales,
+            totalOrders = shift.TotalOrders,
+            openingCash = shift.OpeningCash,
             estimatedDrawer = shift.OpeningCash + shift.TotalSales,
-            // ✅ Force UTC kind → serialiser emits "Z" suffix → browser reads correctly
-            startTime       = new DateTime(shift.StartTime.Ticks,      DateTimeKind.Utc),
-            endTime         = new DateTime(shift.EndTime.Value.Ticks,   DateTimeKind.Utc),
+            startTime = shift.StartTime,
+            endTime = shift.EndTime,
             durationMinutes = Math.Round(durationMinutes, 1),
-            cashier         = shift.CashierName ?? shift.ClosedBy
+            cashier = shift.CashierName ?? shift.ClosedBy
         });
     }
 

@@ -10,7 +10,7 @@ public class Shift
     public int Id { get; set; }
 
     [Required]
-    public DateTime StartTime { get; set; } = DateTime.Now;
+    public DateTime StartTime { get; set; } = DateTime.UtcNow;
 
     public DateTime? EndTime { get; set; }
 

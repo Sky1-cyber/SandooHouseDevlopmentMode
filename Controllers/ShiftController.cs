@@ -180,6 +180,47 @@ public class ShiftController : Controller
 
         return View(shift);
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var shift = await _applicationDbContext.Shifts
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (shift == null)
+            {
+                return NotFound(new { success = false, message = "Shift not found" });
+            }
+
+            if (!shift.IsClosed)
+            {
+                return BadRequest(new { success = false, message = "Cannot delete an open shift. Please close it first." });
+            }
+
+            // Check if there are related orders
+            var hasOrders = await _applicationDbContext.Orders.AnyAsync(o => o.ShiftId == id);
+            if (hasOrders)
+            {
+                return BadRequest(new { 
+                    success = false, 
+                    message = "Cannot delete shift with associated orders. Delete the orders first." 
+                });
+            }
+
+            _applicationDbContext.Shifts.Remove(shift);
+            await _applicationDbContext.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Shift deleted successfully" });
+        }
+        catch (Exception ex)
+        {
+            // Log the error
+            Console.WriteLine($"Error deleting shift: {ex.Message}");
+            return StatusCode(500, new { success = false, message = "An error occurred while deleting the shift" });
+        }
+    }
 }
 
 // ── Request DTO ─────────────────────────────────────────────────────────────

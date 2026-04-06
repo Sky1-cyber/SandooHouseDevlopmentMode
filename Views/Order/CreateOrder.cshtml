@@ -1,9 +1,9 @@
 ﻿@using System.Security.Claims
 @{
-ViewData["Title"] = "POS ផ្ទះបាយសេនឌូ";
-Layout = null;
-var firstName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
+    ViewData["Title"] = "POS ផ្ទះបាយសេនឌូ";
+    Layout = null;
+    var firstName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+    var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +13,9 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
     <title>@ViewData["Title"]</title>
     <link rel="icon" href="~/assets/img/kaiadmin/SandooHouse.ico" type="image/x-icon"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link rel="stylesheet" href="~/css/CreateOrder.css"/>
 </head>
@@ -26,7 +28,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
              onerror="this.src='https://via.placeholder.com/100x32?text=POS'">
         <div class="topbar-divider"></div>
         <div class="topbar-info">
-            <span class="topbar-date"><i class="fas fa-calendar-alt" style="margin-right:4px;color:var(--brand)"></i>@DateTime.Now.ToString("dd MMM yyyy")</span>
+            <span class="topbar-date"><i class="fas fa-calendar-alt"
+                                         style="margin-right:4px;color:var(--brand)"></i>@DateTime.Now.ToString("dd MMM yyyy")</span>
             <span class="topbar-time" id="liveClock">@DateTime.Now.ToString("hh:mm tt")</span>
         </div>
         <div class="topbar-spacer"></div>
@@ -41,8 +44,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             <i class="fas fa-user-circle"></i>
             <span>@firstName @lastName</span>
         </div>
-        <!-- Customer Display button with status indicator -->
-        <button class="shift-btn" id="customerScreenBtn" onclick="toggleCustomerDisplay(); return false;" title="Customer Display">
+        <button class="shift-btn" id="customerScreenBtn" onclick="toggleCustomerDisplay(); return false;"
+                title="Customer Display">
             <i class="fas fa-desktop"></i>
             <span class="topbar-hide-sm">Customer Screen</span>
             <span id="customerScreenStatus" style="margin-left:5px;font-size:10px;"></span>
@@ -63,20 +66,23 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         <!-- ══ LEFT: PRODUCTS PANEL ══ -->
         <div class="panel-products">
             <div class="filter-bar">
-                <div class="filter-label"><i class="fas fa-tag" style="margin-right:4px;color:var(--brand)"></i>ម៉ាក</div>
+                <div class="filter-label"><i class="fas fa-tag" style="margin-right:4px;color:var(--brand)"></i>ម៉ាក
+                </div>
                 <div class="scroll-tabs" id="brandTabs">
                     <button class="tab-pill brand-active" data-brand="all">ទាំងអស់</button>
                     @if (ViewBag.Brands != null)
                     {
-                    foreach (var brand in ViewBag.Brands)
-                    {
-                    <button class="tab-pill" data-brand="@brand.BrandName" data-brand-id="@brand.Id">@brand.BrandName</button>
-                    }
+                        foreach (var brand in ViewBag.Brands)
+                        {
+                            <button class="tab-pill" data-brand="@brand.BrandName"
+                                    data-brand-id="@brand.Id">@brand.BrandName</button>
+                        }
                     }
                 </div>
             </div>
             <div class="filter-bar" style="border-bottom:none;padding-top:6px;">
-                <div class="filter-label"><i class="fas fa-list" style="margin-right:4px;color:var(--brand)"></i>ប្រភេទ</div>
+                <div class="filter-label"><i class="fas fa-list" style="margin-right:4px;color:var(--brand)"></i>ប្រភេទ
+                </div>
                 <div class="scroll-tabs" id="categoryTabs">
                     <button class="tab-pill active" data-category="all">ទាំងអស់</button>
                 </div>
@@ -84,7 +90,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             <div class="search-wrap">
                 <div class="search-inner">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="productSearch" placeholder="ស្វែងរកមុខទំនិញ..." autocomplete="off" spellcheck="false">
+                    <input type="text" id="productSearch" placeholder="ស្វែងរកមុខទំនិញ..." autocomplete="off"
+                           spellcheck="false">
                 </div>
             </div>
             <div class="products-grid" id="productsGrid">
@@ -200,7 +207,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 </div>
             </div>
             <div class="recent-bar">
-                <div class="recent-label"><i class="fas fa-history" style="margin-right:4px;"></i>ប្រតិបត្តិការថ្មីៗ</div>
+                <div class="recent-label"><i class="fas fa-history" style="margin-right:4px;"></i>ប្រតិបត្តិការថ្មីៗ
+                </div>
                 <div class="recent-scroll" id="recentOrders"></div>
             </div>
         </div>
@@ -219,7 +227,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
     <div class="sheet-backdrop" id="sheetBackdrop"></div>
     <div class="sheet-body">
         <div class="sheet-handle"></div>
-        <div id="mobileCartContent" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;min-height:0;"></div>
+        <div id="mobileCartContent"
+             style="overflow-y:auto;flex:1;display:flex;flex-direction:column;min-height:0;"></div>
     </div>
 </div>
 
@@ -238,7 +247,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         <div class="cashier-qr-body">
             <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;">
                 <div style="background:rgba(255,107,53,0.1);border-radius:12px;padding:12px;text-align:center;">
-                    <i class="fas fa-mobile-alt" style="font-size:32px;color:#FF6B35;margin-bottom:8px;display:block;"></i>
+                    <i class="fas fa-mobile-alt"
+                       style="font-size:32px;color:#FF6B35;margin-bottom:8px;display:block;"></i>
                     <span style="font-size:12px;color:#E8F0F8;">សូមឱ្យអតិថិជនស្កែន QR</span>
                 </div>
                 <div class="timer-waiting" style="font-size:13px;color:#6B7F96;">
@@ -268,7 +278,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             </div>
         </div>
         <div class="cash-confirm-body">
-            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-muted);margin-bottom:6px;">
+            <div
+                style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-muted);margin-bottom:6px;">
                 <i class="fas fa-list" style="margin-right:4px;"></i>បញ្ជីការកម្មង់
             </div>
             <div class="cc-order-items" id="ccOrderItems"></div>
@@ -289,7 +300,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         </div>
         <div class="cash-confirm-footer">
             <button class="cc-btn-cancel" id="ccCancelBtn"><i class="fas fa-arrow-left"></i> ត្រលប់</button>
-            <button class="cc-btn-confirm" id="ccConfirmBtn"><i class="fas fa-check-circle"></i> បញ្ជាក់ &amp; រក្សាទុក</button>
+            <button class="cc-btn-confirm" id="ccConfirmBtn"><i class="fas fa-check-circle"></i> បញ្ជាក់ &amp; រក្សាទុក
+            </button>
         </div>
     </div>
 </div>
@@ -345,10 +357,14 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                     <span>មិនទាន់មានវេនការងារបើក។ បញ្ចូលប្រាក់ចំណូលដំបូង ហើយចុច <strong>«ចាប់ផ្តើម»</strong> ដើម្បីបើកវេន។</span>
                 </div>
                 <div class="shift-cash-row">
-                    <div class="shift-cash-label"><i class="fas fa-dollar-sign" style="margin-right:5px;color:var(--warning);"></i>ប្រាក់ក្នុងកន្ត្រក (Opening Cash)</div>
+                    <div class="shift-cash-label"><i class="fas fa-dollar-sign"
+                                                     style="margin-right:5px;color:var(--warning);"></i>ប្រាក់ក្នុងកន្ត្រក
+                        (Opening Cash)
+                    </div>
                     <div class="shift-cash-input-wrap">
                         <span class="shift-cash-prefix">$</span>
-                        <input type="number" id="shiftOpeningCash" class="shift-cash-input" placeholder="0.00" min="0" step="0.01" value="0">
+                        <input type="number" id="shiftOpeningCash" class="shift-cash-input" placeholder="0.00" min="0"
+                               step="0.01" value="0">
                     </div>
                 </div>
                 <div class="shift-stats">
@@ -423,22 +439,29 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 <!-- ── LOGOUT MODAL ── -->
 <div id="logoutModal" onclick="if(event.target===this)this.style.display='none'"
      style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:16px;overflow:hidden;width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-        <div style="background:linear-gradient(135deg,#EF4444,#DC2626);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+    <div
+        style="background:#fff;border-radius:16px;overflow:hidden;width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+        <div
+            style="background:linear-gradient(135deg,#EF4444,#DC2626);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
-                <div style="width:36px;height:36px;background:rgba(255,255,255,0.18);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <div
+                    style="width:36px;height:36px;background:rgba(255,255,255,0.18);border-radius:50%;display:flex;align-items:center;justify-content:center;">
                     <i class="fas fa-sign-out-alt" style="color:#fff;font-size:15px;"></i>
                 </div>
                 <span style="color:#fff;font-weight:700;font-size:16px;">Confirm Logout</span>
             </div>
             <button onclick="document.getElementById('logoutModal').style.display='none'"
-                    style="background:rgba(255,255,255,0.18);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;">✕</button>
+                    style="background:rgba(255,255,255,0.18);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;">
+                ✕
+            </button>
         </div>
         <div style="padding:26px 22px 14px;text-align:center;background:#fff;">
-            <div style="width:58px;height:58px;background:#FEF2F2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+            <div
+                style="width:58px;height:58px;background:#FEF2F2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
                 <i class="fas fa-power-off" style="font-size:24px;color:#EF4444;"></i>
             </div>
-            <p style="font-size:14px;color:#111827;font-weight:700;margin-bottom:5px;">Are you sure you want to log out?</p>
+            <p style="font-size:14px;color:#111827;font-weight:700;margin-bottom:5px;">Are you sure you want to log
+                out?</p>
             <p style="font-size:12px;color:#9CA3AF;margin:0;">You will be returned to the login screen.</p>
         </div>
         <div style="padding:14px 22px 22px;display:flex;gap:9px;justify-content:center;background:#fff;">
@@ -459,7 +482,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-    /* ── exposed so shift observer can read it ── */
     window.lastOrder = null;
     let customerWindow = null;
     let customerDisplayAutoOpen = false;
@@ -469,13 +491,34 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
     }
 
     /* ════════════════════════════════════════════════════════════
-       CUSTOMER DISPLAY — ALWAYS ON SECOND MONITOR
+       CAMBODIA TIME HELPERS
     ════════════════════════════════════════════════════════════ */
 
-    // Function to get second screen coordinates
+    // Parse ISO string from server (already Cambodia local, no Z suffix)
+    function parseCambodiaTime(isoStr) {
+        if (!isoStr) return null;
+        const clean = isoStr.replace('Z', '').split('+')[0];
+        return new Date(clean);
+    }
+
+    function fmtCambodiaDateTime(dt) {
+        if (!dt) return '—';
+        return dt.toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: true
+        });
+    }
+
+    function fmtCambodiaTime(dt) {
+        if (!dt) return '—';
+        return dt.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+    }
+
+    /* ════════════════════════════════════════════════════════════
+       CUSTOMER DISPLAY
+    ════════════════════════════════════════════════════════════ */
     async function getSecondScreenCoordinates() {
         try {
-            // Try to get screen details using modern API
             if (window.getScreenDetails) {
                 const details = await window.getScreenDetails();
                 if (details.screens.length > 1) {
@@ -490,8 +533,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                     }
                 }
             }
-
-            // Fallback: try to detect second monitor by checking if screen width is larger than window
             if (window.screen.availWidth > window.screen.width) {
                 return {
                     left: window.screen.width,
@@ -500,96 +541,57 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                     height: window.screen.availHeight
                 };
             }
-
-            // Default: place on right side of primary monitor
-            return {
-                left: window.screen.availWidth,
-                top: 0,
-                width: 1024,
-                height: 768
-            };
-        } catch(e) {
-            console.warn('Error detecting second screen:', e);
-            return {
-                left: window.screen.availWidth,
-                top: 0,
-                width: 1024,
-                height: 768
-            };
+            return {left: window.screen.availWidth, top: 0, width: 1024, height: 768};
+        } catch (e) {
+            return {left: window.screen.availWidth, top: 0, width: 1024, height: 768};
         }
     }
 
-    // Open customer display on second monitor
     async function openCustomerDisplay() {
         const coords = await getSecondScreenCoordinates();
-        const w = coords.width;
-        const h = coords.height;
-        const left = coords.left;
-        const top = coords.top;
-
         if (customerWindow && !customerWindow.closed) {
-            // Try to move existing window to second monitor
             try {
-                customerWindow.moveTo(left, top);
-                customerWindow.resizeTo(w, h);
+                customerWindow.moveTo(coords.left, coords.top);
+                customerWindow.resizeTo(coords.width, coords.height);
                 customerWindow.focus();
-            } catch(e) {
-                console.warn('Cannot move existing window, reopening');
+            } catch (e) {
                 customerWindow.close();
                 customerWindow = null;
             }
         }
-
         if (!customerWindow || customerWindow.closed) {
-            customerWindow = window.open(
-                '', 'SandooCustomerDisplay',
-                'width='+w+',height='+h+',left='+left+',top='+top+
-                ',resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no'
-            );
-
+            customerWindow = window.open('', 'SandooCustomerDisplay',
+                'width=' + coords.width + ',height=' + coords.height + ',left=' + coords.left + ',top=' + coords.top +
+                ',resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no');
             if (!customerWindow) {
                 notify('Browser ទប់ Popup — សូម Allow popup', 'error');
                 return false;
             }
-
             customerWindow.document.open();
             customerWindow.document.write(buildCustomerWindowHtml());
             customerWindow.document.close();
-
-            // Update status indicator
             document.getElementById('customerScreenStatus').innerHTML = '🟢';
             document.getElementById('customerScreenBtn').classList.add('shift-open');
-
-            // Watch for close
-            var checkClosed = setInterval(function() {
+            var checkClosed = setInterval(function () {
                 if (!customerWindow || customerWindow.closed) {
                     clearInterval(checkClosed);
                     customerWindow = null;
                     document.getElementById('customerScreenStatus').innerHTML = '🔴';
                     document.getElementById('customerScreenBtn').classList.remove('shift-open');
-
-                    // Auto-reopen if shift is still open
-                    if (customerDisplayAutoOpen && shift.isOpen) {
-                        setTimeout(() => openCustomerDisplay(), 2000);
-                    }
+                    if (customerDisplayAutoOpen && shift.isOpen) setTimeout(() => openCustomerDisplay(), 2000);
                 }
             }, 1000);
         }
-
         return true;
     }
 
-    // Close customer display
     function closeCustomerDisplay() {
-        if (customerWindow && !customerWindow.closed) {
-            customerWindow.close();
-        }
+        if (customerWindow && !customerWindow.closed) customerWindow.close();
         customerWindow = null;
         document.getElementById('customerScreenStatus').innerHTML = '🔴';
         document.getElementById('customerScreenBtn').classList.remove('shift-open');
     }
 
-    // Toggle customer display
     async function toggleCustomerDisplay() {
         if (customerWindow && !customerWindow.closed) {
             closeCustomerDisplay();
@@ -600,18 +602,17 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         }
     }
 
-    // Keep customer display alive while shift is open
     function maintainCustomerDisplay() {
         if (shift.isOpen && customerDisplayAutoOpen) {
             if (!customerWindow || customerWindow.closed) {
                 openCustomerDisplay();
             } else {
-                // Keep it on second monitor
                 getSecondScreenCoordinates().then(coords => {
                     try {
                         customerWindow.moveTo(coords.left, coords.top);
                         customerWindow.resizeTo(coords.width, coords.height);
-                    } catch(e) {}
+                    } catch (e) {
+                    }
                 });
             }
         }
@@ -620,1346 +621,16 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
     function postToCustomer(data) {
         if (customerWindow && !customerWindow.closed) {
-            try { customerWindow.postMessage(data, '*'); } catch(e) {}
+            try {
+                customerWindow.postMessage(data, '*');
+            } catch (e) {
+            }
         }
     }
 
     function buildCustomerWindowHtml() {
         var origin = window.location.origin;
-        return '<!DOCTYPE html>\n' +
-            '<html lang="km">\n' +
-            '<head>\n' +
-            '<meta charset="utf-8">\n' +
-            '<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">\n' +
-            '<title>Customer Display — ផ្ទះបាយសេនឌូ</title>\n' +
-            '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
-            '<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">\n' +
-            '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>\n' +
-            '<style>\n' +
-            '* {\n' +
-            '    margin: 0;\n' +
-            '    padding: 0;\n' +
-            '    box-sizing: border-box;\n' +
-            '}\n' +
-            '\n' +
-            'html, body {\n' +
-            '    width: 100%;\n' +
-            '    height: 100%;\n' +
-            '    overflow: hidden;\n' +
-            '    font-family: \'Sora\', \'Noto Sans Khmer\', sans-serif;\n' +
-            '    background: var(--bg);\n' +
-            '    color: var(--text);\n' +
-            '    -webkit-font-smoothing: antialiased;\n' +
-            '    -moz-osx-font-smoothing: grayscale;\n' +
-            '}\n' +
-            '\n' +
-            ':root {\n' +
-            '    --brand: #FF6B35;\n' +
-            '    --brand-dark: #E85520;\n' +
-            '    --brand-light: #FFF3EE;\n' +
-            '    --brand-glow: rgba(255,107,53,.18);\n' +
-            '    --accent: #2D3561;\n' +
-            '    --accent-dark: #1C2140;\n' +
-            '    --accent-light: #3D4880;\n' +
-            '    --success: #00B894;\n' +
-            '    --warning: #F59E0B;\n' +
-            '    --danger: #EF4444;\n' +
-            '    --danger-light: #FEE2E2;\n' +
-            '\n' +
-            '    /* Surfaces */\n' +
-            '    --bg: #F4F1ED;\n' +
-            '    --bg-2: #EDE9E3;\n' +
-            '    --surface: #FFFFFF;\n' +
-            '    --surface-2: #FAFAF8;\n' +
-            '    --surface-3: #F5F3F0;\n' +
-            '    --border: #E2DDD7;\n' +
-            '    --border-light: #EDE9E4;\n' +
-            '\n' +
-            '    /* Text */\n' +
-            '    --text: #1A1714;\n' +
-            '    --text-sub: #574F47;\n' +
-            '    --text-muted: #9C9189;\n' +
-            '\n' +
-            '    /* Shadows */\n' +
-            '    --shadow-xs: 0 1px 3px rgba(26,23,20,.06);\n' +
-            '    --shadow-sm: 0 2px 10px rgba(26,23,20,.08);\n' +
-            '    --shadow-md: 0 8px 24px rgba(26,23,20,.10);\n' +
-            '    --shadow-lg: 0 20px 48px rgba(26,23,20,.15);\n' +
-            '    --shadow-brand: 0 8px 24px rgba(255,107,53,.25);\n' +
-            '\n' +
-            '    /* Radii */\n' +
-            '    --r-xs: 6px;\n' +
-            '    --r-sm: 10px;\n' +
-            '    --r-md: 14px;\n' +
-            '    --r-lg: 20px;\n' +
-            '    --r-xl: 28px;\n' +
-            '}\n' +
-            '\n' +
-            '/* Fullscreen container */\n' +
-            '.pos-cd {\n' +
-            '    position: fixed;\n' +
-            '    top: 0;\n' +
-            '    left: 0;\n' +
-            '    right: 0;\n' +
-            '    bottom: 0;\n' +
-            '    width: 100vw;\n' +
-            '    height: 100vh;\n' +
-            '    display: flex;\n' +
-            '    flex-direction: column;\n' +
-            '    background: var(--bg);\n' +
-            '    overflow: hidden;\n' +
-            '    position: relative;\n' +
-            '}\n' +
-            '\n' +
-            '/* Fullscreen button */\n' +
-            '.fullscreen-btn {\n' +
-            '    position: fixed;\n' +
-            '    bottom: 20px;\n' +
-            '    right: 20px;\n' +
-            '    width: 48px;\n' +
-            '    height: 48px;\n' +
-            '    background: var(--surface);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    cursor: pointer;\n' +
-            '    z-index: 1000;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '    transition: all 0.3s ease;\n' +
-            '    color: var(--brand);\n' +
-            '    font-size: 20px;\n' +
-            '}\n' +
-            '\n' +
-            '.fullscreen-btn:hover {\n' +
-            '    transform: scale(1.1);\n' +
-            '    background: var(--brand);\n' +
-            '    color: white;\n' +
-            '    border-color: var(--brand);\n' +
-            '    box-shadow: var(--shadow-brand);\n' +
-            '}\n' +
-            '\n' +
-            '/* HEADER */\n' +
-            '.cd-header {\n' +
-            '    background: var(--surface);\n' +
-            '    border-bottom: 1px solid var(--border);\n' +
-            '    padding: 16px 24px;\n' +
-            '    flex-shrink: 0;\n' +
-            '    box-shadow: var(--shadow-xs);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-header-top {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: space-between;\n' +
-            '    margin-bottom: 12px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-area {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-dot {\n' +
-            '    width: 10px;\n' +
-            '    height: 10px;\n' +
-            '    background: var(--brand);\n' +
-            '    border-radius: 50%;\n' +
-            '    box-shadow: 0 0 14px rgba(255, 107, 53, 0.9);\n' +
-            '    animation: cdPulse 2.5s ease-in-out infinite;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes cdPulse {\n' +
-            '    0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(255, 107, 53, 0.6); }\n' +
-            '    50% { opacity: 0.7; box-shadow: 0 0 22px rgba(255, 107, 53, 0.9); }\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-text {\n' +
-            '    font-size: 20px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '    letter-spacing: -0.3px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-logo-text span {\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-clock {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border: 1px solid var(--border-light);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    padding: 6px 16px;\n' +
-            '    font-size: 15px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text);\n' +
-            '    font-variant-numeric: tabular-nums;\n' +
-            '    letter-spacing: 0.5px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-header-sub {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: space-between;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-welcome-line1 {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    letter-spacing: 0.3px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-currency-toggle {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 6px;\n' +
-            '    background: var(--bg-2);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    padding: 4px;\n' +
-            '    border: 1px solid var(--border-light);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-currency-opt {\n' +
-            '    padding: 4px 14px;\n' +
-            '    border-radius: 30px;\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 600;\n' +
-            '    cursor: pointer;\n' +
-            '    transition: all 0.2s;\n' +
-            '    background: transparent;\n' +
-            '    color: var(--text-sub);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-currency-opt.active {\n' +
-            '    background: var(--brand);\n' +
-            '    color: white;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-live-dot {\n' +
-            '    font-size: 10px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 5px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-live-dot::before {\n' +
-            '    content: "";\n' +
-            '    width: 6px;\n' +
-            '    height: 6px;\n' +
-            '    border-radius: 50%;\n' +
-            '    background: var(--success);\n' +
-            '    animation: livePulse 2s infinite;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes livePulse {\n' +
-            '    0%, 100% { opacity: 1; }\n' +
-            '    50% { opacity: 0.3; }\n' +
-            '}\n' +
-            '\n' +
-            '/* MAIN CONTENT */\n' +
-            '.cd-main-content {\n' +
-            '    flex: 1;\n' +
-            '    min-height: 0;\n' +
-            '    overflow-y: auto;\n' +
-            '    transition: all 0.3s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content.qr-active {\n' +
-            '    overflow: hidden;\n' +
-            '}\n' +
-            '\n' +
-            '/* IDLE */\n' +
-            '.cd-idle {\n' +
-            '    height: 100%;\n' +
-            '    display: flex;\n' +
-            '    flex-direction: column;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    gap: 24px;\n' +
-            '    padding: 32px;\n' +
-            '    text-align: center;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-icon {\n' +
-            '    width: 100px;\n' +
-            '    height: 100px;\n' +
-            '    background: var(--brand-light);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-icon i {\n' +
-            '    font-size: 42px;\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-title {\n' +
-            '    font-size: 32px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '    letter-spacing: -0.5px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-idle-sub {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    line-height: 1.6;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-promo-strip {\n' +
-            '    background: linear-gradient(135deg, var(--brand-light), #FFF);\n' +
-            '    border: 1px solid var(--border-light);\n' +
-            '    border-radius: var(--r-md);\n' +
-            '    padding: 16px 24px;\n' +
-            '    max-width: 420px;\n' +
-            '    width: 100%;\n' +
-            '    text-align: center;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-promo-label {\n' +
-            '    font-size: 11px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--brand);\n' +
-            '    text-transform: uppercase;\n' +
-            '    letter-spacing: 1px;\n' +
-            '    margin-bottom: 6px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-promo-text {\n' +
-            '    font-size: 14px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    line-height: 1.6;\n' +
-            '}\n' +
-            '\n' +
-            '/* ORDER SECTION */\n' +
-            '.cd-order-section {\n' +
-            '    padding: 20px 24px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-section-label {\n' +
-            '    font-size: 11px;\n' +
-            '    font-weight: 700;\n' +
-            '    text-transform: uppercase;\n' +
-            '    letter-spacing: 1px;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-bottom: 16px;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-section-label::after {\n' +
-            '    content: "";\n' +
-            '    flex: 1;\n' +
-            '    height: 1px;\n' +
-            '    background: var(--border);\n' +
-            '}\n' +
-            '\n' +
-            '/* ITEMS */\n' +
-            '.cd-item {\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 14px;\n' +
-            '    padding: 14px 16px;\n' +
-            '    background: var(--surface);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-md);\n' +
-            '    margin-bottom: 10px;\n' +
-            '    animation: cdSlideIn 0.2s ease;\n' +
-            '    border-left: 4px solid var(--brand);\n' +
-            '    box-shadow: var(--shadow-xs);\n' +
-            '    transition: all 0.2s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item:hover {\n' +
-            '    transform: translateX(2px);\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes cdSlideIn {\n' +
-            '    from { opacity: 0; transform: translateX(-8px); }\n' +
-            '    to { opacity: 1; transform: translateX(0); }\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-thumb {\n' +
-            '    width: 56px;\n' +
-            '    height: 56px;\n' +
-            '    border-radius: var(--r-sm);\n' +
-            '    overflow: hidden;\n' +
-            '    flex-shrink: 0;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    font-size: 24px;\n' +
-            '    color: white;\n' +
-            '    background: linear-gradient(135deg, var(--brand), var(--brand-dark));\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-thumb img {\n' +
-            '    width: 100%;\n' +
-            '    height: 100%;\n' +
-            '    object-fit: cover;\n' +
-            '    display: block;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-info {\n' +
-            '    flex: 1;\n' +
-            '    min-width: 0;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-name {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--text);\n' +
-            '    white-space: nowrap;\n' +
-            '    overflow: hidden;\n' +
-            '    text-overflow: ellipsis;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-unit {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 4px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-unit-khr {\n' +
-            '    font-size: 10px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 2px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-right {\n' +
-            '    text-align: right;\n' +
-            '    flex-shrink: 0;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-qty {\n' +
-            '    display: inline-flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    min-width: 36px;\n' +
-            '    height: 36px;\n' +
-            '    background: var(--brand-light);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-sm);\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--brand);\n' +
-            '    margin-bottom: 4px;\n' +
-            '    padding: 0 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-total {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--text);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-item-total-khr {\n' +
-            '    font-size: 11px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 2px;\n' +
-            '}\n' +
-            '\n' +
-            '/* SUMMARY FOOTER */\n' +
-            '.cd-summary {\n' +
-            '    background: var(--surface);\n' +
-            '    border-top: 1px solid var(--border);\n' +
-            '    padding: 20px 24px;\n' +
-            '    flex-shrink: 0;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-row {\n' +
-            '    display: flex;\n' +
-            '    justify-content: space-between;\n' +
-            '    align-items: flex-start;\n' +
-            '    font-size: 15px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-sub);\n' +
-            '    margin-bottom: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-row.total {\n' +
-            '    font-size: 22px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '    border-top: 2px solid var(--border);\n' +
-            '    padding-top: 14px;\n' +
-            '    margin-top: 8px;\n' +
-            '    margin-bottom: 0;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-row.total .cd-total-usd {\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.cd-sum-khr {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    text-align: right;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-discount-pill {\n' +
-            '    display: inline-flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 5px;\n' +
-            '    background: rgba(245, 158, 11, 0.1);\n' +
-            '    border: 1px solid rgba(245, 158, 11, 0.2);\n' +
-            '    color: var(--warning);\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 600;\n' +
-            '    padding: 4px 12px;\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '}\n' +
-            '\n' +
-            '/* KHQR FULLSCREEN OVERLAY */\n' +
-            '.khqr-overlay {\n' +
-            '    position: fixed;\n' +
-            '    top: 0;\n' +
-            '    left: 0;\n' +
-            '    right: 0;\n' +
-            '    bottom: 0;\n' +
-            '    background: var(--surface);\n' +
-            '    z-index: 100;\n' +
-            '    display: none;\n' +
-            '    flex-direction: column;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    gap: 24px;\n' +
-            '    padding: 32px;\n' +
-            '    animation: khqrFadeIn 0.35s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-overlay.show {\n' +
-            '    display: flex;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes khqrFadeIn {\n' +
-            '    from { opacity: 0; transform: scale(0.98); }\n' +
-            '    to { opacity: 1; transform: scale(1); }\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-header {\n' +
-            '    text-align: center;\n' +
-            '    margin-bottom: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-title {\n' +
-            '    font-size: 32px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--brand);\n' +
-            '    letter-spacing: -0.5px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-subtitle {\n' +
-            '    font-size: 15px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    margin-top: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-container {\n' +
-            '    position: relative;\n' +
-            '    margin: 16px 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-frame {\n' +
-            '    position: relative;\n' +
-            '    width: 300px;\n' +
-            '    height: 300px;\n' +
-            '    background: white;\n' +
-            '    border-radius: var(--r-lg);\n' +
-            '    padding: 20px;\n' +
-            '    box-shadow: var(--shadow-lg);\n' +
-            '    border: 2px solid var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner {\n' +
-            '    position: absolute;\n' +
-            '    width: 30px;\n' +
-            '    height: 30px;\n' +
-            '    border-color: var(--brand);\n' +
-            '    border-style: solid;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.tl {\n' +
-            '    top: -3px;\n' +
-            '    left: -3px;\n' +
-            '    border-width: 5px 0 0 5px;\n' +
-            '    border-radius: 10px 0 0 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.tr {\n' +
-            '    top: -3px;\n' +
-            '    right: -3px;\n' +
-            '    border-width: 5px 5px 0 0;\n' +
-            '    border-radius: 0 10px 0 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.bl {\n' +
-            '    bottom: -3px;\n' +
-            '    left: -3px;\n' +
-            '    border-width: 0 0 5px 5px;\n' +
-            '    border-radius: 0 0 0 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-corner.br {\n' +
-            '    bottom: -3px;\n' +
-            '    right: -3px;\n' +
-            '    border-width: 0 5px 5px 0;\n' +
-            '    border-radius: 0 0 10px 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-inner {\n' +
-            '    width: 100%;\n' +
-            '    height: 100%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    background: white;\n' +
-            '    border-radius: var(--r-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-qr-inner img,\n' +
-            '.khqr-qr-inner canvas {\n' +
-            '    max-width: 100%;\n' +
-            '    max-height: 100%;\n' +
-            '    border-radius: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-pulse-ring {\n' +
-            '    position: absolute;\n' +
-            '    inset: -15px;\n' +
-            '    border-radius: 40px;\n' +
-            '    border: 2px solid var(--brand-glow);\n' +
-            '    animation: khqrPulse 2s ease-in-out infinite;\n' +
-            '    pointer-events: none;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes khqrPulse {\n' +
-            '    0%, 100% { transform: scale(1); opacity: 0.6; }\n' +
-            '    50% { transform: scale(1.05); opacity: 0.2; }\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-amount {\n' +
-            '    text-align: center;\n' +
-            '    margin: 20px 0 12px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-amount-usd {\n' +
-            '    font-size: 48px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--brand);\n' +
-            '    letter-spacing: -1px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-amount-khr {\n' +
-            '    font-size: 18px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: -6px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-merchant {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 700;\n' +
-            '    color: var(--text);\n' +
-            '    margin: 12px 0 4px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-bank {\n' +
-            '    font-size: 13px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-muted);\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    gap: 6px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer {\n' +
-            '    width: 100%;\n' +
-            '    max-width: 300px;\n' +
-            '    margin: 24px auto 0;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-bar {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    height: 8px;\n' +
-            '    overflow: hidden;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-fill {\n' +
-            '    height: 100%;\n' +
-            '    background: linear-gradient(90deg, var(--brand), var(--brand-dark));\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    width: 100%;\n' +
-            '    transition: width 120s linear;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-text {\n' +
-            '    text-align: center;\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-timer-text span {\n' +
-            '    color: var(--brand);\n' +
-            '    font-weight: 800;\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-close-btn {\n' +
-            '    position: absolute;\n' +
-            '    top: 24px;\n' +
-            '    right: 24px;\n' +
-            '    width: 48px;\n' +
-            '    height: 48px;\n' +
-            '    background: var(--surface);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    cursor: pointer;\n' +
-            '    transition: all 0.2s;\n' +
-            '    color: var(--text);\n' +
-            '    font-size: 20px;\n' +
-            '    z-index: 101;\n' +
-            '    box-shadow: var(--shadow-sm);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-close-btn:hover {\n' +
-            '    background: var(--danger-light);\n' +
-            '    border-color: var(--danger);\n' +
-            '    color: var(--danger);\n' +
-            '    transform: scale(1.05);\n' +
-            '}\n' +
-            '\n' +
-            '.khqr-instruction {\n' +
-            '    background: var(--brand-light);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-xl);\n' +
-            '    padding: 12px 24px;\n' +
-            '    margin-top: 20px;\n' +
-            '    font-size: 13px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--brand);\n' +
-            '}\n' +
-            '\n' +
-            '/* THANK YOU OVERLAY */\n' +
-            '.thankyou-overlay {\n' +
-            '    position: fixed;\n' +
-            '    top: 0;\n' +
-            '    left: 0;\n' +
-            '    right: 0;\n' +
-            '    bottom: 0;\n' +
-            '    background: var(--surface);\n' +
-            '    z-index: 200;\n' +
-            '    display: none;\n' +
-            '    flex-direction: column;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    gap: 24px;\n' +
-            '    padding: 32px;\n' +
-            '    text-align: center;\n' +
-            '    animation: thankyouFadeIn 0.4s ease;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-overlay.show {\n' +
-            '    display: flex;\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes thankyouFadeIn {\n' +
-            '    from { opacity: 0; transform: scale(0.95); }\n' +
-            '    to { opacity: 1; transform: scale(1); }\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-check {\n' +
-            '    width: 100px;\n' +
-            '    height: 100px;\n' +
-            '    background: rgba(0, 184, 148, 0.1);\n' +
-            '    border: 3px solid var(--success);\n' +
-            '    border-radius: 50%;\n' +
-            '    display: flex;\n' +
-            '    align-items: center;\n' +
-            '    justify-content: center;\n' +
-            '    font-size: 48px;\n' +
-            '    color: var(--success);\n' +
-            '    animation: thankyouBounce 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);\n' +
-            '}\n' +
-            '\n' +
-            '@@keyframes thankyouBounce {\n' +
-            '    0% { transform: scale(0.3); opacity: 0; }\n' +
-            '    50% { transform: scale(1.1); }\n' +
-            '    100% { transform: scale(1); opacity: 1; }\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-title {\n' +
-            '    font-size: 36px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--text);\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-amount {\n' +
-            '    font-size: 52px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--brand);\n' +
-            '    letter-spacing: -1px;\n' +
-            '    margin: 8px 0;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-amount-khr {\n' +
-            '    font-size: 20px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '    margin-top: -10px;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border: 1px solid var(--border);\n' +
-            '    border-radius: var(--r-md);\n' +
-            '    padding: 20px 32px;\n' +
-            '    margin-top: 16px;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change-label {\n' +
-            '    font-size: 12px;\n' +
-            '    font-weight: 700;\n' +
-            '    text-transform: uppercase;\n' +
-            '    letter-spacing: 1px;\n' +
-            '    color: var(--success);\n' +
-            '    margin-bottom: 8px;\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change-usd {\n' +
-            '    font-size: 32px;\n' +
-            '    font-weight: 800;\n' +
-            '    color: var(--success);\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-change-khr {\n' +
-            '    font-size: 14px;\n' +
-            '    font-weight: 600;\n' +
-            '    color: var(--text-muted);\n' +
-            '}\n' +
-            '\n' +
-            '.thankyou-message {\n' +
-            '    font-size: 16px;\n' +
-            '    font-weight: 500;\n' +
-            '    color: var(--text-sub);\n' +
-            '    margin-top: 20px;\n' +
-            '    line-height: 1.6;\n' +
-            '}\n' +
-            '\n' +
-            '/* Scrollbar */\n' +
-            '.cd-main-content::-webkit-scrollbar {\n' +
-            '    width: 6px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content::-webkit-scrollbar-track {\n' +
-            '    background: var(--bg-2);\n' +
-            '    border-radius: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content::-webkit-scrollbar-thumb {\n' +
-            '    background: var(--border);\n' +
-            '    border-radius: 10px;\n' +
-            '}\n' +
-            '\n' +
-            '.cd-main-content::-webkit-scrollbar-thumb:hover {\n' +
-            '    background: var(--brand);\n' +
-            '}\n' +
-            '</style>\n' +
-            '</head>\n' +
-            '<body>\n' +
-            '<div class="pos-cd">\n' +
-
-            /* HEADER */
-            '  <div class="cd-header">\n' +
-            '    <div class="cd-header-top">\n' +
-            '      <div class="cd-logo-area">\n' +
-            '        <div class="cd-logo-dot"></div>\n' +
-            '        <div class="cd-logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div>\n' +
-            '      </div>\n' +
-            '      <div class="cd-clock" id="cdClock">00:00:00</div>\n' +
-            '    </div>\n' +
-            '    <div class="cd-header-sub">\n' +
-            '      <div class="cd-welcome-line1">Customer Display</div>\n' +
-            '      <div style="display:flex;align-items:center;gap:12px;">\n' +
-            '        <div class="cd-currency-toggle" id="cdCurrencyToggle">\n' +
-            '          <span class="cd-currency-opt active" data-cd-currency="usd">USD</span>\n' +
-            '          <span class="cd-currency-opt" data-cd-currency="khr">KHR</span>\n' +
-            '        </div>\n' +
-            '        <div class="cd-live-dot">LIVE</div>\n' +
-            '      </div>\n' +
-            '    </div>\n' +
-            '  </div>\n' +
-
-            /* MAIN CONTENT AREA */
-            '  <div class="cd-main-content" id="cdMainContent">\n' +
-            '    <!-- IDLE STATE -->\n' +
-            '    <div class="cd-idle" id="cdIdle">\n' +
-            '      <div class="cd-idle-icon"><i class="fas fa-concierge-bell"></i></div>\n' +
-            '      <div>\n' +
-            '        <div class="cd-idle-title">សូមស្វាគមន៍!</div>\n' +
-            '        <div class="cd-idle-sub">ជ្រើសរើសមុខអាហារ<br>ហើយយើងនឹងបម្រើអ្នក</div>\n' +
-            '      </div>\n' +
-            '      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 20px;max-width:360px;width:100%;display:flex;align-items:center;gap:14px;">\n' +
-            '        <div style="width:44px;height:44px;background:var(--brand-light);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">\n' +
-            '          <i class="fas fa-calendar-day" style="font-size:18px;color:var(--brand);"></i>\n' +
-            '        </div>\n' +
-            '        <div>\n' +
-            '          <div id="cdIdleDate" style="font-size:15px;font-weight:600;color:var(--text);"></div>\n' +
-            '          <div id="cdIdleDay" style="font-size:13px;font-weight:500;color:var(--text-muted);margin-top:2px;"></div>\n' +
-            '        </div>\n' +
-            '      </div>\n' +
-            '      <div class="cd-promo-strip">\n' +
-            '        <div class="cd-promo-label">ប្រម៉ូសិយ៉ូន</div>\n' +
-            '        <div class="cd-promo-text">ទទួលការបញ្ចុះតម្លៃ 10%<br>នៅពេលបញ្ជាទិញលើសពី $20</div>\n' +
-            '      </div>\n' +
-            '    </div>\n' +
-            '    \n' +
-            '    <!-- ORDER STATE -->\n' +
-            '    <div id="cdOrderState" style="display:none;">\n' +
-            '      <div class="cd-order-section">\n' +
-            '        <div class="cd-section-label">បញ្ជីការកម្មង់</div>\n' +
-            '        <div id="cdItemsList"></div>\n' +
-            '      </div>\n' +
-            '      <div class="cd-summary">\n' +
-            '        <div class="cd-sum-row"><span>សរុប</span><span><span id="cdSubtotal">$0.00</span><div class="cd-sum-khr" id="cdSubtotalKhr">0 ៛</div></span></div>\n' +
-            '        <div class="cd-sum-row" id="cdDiscountRow" style="display:none;"><span class="cd-discount-pill"><i class="fas fa-tag"></i><span id="cdDiscountLabel">បញ្ចុះ</span></span><span style="color:var(--warning);font-weight:700;" id="cdDiscountVal">-$0.00</span></div>\n' +
-            '        <div class="cd-sum-row total"><span><i class="fas fa-calculator"></i>សរុបទាំងអស់</span><span><span class="cd-total-usd" id="cdTotal">$0.00</span><div class="cd-sum-khr" id="cdTotalKhr">0 ៛</div></span></div>\n' +
-            '      </div>\n' +
-            '    </div>\n' +
-            '  </div>\n' +
-
-            /* FULLSCREEN BUTTON */
-            '<button class="fullscreen-btn" id="fullscreenBtn">\n' +
-            '    <i class="fas fa-expand"></i>\n' +
-            '</button>\n' +
-
-            /* KHQR FULLSCREEN OVERLAY */
-            '<div class="khqr-overlay" id="khqrOverlay">\n' +
-            '  <div class="khqr-close-btn" id="khqrCloseBtn">\n' +
-            '    <i class="fas fa-times"></i>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-header">\n' +
-            '    <div class="khqr-title">ទូទាត់តាម KHQR</div>\n' +
-            '    <div class="khqr-subtitle">ស្កែន QR Code ដើម្បីបង់ប្រាក់</div>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-qr-container">\n' +
-            '    <div class="khqr-qr-frame">\n' +
-            '      <div class="khqr-pulse-ring"></div>\n' +
-            '      <div class="khqr-qr-corner tl"></div>\n' +
-            '      <div class="khqr-qr-corner tr"></div>\n' +
-            '      <div class="khqr-qr-corner bl"></div>\n' +
-            '      <div class="khqr-qr-corner br"></div>\n' +
-            '      <div class="khqr-qr-inner">\n' +
-            '        <img src="' + origin + '/khqr-code.png" alt="KHQR" id="khqrImage" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display=\'none\';document.getElementById(\'khqrCanvas\').style.display=\'block\';">\n' +
-            '        <canvas id="khqrCanvas" width="240" height="240" style="display:none;"></canvas>\n' +
-            '      </div>\n' +
-            '    </div>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-amount">\n' +
-            '    <div class="khqr-amount-usd" id="khqrAmountUsd">$0.00</div>\n' +
-            '    <div class="khqr-amount-khr" id="khqrAmountKhr">0 ៛</div>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-merchant">ផ្ទះបាយសេនឌូ</div>\n' +
-            '  <div class="khqr-bank"><i class="fas fa-university"></i> ABA Bank · 0000 1234 5678</div>\n' +
-            '  <div class="khqr-timer">\n' +
-            '    <div class="khqr-timer-bar"><div class="khqr-timer-fill" id="khqrTimerFill"></div></div>\n' +
-            '    <div class="khqr-timer-text">ផុតកំណត់ក្នុង <span id="khqrTimerLabel">2:00</span></div>\n' +
-            '  </div>\n' +
-            '  <div class="khqr-instruction">\n' +
-            '    <i class="fas fa-mobile-alt"></i> បើកកម្មវិធី ABA / ACLEDA / Wing ហើយស្កែន QR\n' +
-            '  </div>\n' +
-            '</div>\n' +
-
-            /* THANK YOU OVERLAY */
-            '<div class="thankyou-overlay" id="thankyouOverlay">\n' +
-            '  <div class="thankyou-check"><i class="fas fa-check"></i></div>\n' +
-            '  <div class="thankyou-title">សូមអរគុណ! 🙏</div>\n' +
-            '  <div>\n' +
-            '    <div class="thankyou-amount" id="tyAmount">$0.00</div>\n' +
-            '    <div class="thankyou-amount-khr" id="tyAmountKhr">0 ៛</div>\n' +
-            '  </div>\n' +
-            '  <div class="thankyou-change" id="tyChangeBox" style="display:none;">\n' +
-            '    <div class="thankyou-change-label">ប្រាក់អាប់</div>\n' +
-            '    <div class="thankyou-change-usd" id="tyChangeUsd">$0.00</div>\n' +
-            '    <div class="thankyou-change-khr" id="tyChangeKhr">0 ៛</div>\n' +
-            '  </div>\n' +
-            '  <div class="thankyou-message">អរគុណសម្រាប់ការញ៉ាំ<br>សូមអញ្ជើញមកម្តងទៀត!</div>\n' +
-            '</div>\n' +
-            '\n' +
-            '</div>\n' +
-
-            /* SCRIPTS - Load QR code library dynamically */
-            '<script>\n' +
-            '// Dynamically load QR code library without document.write\n' +
-            'function loadQRCodeLibrary() {\n' +
-            '    return new Promise((resolve, reject) => {\n' +
-            '        if (typeof QRCode !== "undefined") {\n' +
-            '            resolve();\n' +
-            '            return;\n' +
-            '        }\n' +
-            '        var script = document.createElement("script");\n' +
-            '        script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";\n' +
-            '        script.onload = resolve;\n' +
-            '        script.onerror = reject;\n' +
-            '        document.head.appendChild(script);\n' +
-            '    });\n' +
-            '}\n' +
-            '\n' +
-            '// Fullscreen handling with user gesture\n' +
-            'function toggleFullscreen() {\n' +
-            '    const elem = document.documentElement;\n' +
-            '    if (!document.fullscreenElement && !document.webkitFullscreenElement) {\n' +
-            '        if (elem.requestFullscreen) {\n' +
-            '            elem.requestFullscreen();\n' +
-            '        } else if (elem.webkitRequestFullscreen) {\n' +
-            '            elem.webkitRequestFullscreen();\n' +
-            '        } else if (elem.msRequestFullscreen) {\n' +
-            '            elem.msRequestFullscreen();\n' +
-            '        }\n' +
-            '    } else {\n' +
-            '        if (document.exitFullscreen) {\n' +
-            '            document.exitFullscreen();\n' +
-            '        } else if (document.webkitExitFullscreen) {\n' +
-            '            document.webkitExitFullscreen();\n' +
-            '        }\n' +
-            '    }\n' +
-            '}\n' +
-            '\n' +
-            '// Update fullscreen button icon\n' +
-            'function updateFullscreenIcon() {\n' +
-            '    const btn = document.getElementById("fullscreenBtn");\n' +
-            '    const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;\n' +
-            '    if (btn) {\n' +
-            '        if (isFullscreen) {\n' +
-            '            btn.innerHTML = \'<i class="fas fa-compress"></i>\';\n' +
-            '        } else {\n' +
-            '            btn.innerHTML = \'<i class="fas fa-expand"></i>\';\n' +
-            '        }\n' +
-            '    }\n' +
-            '}\n' +
-            '\n' +
-            '// Listen for fullscreen changes\n' +
-            'document.addEventListener("fullscreenchange", updateFullscreenIcon);\n' +
-            'document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);\n' +
-            '\n' +
-            '// Add click handler for fullscreen button when DOM is ready\n' +
-            'document.addEventListener("DOMContentLoaded", function() {\n' +
-            '    const fullscreenBtn = document.getElementById("fullscreenBtn");\n' +
-            '    if (fullscreenBtn) {\n' +
-            '        fullscreenBtn.addEventListener("click", toggleFullscreen);\n' +
-            '    }\n' +
-            '});\n' +
-            '\n' +
-            '// Load QR code library and initialize\n' +
-            'loadQRCodeLibrary().then(function() {\n' +
-            '    console.log("✅ QR Code library loaded");\n' +
-            '}).catch(function(err) {\n' +
-            '    console.warn("QR Code library load failed:", err);\n' +
-            '});\n' +
-            '\n' +
-            '(function(){\n' +
-            '  var EXRATE = 4100;\n' +
-            '  var CHG_RATE = 4000;\n' +
-            '  var displayCurrency = "usd";\n' +
-            '  var currentOrderData = null;\n' +
-            '  var qrTimerInterval = null;\n' +
-            '  \n' +
-            '  function fmtUsd(n){return "$"+parseFloat(n).toFixed(2);}\n' +
-            '  function fmtKhr(n){return Math.round(n).toLocaleString()+" ៛";}\n' +
-            '  function toKhr(usd){return Math.round(usd*EXRATE);}\n' +
-            '  function toKhrCustomer(usd){return Math.round(usd*CHG_RATE);}\n' +
-            '  function roundK(v){return Math.round(v/100)*100;}\n' +
-            '\n' +
-            '  /* Currency toggle */\n' +
-            '  function setDisplayCurrency(currency) {\n' +
-            '    displayCurrency = currency;\n' +
-            '    document.querySelectorAll(".cd-currency-opt").forEach(opt => {\n' +
-            '      if(opt.dataset.cdCurrency === currency) opt.classList.add("active");\n' +
-            '      else opt.classList.remove("active");\n' +
-            '    });\n' +
-            '    if(currentOrderData && !currentOrderData.isEmpty) renderOrder(currentOrderData);\n' +
-            '  }\n' +
-            '  \n' +
-            '  var toggle = document.getElementById("cdCurrencyToggle");\n' +
-            '  if(toggle) {\n' +
-            '    toggle.addEventListener("click", function(e) {\n' +
-            '      var target = e.target.closest(".cd-currency-opt");\n' +
-            '      if(target && target.dataset.cdCurrency) {\n' +
-            '        setDisplayCurrency(target.dataset.cdCurrency);\n' +
-            '      }\n' +
-            '    });\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Clock */\n' +
-            '  function updateClock(){\n' +
-            '    var now=new Date();\n' +
-            '    var h=String(now.getHours()).padStart(2,"0");\n' +
-            '    var m=String(now.getMinutes()).padStart(2,"0");\n' +
-            '    var s=String(now.getSeconds()).padStart(2,"0");\n' +
-            '    var clockEl = document.getElementById("cdClock");\n' +
-            '    if(clockEl) clockEl.textContent=h+":"+m+":"+s;\n' +
-            '  }\n' +
-            '  setInterval(updateClock,1000); updateClock();\n' +
-            '\n' +
-            '  /* Idle date */\n' +
-            '  (function(){\n' +
-            '    var now=new Date();\n' +
-            '    var dEl=document.getElementById("cdIdleDate");\n' +
-            '    var dayEl=document.getElementById("cdIdleDay");\n' +
-            '    if(dEl) dEl.textContent=now.toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});\n' +
-            '    if(dayEl) dayEl.textContent=now.toLocaleDateString("en-GB",{weekday:"long"});\n' +
-            '  })();\n' +
-            '\n' +
-            '  /* Format based on display currency */\n' +
-            '  function formatAmount(usdValue, khrValue) {\n' +
-            '    if(displayCurrency === "usd") {\n' +
-            '      return { main: fmtUsd(usdValue), secondary: fmtKhr(khrValue) };\n' +
-            '    } else {\n' +
-            '      return { main: fmtKhr(khrValue), secondary: fmtUsd(usdValue) };\n' +
-            '    }\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Generate QR Code */\n' +
-            '  function generateQRCode(canvasId, text, width, height) {\n' +
-            '    var canvas = document.getElementById(canvasId);\n' +
-            '    if(!canvas) return false;\n' +
-            '    \n' +
-            '    if(typeof QRCode !== "undefined" && QRCode.toCanvas) {\n' +
-            '      try {\n' +
-            '        QRCode.toCanvas(canvas, text, {\n' +
-            '          width: width,\n' +
-            '          margin: 1,\n' +
-            '          color: { dark: "#1A1714", light: "#FFFFFF" },\n' +
-            '          errorCorrectionLevel: "H"\n' +
-            '        }, function(err) {\n' +
-            '          if(err) console.warn("QR generation error:", err);\n' +
-            '        });\n' +
-            '        return true;\n' +
-            '      } catch(e) {\n' +
-            '        console.warn("QRCode error:", e);\n' +
-            '        return false;\n' +
-            '      }\n' +
-            '    }\n' +
-            '    return false;\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Show KHQR Overlay */\n' +
-            '  function showKHQR(amountUsd, amountKhr) {\n' +
-            '    var overlay = document.getElementById("khqrOverlay");\n' +
-            '    var mainContent = document.getElementById("cdMainContent");\n' +
-            '    \n' +
-            '    document.getElementById("khqrAmountUsd").textContent = fmtUsd(amountUsd);\n' +
-            '    document.getElementById("khqrAmountKhr").textContent = fmtKhr(amountKhr);\n' +
-            '    \n' +
-            '    // Generate QR code with amount\n' +
-            '    var qrText = "KHQR|SandooHouse|ABA|0000123456|USD|" + amountUsd.toFixed(2) + "|" + Date.now();\n' +
-            '    var canvas = document.getElementById("khqrCanvas");\n' +
-            '    var img = document.getElementById("khqrImage");\n' +
-            '    \n' +
-            '    if(generateQRCode("khqrCanvas", qrText, 240, 240)) {\n' +
-            '      if(img) img.style.display = "none";\n' +
-            '      if(canvas) canvas.style.display = "block";\n' +
-            '    } else {\n' +
-            '      if(img) img.style.display = "block";\n' +
-            '      if(canvas) canvas.style.display = "none";\n' +
-            '    }\n' +
-            '    \n' +
-            '    // Start timer\n' +
-            '    if(qrTimerInterval) clearInterval(qrTimerInterval);\n' +
-            '    var seconds = 120;\n' +
-            '    var fill = document.getElementById("khqrTimerFill");\n' +
-            '    var label = document.getElementById("khqrTimerLabel");\n' +
-            '    \n' +
-            '    if(fill) {\n' +
-            '      fill.style.transition = "width 120s linear";\n' +
-            '      fill.style.width = "0%";\n' +
-            '    }\n' +
-            '    \n' +
-            '    qrTimerInterval = setInterval(function() {\n' +
-            '      seconds--;\n' +
-            '      var m = Math.floor(seconds / 60);\n' +
-            '      var s = String(seconds % 60).padStart(2, "0");\n' +
-            '      if(label) label.textContent = m + ":" + s;\n' +
-            '      if(seconds <= 0) {\n' +
-            '        clearInterval(qrTimerInterval);\n' +
-            '        hideKHQR();\n' +
-            '      }\n' +
-            '    }, 1000);\n' +
-            '    \n' +
-            '    if(overlay) overlay.classList.add("show");\n' +
-            '    if(mainContent) mainContent.classList.add("qr-active");\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Hide KHQR Overlay */\n' +
-            '  function hideKHQR() {\n' +
-            '    var overlay = document.getElementById("khqrOverlay");\n' +
-            '    var mainContent = document.getElementById("cdMainContent");\n' +
-            '    \n' +
-            '    if(qrTimerInterval) {\n' +
-            '      clearInterval(qrTimerInterval);\n' +
-            '      qrTimerInterval = null;\n' +
-            '    }\n' +
-            '    \n' +
-            '    if(overlay) overlay.classList.remove("show");\n' +
-            '    if(mainContent) mainContent.classList.remove("qr-active");\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Show Thank You Overlay */\n' +
-            '  function showThankYou(d) {\n' +
-            '    var totalFormatted = formatAmount(d.total, d.totalKhr || toKhrCustomer(d.total));\n' +
-            '    document.getElementById("tyAmount").textContent = totalFormatted.main;\n' +
-            '    document.getElementById("tyAmountKhr").textContent = totalFormatted.secondary;\n' +
-            '    \n' +
-            '    if(d.paymentMethod === "សាច់ប្រាក់" && d.changeUsd > 0) {\n' +
-            '      var khrChg = roundK(d.changeUsd * (d.paymentCurrency === "ដុល្លារ" ? CHG_RATE : EXRATE));\n' +
-            '      var changeFormatted = formatAmount(d.changeUsd, khrChg);\n' +
-            '      document.getElementById("tyChangeUsd").textContent = changeFormatted.main;\n' +
-            '      document.getElementById("tyChangeKhr").textContent = changeFormatted.secondary;\n' +
-            '      document.getElementById("tyChangeBox").style.display = "flex";\n' +
-            '    } else {\n' +
-            '      document.getElementById("tyChangeBox").style.display = "none";\n' +
-            '    }\n' +
-            '    \n' +
-            '    var ty = document.getElementById("thankyouOverlay");\n' +
-            '    if(ty) ty.classList.add("show");\n' +
-            '    \n' +
-            '    setTimeout(function() {\n' +
-            '      if(ty) ty.classList.remove("show");\n' +
-            '      renderOrder({isEmpty: true, items: []});\n' +
-            '    }, 5000);\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Render Order */\n' +
-            '  function renderOrder(d) {\n' +
-            '    currentOrderData = d;\n' +
-            '    var isEmpty = d.isEmpty || !d.items || d.items.length === 0;\n' +
-            '    \n' +
-            '    var idleDiv = document.getElementById("cdIdle");\n' +
-            '    var orderState = document.getElementById("cdOrderState");\n' +
-            '    \n' +
-            '    if(idleDiv) idleDiv.style.display = isEmpty ? "flex" : "none";\n' +
-            '    if(orderState) orderState.style.display = isEmpty ? "none" : "block";\n' +
-            '    \n' +
-            '    if(isEmpty) return;\n' +
-            '\n' +
-            '    var html = "";\n' +
-            '    d.items.forEach(function(item) {\n' +
-            '      var tot = item.price * item.quantity;\n' +
-            '      var totKhr = toKhrCustomer(tot);\n' +
-            '      var priceFormatted = formatAmount(item.price, toKhrCustomer(item.price));\n' +
-            '      var totalFormatted = formatAmount(tot, totKhr);\n' +
-            '      \n' +
-            '      var imgHtml = item.icon\n' +
-            '        ? "<img src=\'" + item.icon + "\' alt=\'" + escapeHtml(item.name) + "\' onerror=\'this.onerror=null;this.parentElement.innerHTML=\\\"<i class=\\\\\\\"fas fa-utensils\\\\\\\"></i>\\\";\'>"\n' +
-            '        : "<i class=\'fas fa-utensils\'></i>";\n' +
-            '      \n' +
-            '      html += "<div class=\'cd-item\' style=\'--item-color:" + item.color + "\'>";\n' +
-            '      html += "<div class=\'cd-item-thumb\' style=\'background:linear-gradient(135deg," + item.color + ",var(--accent-dark))\'>" + imgHtml + "</div>";\n' +
-            '      html += "<div class=\'cd-item-info\'><div class=\'cd-item-name\'>" + escapeHtml(item.name) + "</div>";\n' +
-            '      html += "<div class=\'cd-item-unit\'>" + priceFormatted.main + " × " + item.quantity + "</div>";\n' +
-            '      html += "<div class=\'cd-item-unit-khr\'>" + priceFormatted.secondary + "</div></div>";\n' +
-            '      html += "<div class=\'cd-item-right\'><div class=\'cd-item-qty\'>" + item.quantity + "</div>";\n' +
-            '      html += "<div class=\'cd-item-total\'>" + totalFormatted.main + "</div>";\n' +
-            '      html += "<div class=\'cd-item-total-khr\'>" + totalFormatted.secondary + "</div></div>";\n' +
-            '      html += "</div>";\n' +
-            '    });\n' +
-            '    \n' +
-            '    var itemsList = document.getElementById("cdItemsList");\n' +
-            '    if(itemsList) itemsList.innerHTML = html;\n' +
-            '\n' +
-            '    var subtotalKhr = toKhrCustomer(d.subtotal);\n' +
-            '    var subtotalFormatted = formatAmount(d.subtotal, subtotalKhr);\n' +
-            '    document.getElementById("cdSubtotal").textContent = subtotalFormatted.main;\n' +
-            '    document.getElementById("cdSubtotalKhr").textContent = subtotalFormatted.secondary;\n' +
-            '\n' +
-            '    var discRow = document.getElementById("cdDiscountRow");\n' +
-            '    if(d.discount > 0) {\n' +
-            '      var lbl = d.discountType === "percentage" ? "បញ្ចុះ " + d.discountAmount + "%" : "បញ្ចុះ";\n' +
-            '      document.getElementById("cdDiscountLabel").textContent = lbl;\n' +
-            '      var discountFormatted = formatAmount(d.discount, toKhrCustomer(d.discount));\n' +
-            '      document.getElementById("cdDiscountVal").textContent = "-" + discountFormatted.main;\n' +
-            '      discRow.style.display = "flex";\n' +
-            '    } else if(discRow) {\n' +
-            '      discRow.style.display = "none";\n' +
-            '    }\n' +
-            '\n' +
-            '    var totalKhr = toKhrCustomer(d.total);\n' +
-            '    var totalFormatted = formatAmount(d.total, totalKhr);\n' +
-            '    document.getElementById("cdTotal").textContent = totalFormatted.main;\n' +
-            '    document.getElementById("cdTotalKhr").textContent = totalFormatted.secondary;\n' +
-            '  }\n' +
-            '\n' +
-            '  function escapeHtml(str) {\n' +
-            '    if(!str) return "";\n' +
-            '    return str.replace(/[&<>]/g, function(m) {\n' +
-            '      if(m === "&") return "&amp;";\n' +
-            '      if(m === "<") return "&lt;";\n' +
-            '      if(m === ">") return "&gt;";\n' +
-            '      return m;\n' +
-            '    });\n' +
-            '  }\n' +
-            '\n' +
-            '  /* Message listener from main POS */\n' +
-            '  window.addEventListener("message", function(e) {\n' +
-            '    if(!e.data || !e.data.type) return;\n' +
-            '    \n' +
-            '    switch(e.data.type) {\n' +
-            '      case "CD_SYNC":\n' +
-            '        renderOrder(e.data);\n' +
-            '        break;\n' +
-            '      case "CD_THANKYOU":\n' +
-            '        showThankYou(e.data);\n' +
-            '        break;\n' +
-            '      case "CD_QR":\n' +
-            '        showKHQR(e.data.total, e.data.totalKhr);\n' +
-            '        break;\n' +
-            '      case "CD_QR_HIDE":\n' +
-            '        hideKHQR();\n' +
-            '        break;\n' +
-            '    }\n' +
-            '  });\n' +
-            '\n' +
-            '  /* Close KHQR button */\n' +
-            '  var closeBtn = document.getElementById("khqrCloseBtn");\n' +
-            '  if(closeBtn) {\n' +
-            '    closeBtn.addEventListener("click", function() {\n' +
-            '      hideKHQR();\n' +
-            '      // Notify main POS that QR was cancelled\n' +
-            '      if(window.opener) {\n' +
-            '        window.opener.postMessage({ type: "KHQR_CANCELLED" }, "*");\n' +
-            '      }\n' +
-            '    });\n' +
-            '  }\n' +
-            '\n' +
-            '  console.log("✅ Customer Display ready with KHQR support and manual fullscreen");\n' +
-            '})();\n' +
-            '<\/script>\n' +
-            '</body>\n' +
-            '</html>';
+        return '<!DOCTYPE html>\n<html lang="km">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">\n<title>Customer Display — ផ្ទះបាយសេនឌូ</title>\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">\n<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>\n<style>\n*{margin:0;padding:0;box-sizing:border-box}\nhtml,body{width:100%;height:100%;overflow:hidden;font-family:\'Sora\',\'Noto Sans Khmer\',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}\n:root{--brand:#FF6B35;--brand-dark:#E85520;--brand-light:#FFF3EE;--brand-glow:rgba(255,107,53,.18);--accent:#2D3561;--accent-dark:#1C2140;--success:#00B894;--warning:#F59E0B;--danger:#EF4444;--danger-light:#FEE2E2;--bg:#F4F1ED;--bg-2:#EDE9E3;--surface:#FFFFFF;--surface-2:#FAFAF8;--border:#E2DDD7;--border-light:#EDE9E4;--text:#1A1714;--text-sub:#574F47;--text-muted:#9C9189;--shadow-xs:0 1px 3px rgba(26,23,20,.06);--shadow-sm:0 2px 10px rgba(26,23,20,.08);--shadow-md:0 8px 24px rgba(26,23,20,.10);--shadow-lg:0 20px 48px rgba(26,23,20,.15);--shadow-brand:0 8px 24px rgba(255,107,53,.25);--r-xs:6px;--r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px}\n.pos-cd{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}\n.fullscreen-btn{position:fixed;bottom:20px;right:20px;width:48px;height:48px;background:var(--surface);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;box-shadow:var(--shadow-sm);transition:all 0.3s ease;color:var(--brand);font-size:20px}\n.fullscreen-btn:hover{transform:scale(1.1);background:var(--brand);color:white;border-color:var(--brand)}\n.cd-header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;flex-shrink:0;box-shadow:var(--shadow-xs)}\n.cd-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}\n.cd-logo-area{display:flex;align-items:center;gap:10px}\n.cd-logo-dot{width:10px;height:10px;background:var(--brand);border-radius:50%;box-shadow:0 0 14px rgba(255,107,53,0.9);animation:cdPulse 2.5s ease-in-out infinite}\n@keyframes cdPulse{0%,100%{opacity:1;box-shadow:0 0 8px rgba(255,107,53,0.6)}50%{opacity:0.7;box-shadow:0 0 22px rgba(255,107,53,0.9)}}\n.cd-logo-text{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.3px}\n.cd-logo-text span{color:var(--brand)}\n.cd-clock{background:var(--bg-2);border:1px solid var(--border-light);border-radius:var(--r-xl);padding:6px 16px;font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:0.5px}\n.cd-header-sub{display:flex;align-items:center;justify-content:space-between}\n.cd-welcome-line1{font-size:12px;font-weight:500;color:var(--text-muted);letter-spacing:0.3px}\n.cd-currency-toggle{display:flex;align-items:center;gap:6px;background:var(--bg-2);border-radius:var(--r-xl);padding:4px;border:1px solid var(--border-light)}\n.cd-currency-opt{padding:4px 14px;border-radius:30px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--text-sub)}\n.cd-currency-opt.active{background:var(--brand);color:white;box-shadow:var(--shadow-sm)}\n.cd-live-dot{font-size:10px;font-weight:600;color:var(--text-muted);display:flex;align-items:center;gap:5px}\n.cd-live-dot::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--success);animation:livePulse 2s infinite}\n@keyframes livePulse{0%,100%{opacity:1}50%{opacity:0.3}}\n.cd-main-content{flex:1;min-height:0;overflow-y:auto;transition:all 0.3s ease}\n.cd-main-content.qr-active{overflow:hidden}\n.cd-idle{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;text-align:center}\n.cd-idle-icon{width:100px;height:100px;background:var(--brand-light);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center}\n.cd-idle-icon i{font-size:42px;color:var(--brand)}\n.cd-idle-title{font-size:32px;font-weight:800;color:var(--text);letter-spacing:-0.5px}\n.cd-idle-sub{font-size:16px;font-weight:500;color:var(--text-sub);line-height:1.6}\n.cd-promo-strip{background:linear-gradient(135deg,var(--brand-light),#FFF);border:1px solid var(--border-light);border-radius:var(--r-md);padding:16px 24px;max-width:420px;width:100%;text-align:center}\n.cd-promo-label{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}\n.cd-promo-text{font-size:14px;font-weight:500;color:var(--text-sub);line-height:1.6}\n.cd-order-section{padding:20px 24px}\n.cd-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}\n.cd-section-label::after{content:"";flex:1;height:1px;background:var(--border)}\n.cd-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:10px;animation:cdSlideIn 0.2s ease;border-left:4px solid var(--brand);box-shadow:var(--shadow-xs);transition:all 0.2s ease}\n.cd-item:hover{transform:translateX(2px);box-shadow:var(--shadow-sm)}\n@keyframes cdSlideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}\n.cd-item-thumb{width:56px;height:56px;border-radius:var(--r-sm);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;color:white;background:linear-gradient(135deg,var(--brand),var(--brand-dark))}\n.cd-item-thumb img{width:100%;height:100%;object-fit:cover;display:block}\n.cd-item-info{flex:1;min-width:0}\n.cd-item-name{font-size:16px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.cd-item-unit{font-size:12px;font-weight:500;color:var(--text-muted);margin-top:4px}\n.cd-item-unit-khr{font-size:10px;font-weight:500;color:var(--text-muted);margin-top:2px}\n.cd-item-right{text-align:right;flex-shrink:0}\n.cd-item-qty{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;background:var(--brand-light);border:1px solid var(--border);border-radius:var(--r-sm);font-size:16px;font-weight:700;color:var(--brand);margin-bottom:4px;padding:0 8px}\n.cd-item-total{font-size:16px;font-weight:700;color:var(--text)}\n.cd-item-total-khr{font-size:11px;font-weight:500;color:var(--text-muted);margin-top:2px}\n.cd-summary{background:var(--surface);border-top:1px solid var(--border);padding:20px 24px;flex-shrink:0;box-shadow:var(--shadow-sm)}\n.cd-sum-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:15px;font-weight:600;color:var(--text-sub);margin-bottom:10px}\n.cd-sum-row.total{font-size:22px;font-weight:800;color:var(--text);border-top:2px solid var(--border);padding-top:14px;margin-top:8px;margin-bottom:0}\n.cd-sum-row.total .cd-total-usd{color:var(--brand)}\n.cd-sum-khr{font-size:12px;font-weight:500;color:var(--text-muted);text-align:right}\n.cd-discount-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--warning);font-size:12px;font-weight:600;padding:4px 12px;border-radius:var(--r-xl)}\n.khqr-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--surface);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;animation:khqrFadeIn 0.35s ease}\n.khqr-overlay.show{display:flex}\n@keyframes khqrFadeIn{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}\n.khqr-header{text-align:center;margin-bottom:8px}\n.khqr-title{font-size:32px;font-weight:800;color:var(--brand);letter-spacing:-0.5px}\n.khqr-subtitle{font-size:15px;font-weight:500;color:var(--text-sub);margin-top:8px}\n.khqr-qr-container{position:relative;margin:16px 0}\n.khqr-qr-frame{position:relative;width:300px;height:300px;background:white;border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-lg);border:2px solid var(--brand)}\n.khqr-qr-corner{position:absolute;width:30px;height:30px;border-color:var(--brand);border-style:solid}\n.khqr-qr-corner.tl{top:-3px;left:-3px;border-width:5px 0 0 5px;border-radius:10px 0 0 0}\n.khqr-qr-corner.tr{top:-3px;right:-3px;border-width:5px 5px 0 0;border-radius:0 10px 0 0}\n.khqr-qr-corner.bl{bottom:-3px;left:-3px;border-width:0 0 5px 5px;border-radius:0 0 0 10px}\n.khqr-qr-corner.br{bottom:-3px;right:-3px;border-width:0 5px 5px 0;border-radius:0 0 10px 0}\n.khqr-qr-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:white;border-radius:var(--r-sm)}\n.khqr-qr-inner img,.khqr-qr-inner canvas{max-width:100%;max-height:100%;border-radius:8px}\n.khqr-pulse-ring{position:absolute;inset:-15px;border-radius:40px;border:2px solid var(--brand-glow);animation:khqrPulse 2s ease-in-out infinite;pointer-events:none}\n@keyframes khqrPulse{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.05);opacity:0.2}}\n.khqr-amount{text-align:center;margin:20px 0 12px}\n.khqr-amount-usd{font-size:48px;font-weight:800;color:var(--brand);letter-spacing:-1px}\n.khqr-amount-khr{font-size:18px;font-weight:600;color:var(--text-muted);margin-top:-6px}\n.khqr-merchant{font-size:16px;font-weight:700;color:var(--text);margin:12px 0 4px}\n.khqr-bank{font-size:13px;font-weight:500;color:var(--text-muted);display:flex;align-items:center;gap:6px}\n.khqr-timer{width:100%;max-width:300px;margin:24px auto 0}\n.khqr-timer-bar{background:var(--bg-2);border-radius:var(--r-xl);height:8px;overflow:hidden}\n.khqr-timer-fill{height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-dark));border-radius:var(--r-xl);width:100%;transition:width 120s linear}\n.khqr-timer-text{text-align:center;font-size:12px;font-weight:600;color:var(--text-muted);margin-top:10px}\n.khqr-timer-text span{color:var(--brand);font-weight:800}\n.khqr-close-btn{position:absolute;top:24px;right:24px;width:48px;height:48px;background:var(--surface);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;color:var(--text);font-size:20px;z-index:101;box-shadow:var(--shadow-sm)}\n.khqr-close-btn:hover{background:var(--danger-light);border-color:var(--danger);color:var(--danger)}\n.khqr-instruction{background:var(--brand-light);border:1px solid var(--border);border-radius:var(--r-xl);padding:12px 24px;margin-top:20px;font-size:13px;font-weight:600;color:var(--brand)}\n.thankyou-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--surface);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;text-align:center;animation:thankyouFadeIn 0.4s ease}\n.thankyou-overlay.show{display:flex}\n@keyframes thankyouFadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}\n.thankyou-check{width:100px;height:100px;background:rgba(0,184,148,0.1);border:3px solid var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--success);animation:thankyouBounce 0.5s cubic-bezier(0.34,1.2,0.64,1)}\n@keyframes thankyouBounce{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}\n.thankyou-title{font-size:36px;font-weight:800;color:var(--text)}\n.thankyou-amount{font-size:52px;font-weight:800;color:var(--brand);letter-spacing:-1px;margin:8px 0}\n.thankyou-amount-khr{font-size:20px;font-weight:600;color:var(--text-muted);margin-top:-10px}\n.thankyou-change{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:20px 32px;margin-top:16px}\n.thankyou-change-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--success);margin-bottom:8px}\n.thankyou-change-usd{font-size:32px;font-weight:800;color:var(--success)}\n.thankyou-change-khr{font-size:14px;font-weight:600;color:var(--text-muted)}\n.thankyou-message{font-size:16px;font-weight:500;color:var(--text-sub);margin-top:20px;line-height:1.6}\n.cd-main-content::-webkit-scrollbar{width:6px}\n.cd-main-content::-webkit-scrollbar-track{background:var(--bg-2);border-radius:10px}\n.cd-main-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}\n.cd-main-content::-webkit-scrollbar-thumb:hover{background:var(--brand)}\n</style>\n</head>\n<body>\n<div class="pos-cd">\n<div class="cd-header">\n<div class="cd-header-top">\n<div class="cd-logo-area"><div class="cd-logo-dot"></div><div class="cd-logo-text">ផ្ទះបាយ<span>សេនឌូ</span></div></div>\n<div class="cd-clock" id="cdClock">00:00:00</div>\n</div>\n<div class="cd-header-sub">\n<div class="cd-welcome-line1">Customer Display</div>\n<div style="display:flex;align-items:center;gap:12px;">\n<div class="cd-currency-toggle" id="cdCurrencyToggle"><span class="cd-currency-opt active" data-cd-currency="usd">USD</span><span class="cd-currency-opt" data-cd-currency="khr">KHR</span></div>\n<div class="cd-live-dot">LIVE</div>\n</div>\n</div>\n</div>\n<div class="cd-main-content" id="cdMainContent">\n<div class="cd-idle" id="cdIdle">\n<div class="cd-idle-icon"><i class="fas fa-concierge-bell"></i></div>\n<div><div class="cd-idle-title">សូមស្វាគមន៍!</div><div class="cd-idle-sub">ជ្រើសរើសមុខអាហារ<br>ហើយយើងនឹងបម្រើអ្នក</div></div>\n<div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:16px 20px;max-width:360px;width:100%;display:flex;align-items:center;gap:14px;">\n<div style="width:44px;height:44px;background:var(--brand-light);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-calendar-day" style="font-size:18px;color:var(--brand);"></i></div>\n<div><div id="cdIdleDate" style="font-size:15px;font-weight:600;color:var(--text);"></div><div id="cdIdleDay" style="font-size:13px;font-weight:500;color:var(--text-muted);margin-top:2px;"></div></div>\n</div>\n<div class="cd-promo-strip"><div class="cd-promo-label">ប្រម៉ូសិយ៉ូន</div><div class="cd-promo-text">ទទួលការបញ្ចុះតម្លៃ 10%<br>នៅពេលបញ្ជាទិញលើសពី $20</div></div>\n</div>\n<div id="cdOrderState" style="display:none;">\n<div class="cd-order-section"><div class="cd-section-label">បញ្ជីការកម្មង់</div><div id="cdItemsList"></div></div>\n<div class="cd-summary">\n<div class="cd-sum-row"><span>សរុប</span><span><span id="cdSubtotal">$0.00</span><div class="cd-sum-khr" id="cdSubtotalKhr">0 ៛</div></span></div>\n<div class="cd-sum-row" id="cdDiscountRow" style="display:none;"><span class="cd-discount-pill"><i class="fas fa-tag"></i><span id="cdDiscountLabel">បញ្ចុះ</span></span><span style="color:var(--warning);font-weight:700;" id="cdDiscountVal">-$0.00</span></div>\n<div class="cd-sum-row total"><span><i class="fas fa-calculator"></i>សរុបទាំងអស់</span><span><span class="cd-total-usd" id="cdTotal">$0.00</span><div class="cd-sum-khr" id="cdTotalKhr">0 ៛</div></span></div>\n</div>\n</div>\n</div>\n<button class="fullscreen-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></button>\n<div class="khqr-overlay" id="khqrOverlay">\n<div class="khqr-close-btn" id="khqrCloseBtn"><i class="fas fa-times"></i></div>\n<div class="khqr-header"><div class="khqr-title">ទូទាត់តាម KHQR</div><div class="khqr-subtitle">ស្កែន QR Code ដើម្បីបង់ប្រាក់</div></div>\n<div class="khqr-qr-container"><div class="khqr-qr-frame"><div class="khqr-pulse-ring"></div><div class="khqr-qr-corner tl"></div><div class="khqr-qr-corner tr"></div><div class="khqr-qr-corner bl"></div><div class="khqr-qr-corner br"></div><div class="khqr-qr-inner"><img src="' + origin + '/khqr-code.png" alt="KHQR" id="khqrImage" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display=\'none\';document.getElementById(\'khqrCanvas\').style.display=\'block\';"><canvas id="khqrCanvas" width="240" height="240" style="display:none;"></canvas></div></div></div>\n<div class="khqr-amount"><div class="khqr-amount-usd" id="khqrAmountUsd">$0.00</div><div class="khqr-amount-khr" id="khqrAmountKhr">0 ៛</div></div>\n<div class="khqr-merchant">ផ្ទះបាយសេនឌូ</div>\n<div class="khqr-bank"><i class="fas fa-university"></i> ABA Bank · 0000 1234 5678</div>\n<div class="khqr-timer"><div class="khqr-timer-bar"><div class="khqr-timer-fill" id="khqrTimerFill"></div></div><div class="khqr-timer-text">ផុតកំណត់ក្នុង <span id="khqrTimerLabel">2:00</span></div></div>\n<div class="khqr-instruction"><i class="fas fa-mobile-alt"></i> បើកកម្មវិធី ABA / ACLEDA / Wing ហើយស្កែន QR</div>\n</div>\n<div class="thankyou-overlay" id="thankyouOverlay">\n<div class="thankyou-check"><i class="fas fa-check"></i></div>\n<div class="thankyou-title">សូមអរគុណ! 🙏</div>\n<div><div class="thankyou-amount" id="tyAmount">$0.00</div><div class="thankyou-amount-khr" id="tyAmountKhr">0 ៛</div></div>\n<div class="thankyou-change" id="tyChangeBox" style="display:none;"><div class="thankyou-change-label">ប្រាក់អាប់</div><div class="thankyou-change-usd" id="tyChangeUsd">$0.00</div><div class="thankyou-change-khr" id="tyChangeKhr">0 ៛</div></div>\n<div class="thankyou-message">អរគុណសម្រាប់ការញ៉ាំ<br>សូមអញ្ជើញមកម្តងទៀត!</div>\n</div>\n</div>\n<script>\nfunction loadQRCodeLibrary(){return new Promise((resolve,reject)=>{if(typeof QRCode!=="undefined"){resolve();return;}var script=document.createElement("script");script.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});}\nfunction toggleFullscreen(){const elem=document.documentElement;if(!document.fullscreenElement&&!document.webkitFullscreenElement){if(elem.requestFullscreen)elem.requestFullscreen();else if(elem.webkitRequestFullscreen)elem.webkitRequestFullscreen();}else{if(document.exitFullscreen)document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();}}\nfunction updateFullscreenIcon(){const btn=document.getElementById("fullscreenBtn");const isFs=document.fullscreenElement||document.webkitFullscreenElement;if(btn)btn.innerHTML=isFs?\'<i class="fas fa-compress"></i>\':\'<i class="fas fa-expand"></i>\';}\ndocument.addEventListener("fullscreenchange",updateFullscreenIcon);document.addEventListener("webkitfullscreenchange",updateFullscreenIcon);\ndocument.addEventListener("DOMContentLoaded",function(){const fb=document.getElementById("fullscreenBtn");if(fb)fb.addEventListener("click",toggleFullscreen);});\nloadQRCodeLibrary().catch(err=>console.warn("QR lib failed:",err));\n(function(){\nvar EXRATE=4100;var CHG_RATE=4000;var displayCurrency="usd";var currentOrderData=null;var qrTimerInterval=null;\nfunction fmtUsd(n){return"$"+parseFloat(n).toFixed(2);}\nfunction fmtKhr(n){return Math.round(n).toLocaleString()+" ៛";}\nfunction toKhr(usd){return Math.round(usd*EXRATE);}\nfunction toKhrCustomer(usd){return Math.round(usd*CHG_RATE);}\nfunction roundK(v){return Math.round(v/100)*100;}\nfunction setDisplayCurrency(currency){displayCurrency=currency;document.querySelectorAll(".cd-currency-opt").forEach(opt=>{if(opt.dataset.cdCurrency===currency)opt.classList.add("active");else opt.classList.remove("active");});if(currentOrderData&&!currentOrderData.isEmpty)renderOrder(currentOrderData);}\nvar toggle=document.getElementById("cdCurrencyToggle");if(toggle){toggle.addEventListener("click",function(e){var t=e.target.closest(".cd-currency-opt");if(t&&t.dataset.cdCurrency)setDisplayCurrency(t.dataset.cdCurrency);});}\nfunction updateClock(){var now=new Date();var h=String(now.getHours()).padStart(2,"0");var m=String(now.getMinutes()).padStart(2,"0");var s=String(now.getSeconds()).padStart(2,"0");var el=document.getElementById("cdClock");if(el)el.textContent=h+":"+m+":"+s;}\nsetInterval(updateClock,1000);updateClock();\n(function(){var now=new Date();var dEl=document.getElementById("cdIdleDate");var dayEl=document.getElementById("cdIdleDay");if(dEl)dEl.textContent=now.toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});if(dayEl)dayEl.textContent=now.toLocaleDateString("en-GB",{weekday:"long"});})();\nfunction formatAmount(usdValue,khrValue){if(displayCurrency==="usd")return{main:fmtUsd(usdValue),secondary:fmtKhr(khrValue)};return{main:fmtKhr(khrValue),secondary:fmtUsd(usdValue)};}\nfunction generateQRCode(canvasId,text,width,height){var canvas=document.getElementById(canvasId);if(!canvas)return false;if(typeof QRCode!=="undefined"&&QRCode.toCanvas){try{QRCode.toCanvas(canvas,text,{width:width,margin:1,color:{dark:"#1A1714",light:"#FFFFFF"},errorCorrectionLevel:"H"},function(err){if(err)console.warn("QR error:",err);});return true;}catch(e){return false;}}return false;}\nfunction showKHQR(amountUsd,amountKhr){var overlay=document.getElementById("khqrOverlay");var mc=document.getElementById("cdMainContent");document.getElementById("khqrAmountUsd").textContent=fmtUsd(amountUsd);document.getElementById("khqrAmountKhr").textContent=fmtKhr(amountKhr);var qrText="KHQR|SandooHouse|ABA|0000123456|USD|"+amountUsd.toFixed(2)+"|"+Date.now();var canvas=document.getElementById("khqrCanvas");var img=document.getElementById("khqrImage");if(generateQRCode("khqrCanvas",qrText,240,240)){if(img)img.style.display="none";if(canvas)canvas.style.display="block";}else{if(img)img.style.display="block";if(canvas)canvas.style.display="none";}if(qrTimerInterval)clearInterval(qrTimerInterval);var seconds=120;var fill=document.getElementById("khqrTimerFill");var label=document.getElementById("khqrTimerLabel");if(fill){fill.style.transition="width 120s linear";fill.style.width="0%";}qrTimerInterval=setInterval(function(){seconds--;var m=Math.floor(seconds/60);var s=String(seconds%60).padStart(2,"0");if(label)label.textContent=m+":"+s;if(seconds<=0){clearInterval(qrTimerInterval);hideKHQR();}},1000);if(overlay)overlay.classList.add("show");if(mc)mc.classList.add("qr-active");}\nfunction hideKHQR(){var overlay=document.getElementById("khqrOverlay");var mc=document.getElementById("cdMainContent");if(qrTimerInterval){clearInterval(qrTimerInterval);qrTimerInterval=null;}if(overlay)overlay.classList.remove("show");if(mc)mc.classList.remove("qr-active");}\nfunction showThankYou(d){var totalFormatted=formatAmount(d.total,d.totalKhr||toKhrCustomer(d.total));document.getElementById("tyAmount").textContent=totalFormatted.main;document.getElementById("tyAmountKhr").textContent=totalFormatted.secondary;if(d.paymentMethod==="សាច់ប្រាក់"&&d.changeUsd>0){var khrChg=roundK(d.changeUsd*(d.paymentCurrency==="ដុល្លារ"?CHG_RATE:EXRATE));var chFmt=formatAmount(d.changeUsd,khrChg);document.getElementById("tyChangeUsd").textContent=chFmt.main;document.getElementById("tyChangeKhr").textContent=chFmt.secondary;document.getElementById("tyChangeBox").style.display="flex";}else{document.getElementById("tyChangeBox").style.display="none";}var ty=document.getElementById("thankyouOverlay");if(ty)ty.classList.add("show");setTimeout(function(){if(ty)ty.classList.remove("show");renderOrder({isEmpty:true,items:[]});},5000);}\nfunction escapeHtml(str){if(!str)return"";return str.replace(/[&<>]/g,function(m){if(m==="&")return"&amp;";if(m==="<")return"&lt;";if(m===">")return"&gt;";return m;});}\nfunction renderOrder(d){currentOrderData=d;var isEmpty=d.isEmpty||!d.items||d.items.length===0;var idleDiv=document.getElementById("cdIdle");var orderState=document.getElementById("cdOrderState");if(idleDiv)idleDiv.style.display=isEmpty?"flex":"none";if(orderState)orderState.style.display=isEmpty?"none":"block";if(isEmpty)return;var html="";d.items.forEach(function(item){var tot=item.price*item.quantity;var totKhr=toKhrCustomer(tot);var pFmt=formatAmount(item.price,toKhrCustomer(item.price));var tFmt=formatAmount(tot,totKhr);var imgHtml=item.icon?"<img src=\'"+item.icon+"\' alt=\'"+escapeHtml(item.name)+"\' onerror=\'this.onerror=null;this.parentElement.innerHTML=\\\"<i class=\\\\\\\"fas fa-utensils\\\\\\\"></i>\\\";\'>":"<i class=\'fas fa-utensils\'></i>";html+="<div class=\'cd-item\'>";html+="<div class=\'cd-item-thumb\' style=\'background:linear-gradient(135deg,"+item.color+",var(--accent-dark))\'>"+imgHtml+"</div>";html+="<div class=\'cd-item-info\'><div class=\'cd-item-name\'>"+escapeHtml(item.name)+"</div>";html+="<div class=\'cd-item-unit\'>"+pFmt.main+" × "+item.quantity+"</div>";html+="<div class=\'cd-item-unit-khr\'>"+pFmt.secondary+"</div></div>";html+="<div class=\'cd-item-right\'><div class=\'cd-item-qty\'>"+item.quantity+"</div>";html+="<div class=\'cd-item-total\'>"+tFmt.main+"</div>";html+="<div class=\'cd-item-total-khr\'>"+tFmt.secondary+"</div></div>";html+="</div>";});var il=document.getElementById("cdItemsList");if(il)il.innerHTML=html;var subKhr=toKhrCustomer(d.subtotal);var subFmt=formatAmount(d.subtotal,subKhr);document.getElementById("cdSubtotal").textContent=subFmt.main;document.getElementById("cdSubtotalKhr").textContent=subFmt.secondary;var discRow=document.getElementById("cdDiscountRow");if(d.discount>0){var lbl=d.discountType==="percentage"?"បញ្ចុះ "+d.discountAmount+"%":"បញ្ចុះ";document.getElementById("cdDiscountLabel").textContent=lbl;var dFmt=formatAmount(d.discount,toKhrCustomer(d.discount));document.getElementById("cdDiscountVal").textContent="-"+dFmt.main;discRow.style.display="flex";}else if(discRow){discRow.style.display="none";}var totKhr=toKhrCustomer(d.total);var totFmt=formatAmount(d.total,totKhr);document.getElementById("cdTotal").textContent=totFmt.main;document.getElementById("cdTotalKhr").textContent=totFmt.secondary;}\nwindow.addEventListener("message",function(e){if(!e.data||!e.data.type)return;switch(e.data.type){case"CD_SYNC":renderOrder(e.data);break;case"CD_THANKYOU":showThankYou(e.data);break;case"CD_QR":showKHQR(e.data.total,e.data.totalKhr);break;case"CD_QR_HIDE":hideKHQR();break;}});\nvar closeBtn=document.getElementById("khqrCloseBtn");if(closeBtn){closeBtn.addEventListener("click",function(){hideKHQR();if(window.opener)window.opener.postMessage({type:"KHQR_CANCELLED"},"*");});}\nconsole.log("✅ Customer Display ready");\n})();\n<\/script>\n</body>\n</html>';
     }
 
     $(document).ready(function () {
@@ -1967,12 +638,12 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         /* ═══════════════════════════════════════════════
            RATES & HELPERS
         ═══════════════════════════════════════════════ */
-        const EXCHANGE_RATE        = 4100;
+        const EXCHANGE_RATE = 4100;
         const CHANGE_RATE_CUSTOMER = 4000;
 
-        const toKhr       = usd => Math.round(usd * EXCHANGE_RATE);
-        const fmtKhr      = n   => Math.round(n).toLocaleString() + ' ៛';
-        const fmtUsd      = n   => '$' + parseFloat(n).toFixed(2);
+        const toKhr = usd => Math.round(usd * EXCHANGE_RATE);
+        const fmtKhr = n => Math.round(n).toLocaleString() + ' ៛';
+        const fmtUsd = n => '$' + parseFloat(n).toFixed(2);
         const roundKhr100 = khr => Math.round(khr / 100) * 100;
 
         function customerChangeKhr(changeUsd, changeKhr, payCurrency) {
@@ -1983,11 +654,12 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         /* ── Live clocks ── */
         function updateClocks() {
             const now = new Date();
-            const h   = now.getHours() % 12 || 12;
-            const m   = String(now.getMinutes()).padStart(2, '0');
-            const ap  = now.getHours() >= 12 ? 'PM' : 'AM';
+            const h = now.getHours() % 12 || 12;
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const ap = now.getHours() >= 12 ? 'PM' : 'AM';
             $('#liveClock').text(`${h}:${m} ${ap}`);
         }
+
         setInterval(updateClocks, 1000);
         updateClocks();
 
@@ -1995,36 +667,36 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         const products = [
             @if (ViewBag.Menus != null)
             {
-            var index = 0;
-            string[] colors = { "#FF6B35","#E85520","#2D3561","#00B894","#FDCB6E","#6C5CE7","#0984E3","#E17055","#00CEC9","#A29BFE" };
-            foreach (var menu in ViewBag.Menus)
-            {
-            var color = colors[index % colors.Length];
-            string categoryName = menu.Category?.CategoryName ?? "Uncategorized";
-            string brandName = menu.Category?.Brand?.BrandName ?? "Uncategorized";
-            string imageUrl = menu.ImageMenuUrl ?? "";
-            if (!string.IsNullOrEmpty(imageUrl) && !imageUrl.StartsWith("http") && !imageUrl.StartsWith("/"))
-            imageUrl = "/Menu/" + imageUrl;
-            <text>
-            ,{
-                id:@menu.Id,
-                name: '@Html.Raw(menu.MenuName.Replace("'", "\\'"))',
-                priceUsd:@((menu.Price - (menu.DiscountPrice ?? 0)).ToString("F2")),
-                category: '@Html.Raw(categoryName.Replace("'", "\\'"))',
-                categoryId:@(menu.CategoryId ?? 0),
-                brand: '@Html.Raw(brandName.Replace("'", "\\'"))',
-                brandId:@(menu.Category?.BrandId ?? 0),
-                icon: '@Html.Raw(imageUrl)',
-                color: '@color'
-            },
-            </text>
-            index++;
-            }
+                var index = 0;
+                string[] colors = { "#FF6B35", "#E85520", "#2D3561", "#00B894", "#FDCB6E", "#6C5CE7", "#0984E3", "#E17055", "#00CEC9", "#A29BFE" };
+                foreach (var menu in ViewBag.Menus)
+                {
+                    var color = colors[index % colors.Length];
+                    string categoryName = menu.Category?.CategoryName ?? "Uncategorized";
+                    string brandName = menu.Category?.Brand?.BrandName ?? "Uncategorized";
+                    string imageUrl = menu.ImageMenuUrl ?? "";
+                    if (!string.IsNullOrEmpty(imageUrl) && !imageUrl.StartsWith("http") && !imageUrl.StartsWith("/"))
+                        imageUrl = "/Menu/" + imageUrl;
+                    <text>
+                        ,{
+                        id:@menu.Id,
+                        name: '@Html.Raw(menu.MenuName.Replace("'", "\\'"))',
+                        priceUsd:@((menu.Price - (menu.DiscountPrice ?? 0)).ToString("F2")),
+                        category: '@Html.Raw(categoryName.Replace("'", "\\'"))',
+                        categoryId:@(menu.CategoryId ?? 0),
+                        brand: '@Html.Raw(brandName.Replace("'", "\\'"))',
+                        brandId:@(menu.Category?.BrandId ?? 0),
+                        icon: '@Html.Raw(imageUrl)',
+                        color: '@color'
+                    },
+                    </text>
+                    index++;
+                }
             }
         ];
 
         const categoriesByBrand = {};
-        const allCategories     = [];
+        const allCategories = [];
         products.forEach(p => {
             if (!categoriesByBrand[p.brand]) categoriesByBrand[p.brand] = new Set();
             categoriesByBrand[p.brand].add(p.category);
@@ -2043,45 +715,40 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 : Math.min(sub * discountAmount / 100, sub);
         }
 
-        /* ════ CUSTOMER DISPLAY SYNC via postMessage ════ */
+        /* ════ CUSTOMER DISPLAY SYNC ════ */
         function syncCustomerDisplay() {
-            const sub   = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-            const disc  = calcDiscount(sub);
+            const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const disc = calcDiscount(sub);
             const total = sub - disc;
             postToCustomer({
-                type: 'CD_SYNC',
-                isEmpty: cart.length === 0,
-                paymentCurrency,
+                type: 'CD_SYNC', isEmpty: cart.length === 0, paymentCurrency,
                 items: cart.map(i => ({
-                    id: i.id, name: i.name, price: i.price,
-                    quantity: i.quantity, icon: i.icon, color: i.color
+                    id: i.id,
+                    name: i.name,
+                    price: i.price,
+                    quantity: i.quantity,
+                    icon: i.icon,
+                    color: i.color
                 })),
-                subtotal: sub,
-                discount: disc,
-                discountType,
-                discountAmount,
-                total
+                subtotal: sub, discount: disc, discountType, discountAmount, total
             });
         }
 
-        /* ════ CUSTOMER THANK-YOU ════ */
         function showCustomerThankYou(order) {
             postToCustomer({
-                type: 'CD_THANKYOU',
-                total: order.total,
-                totalKhr: order.totalKhr,
-                paymentMethod: order.paymentMethod,
-                paymentCurrency: order.paymentCurrency,
-                changeUsd: order.changeUsd,
-                changeKhr: order.changeKhr
+                type: 'CD_THANKYOU', total: order.total, totalKhr: order.totalKhr,
+                paymentMethod: order.paymentMethod, paymentCurrency: order.paymentCurrency,
+                changeUsd: order.changeUsd, changeKhr: order.changeKhr
             });
         }
 
         /* ── Category tabs ── */
         function updateCategoryTabs(brand) {
             const cats = brand === 'all' ? allCategories : Array.from(categoriesByBrand[brand] || []);
-            let html   = '<button class="tab-pill active" data-category="all">ទាំងអស់</button>';
-            cats.forEach(c => { html += `<button class="tab-pill" data-category="${c}">${c}</button>`; });
+            let html = '<button class="tab-pill active" data-category="all">ទាំងអស់</button>';
+            cats.forEach(c => {
+                html += `<button class="tab-pill" data-category="${c}">${c}</button>`;
+            });
             $('#categoryTabs').html(html);
             currentCategory = 'all';
         }
@@ -2092,9 +759,9 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 $('#productsGrid').html('<div class="state-placeholder"><i class="fas fa-box-open"></i><p>មិនមានផលិតផល</p></div>');
                 return;
             }
-            const q        = $('#productSearch').val().toLowerCase();
+            const q = $('#productSearch').val().toLowerCase();
             const filtered = products.filter(p =>
-                (currentBrand    === 'all' || p.brand    === currentBrand)    &&
+                (currentBrand === 'all' || p.brand === currentBrand) &&
                 (currentCategory === 'all' || p.category === currentCategory) &&
                 p.name.toLowerCase().includes(q)
             );
@@ -2109,22 +776,23 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                     : '<i class="fas fa-utensils"></i>';
                 html += `
 <div class="product-card" style="--product-color:${p.color}"
-     data-id="${p.id}" data-name="${p.name.replace(/'/g,'&apos;')}"
-     data-price="${p.priceUsd}" data-brand-id="${p.brandId||0}"
-     data-icon="${p.icon||''}" data-color="${p.color}">
+     data-id="${p.id}" data-name="${p.name.replace(/'/g, '&apos;')}"
+     data-price="${p.priceUsd}" data-brand-id="${p.brandId || 0}"
+     data-icon="${p.icon || ''}" data-color="${p.color}">
     <div class="prod-img" style="background:linear-gradient(160deg,${p.color},#2D3561)">${imgHtml}</div>
     <div class="prod-price">${p.name}</div>
-    <div class="prod-price-khr">${p.priceUsd}$ = ${fmtKhr(roundKhr100(parseFloat(p.priceUsd) * (paymentCurrency==='khr'?CHANGE_RATE_CUSTOMER:EXCHANGE_RATE)))}</div>
+    <div class="prod-price-khr">${p.priceUsd}$ = ${fmtKhr(roundKhr100(parseFloat(p.priceUsd) * (paymentCurrency === 'khr' ? CHANGE_RATE_CUSTOMER : EXCHANGE_RATE)))}</div>
     <button class="prod-add-btn"><i class="fas fa-plus"></i></button>
 </div>`;
             });
-            $('#productsGrid').fadeOut(70, function () { $(this).html(html).fadeIn(110); });
+            $('#productsGrid').fadeOut(70, function () {
+                $(this).html(html).fadeIn(110);
+            });
         }
 
         updateCategoryTabs('all');
         loadProducts();
 
-        /* Filter events */
         $('#brandTabs').on('click', '.tab-pill', function () {
             $('#brandTabs .tab-pill').removeClass('brand-active');
             $(this).addClass('brand-active');
@@ -2144,28 +812,39 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             searchTimeout = setTimeout(loadProducts, 280);
         });
         $('#productSearch').on('keydown', function (e) {
-            if (e.key === 'Escape') { $(this).val(''); loadProducts(); }
+            if (e.key === 'Escape') {
+                $(this).val('');
+                loadProducts();
+            }
         });
 
         /* ── Cart ── */
-        $(document).on('click', '.product-card', function (e) { if ($(e.target).is('button,i')) return; addToCart(this); });
-        $(document).on('click', '.prod-add-btn', function (e) { e.stopPropagation(); addToCart($(this).closest('.product-card')[0]); });
+        $(document).on('click', '.product-card', function (e) {
+            if ($(e.target).is('button,i')) return;
+            addToCart(this);
+        });
+        $(document).on('click', '.prod-add-btn', function (e) {
+            e.stopPropagation();
+            addToCart($(this).closest('.product-card')[0]);
+        });
 
         function addToCart(el) {
-            const $el  = $(el);
+            const $el = $(el);
             $el.addClass('pulse');
             setTimeout(() => $el.removeClass('pulse'), 300);
             const item = {
-                id:      $el.data('id'),
-                name:    $el.data('name'),
-                price:   parseFloat($el.data('price')),
-                brandId: $el.data('brand-id') || 0,
-                icon:    $el.data('icon') || '',
-                color:   $el.data('color') || 'var(--brand)'
+                id: $el.data('id'), name: $el.data('name'),
+                price: parseFloat($el.data('price')), brandId: $el.data('brand-id') || 0,
+                icon: $el.data('icon') || '', color: $el.data('color') || 'var(--brand)'
             };
             const existing = cart.find(i => i.id === item.id);
-            if (existing) { existing.quantity++; notify(`+1 ${item.name}`, 'info'); }
-            else { cart.push({ ...item, quantity: 1 }); notify(`បន្ថែម ${item.name}`, 'success'); }
+            if (existing) {
+                existing.quantity++;
+                notify(`+1 ${item.name}`, 'info');
+            } else {
+                cart.push({...item, quantity: 1});
+                notify(`បន្ថែម ${item.name}`, 'success');
+            }
             renderCart();
         }
 
@@ -2175,7 +854,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 html = `<div class="empty-cart"><i class="fas fa-utensils"></i><p>ថ្ងៃសួស្ដី! ជ្រើសអាហារ</p><small>ចុចលើផលិតផលដើម្បីបន្ថែម</small></div>`;
             } else {
                 cart.forEach((item, idx) => {
-                    const tot     = item.price * item.quantity;
+                    const tot = item.price * item.quantity;
                     const imgHtml = item.icon
                         ? `<img src="${item.icon}" alt="${item.name}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                         : '<i class="fas fa-utensils"></i>';
@@ -2191,7 +870,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         <span class="ci-qty-num">${item.quantity}</span>
         <button class="ci-qty-btn increase-qty"><i class="fas fa-plus"></i></button>
     </div>
-    <div class="ci-total">${displayCurrency==='usd' ? fmtUsd(tot) : fmtKhr(toKhr(tot))}</div>
+    <div class="ci-total">${displayCurrency === 'usd' ? fmtUsd(tot) : fmtKhr(toKhr(tot))}</div>
     <div class="ci-remove"><i class="fas fa-trash-alt"></i></div>
 </div>`;
                 });
@@ -2209,8 +888,12 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         });
         $(document).on('click', '.decrease-qty', function () {
             const idx = $(this).closest('.cart-item').data('index');
-            if (cart[idx].quantity > 1) { cart[idx].quantity--; }
-            else { notify(`លុប ${cart[idx].name}`, 'warning'); cart.splice(idx, 1); }
+            if (cart[idx].quantity > 1) {
+                cart[idx].quantity--;
+            } else {
+                notify(`លុប ${cart[idx].name}`, 'warning');
+                cart.splice(idx, 1);
+            }
             renderCart();
         });
         $(document).on('click', '.ci-remove', function () {
@@ -2221,8 +904,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         });
 
         function updateSummary() {
-            const sub   = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-            const disc  = calcDiscount(sub);
+            const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const disc = calcDiscount(sub);
             const total = sub - disc;
             $('#subtotal').text(fmtUsd(sub));
             $('#subtotalKhr').text(fmtKhr(roundKhr100(toKhr(sub))));
@@ -2232,32 +915,46 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 $('#discountDisplay').show();
                 $('#discountValue').text('-' + fmtUsd(disc));
                 $('#discountKhr').text(fmtKhr(roundKhr100(toKhr(disc))));
-            } else { $('#discountDisplay').hide(); }
+            } else {
+                $('#discountDisplay').hide();
+            }
             const cnt = cart.reduce((s, i) => s + i.quantity, 0);
             $('#cartCount').text(cnt + ' មុខ');
             updatePayState();
         }
 
         function updatePayState() {
-            const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const totalUsd = sub - calcDiscount(sub);
             const totalKhr = roundKhr100(toKhr(totalUsd));
-            const cash     = parseFloat($('#cashReceived').val()) || 0;
-
-            if (cart.length === 0) { $('#payBtn').prop('disabled', true); $('#changeDisplay').removeClass('show'); return; }
-            if (currentPaymentMethod !== 'cash') { $('#payBtn').prop('disabled', false); $('#changeDisplay').removeClass('show'); return; }
-
+            const cash = parseFloat($('#cashReceived').val()) || 0;
+            if (cart.length === 0) {
+                $('#payBtn').prop('disabled', true);
+                $('#changeDisplay').removeClass('show');
+                return;
+            }
+            if (currentPaymentMethod !== 'cash') {
+                $('#payBtn').prop('disabled', false);
+                $('#changeDisplay').removeClass('show');
+                return;
+            }
             const needed = paymentCurrency === 'usd' ? totalUsd : totalKhr;
             $('#payBtn').prop('disabled', cash < needed);
-
             if (cash >= needed && cash > 0) {
                 let changeUsd, changeKhr;
-                if (paymentCurrency === 'usd') { changeUsd = cash - totalUsd; changeKhr = roundKhr100(toKhr(changeUsd)); }
-                else { changeKhr = roundKhr100(cash - totalKhr); changeUsd = changeKhr / EXCHANGE_RATE; }
+                if (paymentCurrency === 'usd') {
+                    changeUsd = cash - totalUsd;
+                    changeKhr = roundKhr100(toKhr(changeUsd));
+                } else {
+                    changeKhr = roundKhr100(cash - totalKhr);
+                    changeUsd = changeKhr / EXCHANGE_RATE;
+                }
                 $('#changeAmount').text(fmtUsd(changeUsd));
                 $('#changeAmountKhr').text(fmtKhr(changeKhr));
                 $('#changeDisplay').addClass('show');
-            } else { $('#changeDisplay').removeClass('show'); }
+            } else {
+                $('#changeDisplay').removeClass('show');
+            }
         }
 
         function updateFab() {
@@ -2265,23 +962,32 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             $('#fabBadge').text(cnt);
         }
 
-        /* Currency toggles */
         $(document).on('click', '.curr-btn', function () {
-            $('.curr-btn').removeClass('active'); $(this).addClass('active');
+            $('.curr-btn').removeClass('active');
+            $(this).addClass('active');
             displayCurrency = $(this).data('currency');
             renderCart();
         });
         $(document).on('click', '[data-pay-currency]', function () {
-            $('[data-pay-currency]').removeClass('active'); $(this).addClass('active');
+            $('[data-pay-currency]').removeClass('active');
+            $(this).addClass('active');
             paymentCurrency = $(this).data('pay-currency');
-            if (paymentCurrency === 'usd') { $('.usd-amt').show(); $('.khr-amt').hide(); $('#cashReceived').attr('placeholder', 'ទទួលប្រាក់ (USD)').val(''); }
-            else { $('.usd-amt').hide(); $('.khr-amt').show(); $('#cashReceived').attr('placeholder', 'ទទួលប្រាក់ (រៀល)').val(''); }
+            if (paymentCurrency === 'usd') {
+                $('.usd-amt').show();
+                $('.khr-amt').hide();
+                $('#cashReceived').attr('placeholder', 'ទទួលប្រាក់ (USD)').val('');
+            } else {
+                $('.usd-amt').hide();
+                $('.khr-amt').show();
+                $('#cashReceived').attr('placeholder', 'ទទួលប្រាក់ (រៀល)').val('');
+            }
             loadProducts();
             syncCustomerDisplay();
             updatePayState();
         });
         $(document).on('click', '.pay-method', function () {
-            $('.pay-method').removeClass('active'); $(this).addClass('active');
+            $('.pay-method').removeClass('active');
+            $(this).addClass('active');
             currentPaymentMethod = $(this).data('method');
             if (currentPaymentMethod === 'cash') $('#cashPaymentSection').slideDown(160);
             else $('#cashPaymentSection').slideUp(160);
@@ -2295,66 +1001,66 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
                 const tot = sub - calcDiscount(sub);
                 $('#cashReceived').val(paymentCurrency === 'usd' ? tot.toFixed(2) : toKhr(tot));
-            } else { $('#cashReceived').val(amt); }
+            } else {
+                $('#cashReceived').val(amt);
+            }
             updatePayState();
         });
         $('#discountAmount').on('input', function () {
             discountAmount = Math.max(parseFloat($(this).val()) || 0, 0);
-            updateSummary(); syncCustomerDisplay();
+            updateSummary();
+            syncCustomerDisplay();
         });
         $('#discountTypeSelect').on('change', function () {
             discountType = $(this).val();
             $('#discountTypeBadge').text(discountType === 'fixed' ? 'ដុល្លារ' : 'ភាគរយ');
-            updateSummary(); syncCustomerDisplay();
+            updateSummary();
+            syncCustomerDisplay();
         });
 
-        /* Cancel / Hold */
         $('#cancelOrderBtn').click(function () {
             if (!cart.length) return;
-            if (confirm('បោះបង់ការកម្មង់?')) { resetCart(); notify('បោះបង់ការកម្មង់', 'warning'); }
+            if (confirm('បោះបង់ការកម្មង់?')) {
+                resetCart();
+                notify('បោះបង់ការកម្មង់', 'warning');
+            }
         });
         $('#holdOrderBtn').click(function () {
-            if (!cart.length) { notify('គ្មានទំនិញ', 'warning'); return; }
-            const sub  = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            if (!cart.length) {
+                notify('គ្មានទំនិញ', 'warning');
+                return;
+            }
+            const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const disc = calcDiscount(sub);
             const held = JSON.parse(localStorage.getItem('heldOrders') || '[]');
-            held.push({ id: 'HOLD' + Date.now(), items: cart, discount: { amount: discountAmount, type: discountType, value: disc }, total: sub - disc });
+            held.push({
+                id: 'HOLD' + Date.now(),
+                items: cart,
+                discount: {amount: discountAmount, type: discountType, value: disc},
+                total: sub - disc
+            });
             localStorage.setItem('heldOrders', JSON.stringify(held));
             resetCart();
             notify('ផ្អាកការកម្មង់', 'success');
         });
 
-        /* ════ KHQR FLOW - Only shows on Customer Display ════ */
+        /* ════ KHQR FLOW ════ */
         let _khqrActive = false;
         let qrModalTimer = null;
 
         async function openKhqrFlow(totalUsd) {
             const totalKhr = roundKhr100(toKhr(totalUsd));
-
-            // Send KHQR data to customer display only
-            postToCustomer({
-                type: 'CD_QR',
-                total: totalUsd,
-                totalKhr: totalKhr
-            });
-
-            // Show modal on cashier side with instructions
+            postToCustomer({type: 'CD_QR', total: totalUsd, totalKhr});
             showCashierQrModal(totalUsd, totalKhr);
-
             _khqrActive = true;
         }
 
         function showCashierQrModal(totalUsd, totalKhr) {
-            // Update the cashier modal with amount
             $('#cqrAmount').text(fmtUsd(totalUsd));
             $('#cqrKhr').text(fmtKhr(totalKhr));
-
-            // Show the modal
             $('#cashierQrModal').addClass('show');
-
-            // Set timer for auto-cancel after 2 minutes
             if (qrModalTimer) clearTimeout(qrModalTimer);
-            qrModalTimer = setTimeout(function() {
+            qrModalTimer = setTimeout(function () {
                 if ($('#cashierQrModal').hasClass('show')) {
                     closeKhqrFlow();
                     notify('KHQR ផុតកំណត់', 'warning');
@@ -2364,14 +1070,8 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
         function closeKhqrFlow() {
             _khqrActive = false;
-
-            // Hide cashier modal
             $('#cashierQrModal').removeClass('show');
-
-            // Hide QR on customer display
-            postToCustomer({ type: 'CD_QR_HIDE' });
-
-            // Clear timer
+            postToCustomer({type: 'CD_QR_HIDE'});
             if (qrModalTimer) {
                 clearTimeout(qrModalTimer);
                 qrModalTimer = null;
@@ -2380,7 +1080,7 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
         /* ════ PAY BUTTON ════ */
         $('#payBtn').on('click', async function () {
-            const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const totalUsd = sub - calcDiscount(sub);
             if (currentPaymentMethod === 'qr') {
                 await openKhqrFlow(totalUsd);
@@ -2391,24 +1091,26 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
         /* ════ CASH CONFIRM MODAL ════ */
         function openCashConfirm() {
-            const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-            const disc     = calcDiscount(sub);
+            const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const disc = calcDiscount(sub);
             const totalUsd = sub - disc;
             const totalKhr = roundKhr100(toKhr(totalUsd));
-            const cash     = parseFloat($('#cashReceived').val()) || totalUsd;
-
+            const cash = parseFloat($('#cashReceived').val()) || totalUsd;
             let changeUsd = 0, changeKhr = 0;
             if (currentPaymentMethod === 'cash') {
-                if (paymentCurrency === 'usd') { changeUsd = Math.max(0, cash - totalUsd); changeKhr = roundKhr100(toKhr(changeUsd)); }
-                else { changeKhr = roundKhr100(Math.max(0, cash - totalKhr)); changeUsd = changeKhr / EXCHANGE_RATE; }
+                if (paymentCurrency === 'usd') {
+                    changeUsd = Math.max(0, cash - totalUsd);
+                    changeKhr = roundKhr100(toKhr(changeUsd));
+                } else {
+                    changeKhr = roundKhr100(Math.max(0, cash - totalKhr));
+                    changeUsd = changeKhr / EXCHANGE_RATE;
+                }
             }
-
             let itemsHtml = '';
             cart.forEach(item => {
                 itemsHtml += `<div class="cc-order-item"><span class="cc-item-name">${item.name}</span><span class="cc-item-qty">×${item.quantity}</span><span class="cc-item-price">${fmtUsd(item.price * item.quantity)}</span></div>`;
             });
             $('#ccOrderItems').html(itemsHtml);
-
             let sumHtml = `<div class="cc-sum-row"><span>សរុប</span><span>${fmtUsd(sub)}<span class="cc-sum-khr">${fmtKhr(roundKhr100(toKhr(sub)))}</span></span></div>`;
             if (disc > 0) {
                 const dLabel = discountType === 'percentage' ? `បញ្ចុះ ${discountAmount}%` : 'បញ្ចុះ';
@@ -2416,85 +1118,89 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             }
             sumHtml += `<div class="cc-sum-row total"><span><i class="fas fa-calculator" style="margin-right:4px;"></i>សរុបទាំងអស់</span><span>${fmtUsd(totalUsd)}<span class="cc-sum-khr">${fmtKhr(totalKhr)}</span></span></div>`;
             $('#ccSummary').html(sumHtml);
-
             if (currentPaymentMethod === 'cash') {
                 const cashDisp = paymentCurrency === 'usd' ? fmtUsd(cash) : fmtKhr(cash);
-                const cashKhr  = paymentCurrency === 'usd' ? fmtKhr(roundKhr100(toKhr(cash))) : '';
-                const chDisp   = paymentCurrency === 'usd' ? fmtUsd(changeUsd) : fmtKhr(changeKhr);
-                const chKhrD   = paymentCurrency === 'usd' ? fmtKhr(changeKhr) : '';
-                $('#ccCashVal').text(cashDisp); $('#ccCashKhr').text(cashKhr);
-                $('#ccChangeVal').text(chDisp);  $('#ccChangeKhr').text(chKhrD);
+                const cashKhr = paymentCurrency === 'usd' ? fmtKhr(roundKhr100(toKhr(cash))) : '';
+                const chDisp = paymentCurrency === 'usd' ? fmtUsd(changeUsd) : fmtKhr(changeKhr);
+                const chKhrD = paymentCurrency === 'usd' ? fmtKhr(changeKhr) : '';
+                $('#ccCashVal').text(cashDisp);
+                $('#ccCashKhr').text(cashKhr);
+                $('#ccChangeVal').text(chDisp);
+                $('#ccChangeKhr').text(chKhrD);
                 $('#ccPaymentBox').show();
             } else {
-                $('#ccCashVal').text('Card'); $('#ccCashKhr').text('');
-                $('#ccChangeVal').text('—');   $('#ccChangeKhr').text('');
+                $('#ccCashVal').text('Card');
+                $('#ccCashKhr').text('');
+                $('#ccChangeVal').text('—');
+                $('#ccChangeKhr').text('');
                 $('#ccPaymentBox').hide();
             }
             $('#cashConfirmModal').addClass('show');
         }
 
-        $('#ccCancelBtn').on('click', function () { $('#cashConfirmModal').removeClass('show'); });
-        $('#ccConfirmBtn').on('click', function () { $('#cashConfirmModal').removeClass('show'); runPayFlow(); });
+        $('#ccCancelBtn').on('click', function () {
+            $('#cashConfirmModal').removeClass('show');
+        });
+        $('#ccConfirmBtn').on('click', function () {
+            $('#cashConfirmModal').removeClass('show');
+            runPayFlow();
+        });
 
         /* ════ ACTUAL PAY ════ */
         async function runPayFlow() {
             const $btn = $('#payBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> កំពុងរក្សាទុក...');
             try {
-                const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-                const disc     = calcDiscount(sub);
+                const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+                const disc = calcDiscount(sub);
                 const totalUsd = sub - disc;
                 const totalKhr = roundKhr100(toKhr(totalUsd));
-                const cash     = parseFloat($('#cashReceived').val()) || totalUsd;
-
+                const cash = parseFloat($('#cashReceived').val()) || totalUsd;
                 let changeUsd = 0, changeKhr = 0;
                 if (currentPaymentMethod === 'cash') {
-                    if (paymentCurrency === 'usd') { changeUsd = Math.max(0, cash - totalUsd); changeKhr = roundKhr100(toKhr(changeUsd)); }
-                    else { changeKhr = roundKhr100(Math.max(0, cash - totalKhr)); changeUsd = changeKhr / EXCHANGE_RATE; }
+                    if (paymentCurrency === 'usd') {
+                        changeUsd = Math.max(0, cash - totalUsd);
+                        changeKhr = roundKhr100(toKhr(changeUsd));
+                    } else {
+                        changeKhr = roundKhr100(Math.max(0, cash - totalKhr));
+                        changeUsd = changeKhr / EXCHANGE_RATE;
+                    }
                 }
-
-                const items   = cart.map(i => ({ menuItemId: i.id, brandId: i.brandId || 0, quantity: i.quantity, price: i.price, subtotal: i.price * i.quantity }));
+                const items = cart.map(i => ({
+                    menuItemId: i.id,
+                    brandId: i.brandId || 0,
+                    quantity: i.quantity,
+                    price: i.price,
+                    subtotal: i.price * i.quantity
+                }));
                 const cashUsd = paymentCurrency === 'usd' ? cash : cash / EXCHANGE_RATE;
-
                 const res = await fetch('/Order/CreateOrder', {
-                    method:  'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ items, cashReceived: cashUsd, discountAmount: disc })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({items, cashReceived: cashUsd, discountAmount: disc})
                 });
-                if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `Server ${res.status}`); }
+                if (!res.ok) {
+                    const e = await res.json().catch(() => ({}));
+                    throw new Error(e.error || `Server ${res.status}`);
+                }
                 const result = await res.json();
-
                 orderCounter++;
                 const orderNum = result.orderNumber || 'ORD' + orderCounter;
-                const pmLabel  = currentPaymentMethod === 'cash' ? 'សាច់ប្រាក់' : currentPaymentMethod === 'card' ? 'Card' : 'KHQR';
-
+                const pmLabel = currentPaymentMethod === 'cash' ? 'សាច់ប្រាក់' : currentPaymentMethod === 'card' ? 'Card' : 'KHQR';
                 const completedOrder = {
-                    number:          orderNum,
-                    date:            new Date(),
-                    items:           [...cart],
-                    subtotal:        sub,
-                    discount:        disc,
-                    discountType,
-                    discountAmount,
-                    total:           totalUsd,
-                    totalKhr,
-                    paymentMethod:   pmLabel,
+                    number: orderNum, date: new Date(), items: [...cart],
+                    subtotal: sub, discount: disc, discountType, discountAmount,
+                    total: totalUsd, totalKhr, paymentMethod: pmLabel,
                     paymentCurrency: paymentCurrency === 'usd' ? 'ដុល្លារ' : 'រៀល',
-                    cashReceived:    cash,
-                    changeUsd,
-                    changeKhr,
-                    cashier:         '@firstName @lastName'
+                    cashReceived: cash, changeUsd, changeKhr,
+                    cashier: '@firstName @lastName'
                 };
-
                 window.lastOrder = completedOrder;
-                lastOrderLocal   = completedOrder;
-
+                lastOrderLocal = completedOrder;
                 showCustomerThankYou(completedOrder);
                 showInvoice(completedOrder);
                 addRecentChip(orderNum, totalUsd);
                 resetCart();
                 notify('ការទូទាត់បានជោគជ័យ! ✓', 'success');
-
-            } catch(err) {
+            } catch (err) {
                 notify('មានបញ្ហា: ' + err.message, 'error');
             } finally {
                 $btn.prop('disabled', false).html('<i class="fas fa-check-circle"></i> បញ្ចប់ការទូទាត់ <span class="shortcut-tag">F8</span>');
@@ -2503,47 +1209,46 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         }
 
         function resetCart() {
-            cart = []; discountAmount = 0;
-            $('#discountAmount').val('0'); $('#discountDisplay').hide();
-            $('#cashReceived').val('0'); $('#changeDisplay').removeClass('show');
+            cart = [];
+            discountAmount = 0;
+            $('#discountAmount').val('0');
+            $('#discountDisplay').hide();
+            $('#cashReceived').val('0');
+            $('#changeDisplay').removeClass('show');
             renderCart();
         }
 
-        /* ── QR Modal Buttons ── */
-        $('#cqrConfirmBtn').off('click').on('click', function() {
+        $('#cqrConfirmBtn').off('click').on('click', function () {
             closeKhqrFlow();
             runPayFlow();
         });
-
-        $('#cqrCancelBtn').off('click').on('click', function() {
+        $('#cqrCancelBtn').off('click').on('click', function () {
             closeKhqrFlow();
             notify('បោះបង់ KHQR — ជ្រើសរើសវិធីបង់ម្តងទៀត', 'warning');
         });
 
         /* ── Invoice ── */
         function showInvoice(order) {
+            // Use Cambodia local time for invoice display
             const now = new Date();
-            $('#invoiceDate').text(now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }));
-            $('#invoiceTime').text(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+            $('#invoiceDate').text(now.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}));
+            $('#invoiceTime').text(now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}));
             $('#invoiceNumber').text('#' + order.number);
             $('#invoicePaymentMethod').text(order.paymentMethod);
-
             let itemsHtml = '';
             order.items.forEach(item => {
                 const tot = item.price * item.quantity;
                 itemsHtml += `<div class="inv-item"><span class="inv-item-name">${item.name}</span><span class="inv-item-qty">${item.quantity} × ${fmtUsd(item.price)}</span><span class="inv-item-total">${fmtUsd(tot)}</span></div>`;
             });
             $('#invoiceItems').html(itemsHtml);
-
             let sumHtml = `<div class="inv-sum-row"><span>សរុបរង</span><span>${fmtUsd(order.subtotal)}</span></div>`;
-            if (order.discount > 0) sumHtml += `<div class="inv-sum-row discount"><span>បញ្ចុះ ${order.discountType==='percentage'?'('+order.discountAmount+'%)':''}</span><span>-${fmtUsd(order.discount)}</span></div>`;
+            if (order.discount > 0) sumHtml += `<div class="inv-sum-row discount"><span>បញ្ចុះ ${order.discountType === 'percentage' ? '(' + order.discountAmount + '%)' : ''}</span><span>-${fmtUsd(order.discount)}</span></div>`;
             sumHtml += `<div class="inv-sum-row total"><span>សរុប</span><span>${fmtUsd(order.total)}</span></div><div style="text-align:right;font-size:10.5px;color:var(--text-muted);margin-top:3px;">${fmtKhr(order.totalKhr)}</div>`;
             $('#invoiceSummary').html(sumHtml);
-
             let payHtml = '';
             if (order.paymentMethod === 'សាច់ប្រាក់') {
                 const cd = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.cashReceived) : fmtKhr(order.cashReceived);
-                const ch = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.changeUsd)    : fmtKhr(order.changeKhr);
+                const ch = order.paymentCurrency === 'ដុល្លារ' ? fmtUsd(order.changeUsd) : fmtKhr(order.changeKhr);
                 payHtml = `<div class="inv-sum-row"><span>ទទួល (${order.paymentCurrency})</span><span>${cd}</span></div><div class="inv-sum-row"><span>អាប់</span><span>${ch}</span></div>`;
             } else {
                 payHtml = `<div class="inv-sum-row"><span>វិធីបង់</span><span>${order.paymentMethod}</span></div>`;
@@ -2552,13 +1257,14 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             $('#invoiceModal').addClass('show');
         }
 
-        /* Print */
+        /* ── Print ── */
         $('#printInvoiceBtn').click(function () {
             if (!lastOrderLocal) return;
             $('#invoiceModal').removeClass('show');
-            const order   = lastOrderLocal, now = new Date();
-            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const order = lastOrderLocal;
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+            const timeStr = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
             const fu = n => '$' + parseFloat(n).toFixed(2);
             const fk = n => Math.round(n).toLocaleString() + ' ៛';
             let itH = '';
@@ -2572,12 +1278,12 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             let payH = '';
             if (order.paymentMethod === 'សាច់ប្រាក់') {
                 const cd = order.paymentCurrency === 'ដុល្លារ' ? fu(order.cashReceived) : fk(order.cashReceived);
-                const ch = order.paymentCurrency === 'ដុល្លារ' ? fu(order.changeUsd)    : fk(order.changeKhr);
+                const ch = order.paymentCurrency === 'ដុល្លារ' ? fu(order.changeUsd) : fk(order.changeKhr);
                 payH = `<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>ទទួល</span><span>${cd}</span></div><div style="display:flex;justify-content:space-between;margin:5px 0;"><span>អាប់</span><span>${ch}</span></div>`;
             } else {
                 payH = `<div style="display:flex;justify-content:space-between;margin:5px 0;"><span>វិធីបង់</span><span>${order.paymentMethod}</span></div>`;
             }
-            const pf  = document.createElement('iframe');
+            const pf = document.createElement('iframe');
             pf.style.cssText = 'position:absolute;width:0;height:0;border:none;visibility:hidden';
             document.body.appendChild(pf);
             const doc = pf.contentWindow.document;
@@ -2606,7 +1312,10 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
             $('#recentOrders').prepend(html);
             if ($('#recentOrders .recent-chip').length > 6) $('#recentOrders .recent-chip:last').remove();
         }
-        $(document).on('click', '.recent-chip', () => { if (lastOrderLocal) showInvoice(lastOrderLocal); });
+
+        $(document).on('click', '.recent-chip', () => {
+            if (lastOrderLocal) showInvoice(lastOrderLocal);
+        });
         addRecentChip('4582', 45.97);
         addRecentChip('4581', 23.50);
         addRecentChip('4580', 67.48);
@@ -2622,97 +1331,119 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
         /* Toast notifications */
         function notify(msg, type = 'info') {
             $('.toast').remove();
-            const icons = { success: 'fa-check-circle', warning: 'fa-exclamation-triangle', error: 'fa-times-circle', info: 'fa-info-circle' };
-            const $t = $(`<div class="toast t-${type}"><i class="fas ${icons[type]||icons.info}" style="color:${type==='success'?'#00B894':type==='warning'?'#F59E0B':type==='error'?'#EF4444':'#FF6B35'};flex-shrink:0;"></i><span>${msg}</span></div>`);
+            const icons = {
+                success: 'fa-check-circle',
+                warning: 'fa-exclamation-triangle',
+                error: 'fa-times-circle',
+                info: 'fa-info-circle'
+            };
+            const $t = $(`<div class="toast t-${type}"><i class="fas ${icons[type] || icons.info}" style="color:${type === 'success' ? '#00B894' : type === 'warning' ? '#F59E0B' : type === 'error' ? '#EF4444' : '#FF6B35'};flex-shrink:0;"></i><span>${msg}</span></div>`);
             $('body').append($t);
             setTimeout(() => $t.addClass('show'), 10);
-            setTimeout(() => { $t.removeClass('show'); setTimeout(() => $t.remove(), 280); }, 2800);
+            setTimeout(() => {
+                $t.removeClass('show');
+                setTimeout(() => $t.remove(), 280);
+            }, 2800);
         }
 
         /* Keyboard shortcuts */
         $(document).on('keydown', async function (e) {
-            if (e.key === 'F2') { e.preventDefault(); if (cart.length && confirm('ចាប់ផ្តើមថ្មី?')) { resetCart(); notify('ចាប់ផ្ដើម​ការ​កម្មង់​ថ្មី', 'info'); } }
-            if (e.key === 'F3') { e.preventDefault(); openCustomerDisplay(); }
-            if (e.key === 'F4') { e.preventDefault(); $('#holdOrderBtn').click(); }
+            if (e.key === 'F2') {
+                e.preventDefault();
+                if (cart.length && confirm('ចាប់ផ្តើមថ្មី?')) {
+                    resetCart();
+                    notify('ចាប់ផ្ដើម​ការ​កម្មង់​ថ្មី', 'info');
+                }
+            }
+            if (e.key === 'F3') {
+                e.preventDefault();
+                openCustomerDisplay();
+            }
+            if (e.key === 'F4') {
+                e.preventDefault();
+                $('#holdOrderBtn').click();
+            }
             if (e.key === 'F8') {
                 e.preventDefault();
                 if (!$('#payBtn').prop('disabled')) {
-                    const sub      = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+                    const sub = cart.reduce((s, i) => s + i.price * i.quantity, 0);
                     const totalUsd = sub - calcDiscount(sub);
-                    if (currentPaymentMethod === 'qr') { await openKhqrFlow(totalUsd); }
-                    else { $('#payBtn').click(); }
+                    if (currentPaymentMethod === 'qr') {
+                        await openKhqrFlow(totalUsd);
+                    } else {
+                        $('#payBtn').click();
+                    }
                 }
             }
             if (e.key === 'Escape') {
                 e.preventDefault();
-                if ($('#cashierQrModal').hasClass('show')) { closeKhqrFlow(); }
-                else if ($('#cashConfirmModal').hasClass('show')) { $('#cashConfirmModal').removeClass('show'); }
-                else if ($('#invoiceModal').hasClass('show')) { $('#invoiceModal').removeClass('show'); }
-                else { $('#cancelOrderBtn').click(); }
+                if ($('#cashierQrModal').hasClass('show')) {
+                    closeKhqrFlow();
+                } else if ($('#cashConfirmModal').hasClass('show')) {
+                    $('#cashConfirmModal').removeClass('show');
+                } else if ($('#invoiceModal').hasClass('show')) {
+                    $('#invoiceModal').removeClass('show');
+                } else {
+                    $('#cancelOrderBtn').click();
+                }
             }
-            if (e.key === '/' && !$(e.target).is('input,textarea,select')) { e.preventDefault(); $('#productSearch').focus(); }
+            if (e.key === '/' && !$(e.target).is('input,textarea,select')) {
+                e.preventDefault();
+                $('#productSearch').focus();
+            }
         });
 
-        console.log('%c✅ POS Ready — KHQR shows only on Customer Display', 'color:#00B894;font-weight:bold');
+        console.log('%c✅ POS Ready', 'color:#00B894;font-weight:bold');
     });
 
     /* ════════════════════════════════════════════════
-       SHIFT MANAGEMENT — with auto customer display
+       SHIFT MANAGEMENT — Cambodia time (UTC+7)
     ════════════════════════════════════════════════ */
     const shift = {
-        isOpen:       false,
-        shiftId:      null,
-        startTime:    null,
-        openingCash:  0,
-        orderCount:   0,
-        revenue:      0,
-        elapsedTimer: null
+        isOpen: false, shiftId: null, startTime: null,
+        openingCash: 0, orderCount: 0, revenue: 0, elapsedTimer: null
     };
 
     (async function loadShiftState() {
         try {
-            const res  = await fetch('/Shift/GetCurrentShiftInfo');
+            const res = await fetch('/Shift/GetCurrentShiftInfo');
             const data = await res.json();
             if (data.isOpen) {
-                shift.isOpen      = true;
-                shift.shiftId     = data.shiftId;
-                shift.startTime   = new Date(data.startTime).getTime();
+                shift.isOpen = true;
+                shift.shiftId = data.shiftId;
+                shift.startTime = parseCambodiaTime(data.startTime);
                 shift.openingCash = data.openingCash;
-                shift.orderCount  = data.orderCount;
-                shift.revenue     = data.revenue;
-
+                shift.orderCount = data.orderCount;
+                shift.revenue = parseFloat(data.revenue) || 0;
                 document.getElementById('shiftBtn').classList.add('shift-open');
                 document.getElementById('shiftOpenCashDisplay').textContent = '$' + parseFloat(data.openingCash).toFixed(2);
-                document.getElementById('shiftStartedTime').textContent =
-                    'ចាប់ផ្ដើម — ' + new Date(data.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
+                document.getElementById('shiftStartedTime').textContent = 'ចាប់ផ្ដើម — ' + fmtCambodiaTime(shift.startTime);
                 clearInterval(shift.elapsedTimer);
                 shift.elapsedTimer = setInterval(updateShiftStats, 10000);
                 updateShiftStats();
-
-                // Auto-open customer display when shift opens
                 setTimeout(() => {
                     customerDisplayAutoOpen = true;
                     openCustomerDisplay();
                 }, 1000);
             }
-        } catch (e) { console.warn('Could not load shift state:', e); }
+        } catch (e) {
+            console.warn('Could not load shift state:', e);
+        }
     })();
 
     function showShiftModal() {
         const now = new Date();
-        const h   = now.getHours() % 12 || 12;
-        const m   = String(now.getMinutes()).padStart(2, '0');
-        const ap  = now.getHours() >= 12 ? 'PM' : 'AM';
+        const h = now.getHours() % 12 || 12;
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const ap = now.getHours() >= 12 ? 'PM' : 'AM';
         document.getElementById('shiftCurrentTime').textContent = `${h}:${m} ${ap}`;
-
         if (shift.isOpen) {
             document.getElementById('shiftClosedView').style.display = 'none';
-            document.getElementById('shiftOpenView').style.display   = 'block';
+            document.getElementById('shiftOpenView').style.display = 'block';
             updateShiftStats();
         } else {
             document.getElementById('shiftClosedView').style.display = 'block';
-            document.getElementById('shiftOpenView').style.display   = 'none';
+            document.getElementById('shiftOpenView').style.display = 'none';
         }
         document.getElementById('shiftModal').classList.add('show');
     }
@@ -2723,98 +1454,82 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 
     function updateShiftStats() {
         if (!shift.startTime) return;
-        const elapsed = Math.floor((Date.now() - shift.startTime) / 1000);
-        const hrs     = Math.floor(elapsed / 3600);
-        const mins    = Math.floor((elapsed % 3600) / 60);
-        document.getElementById('shiftElapsed').textContent    = `${hrs}:${String(mins).padStart(2,'0')}`;
+        const elapsed = Math.floor((Date.now() - shift.startTime.getTime()) / 1000);
+        const hrs = Math.floor(elapsed / 3600);
+        const mins = Math.floor((elapsed % 3600) / 60);
+        document.getElementById('shiftElapsed').textContent = `${hrs}:${String(mins).padStart(2, '0')}`;
         document.getElementById('shiftOrderCount').textContent = shift.orderCount;
-        document.getElementById('shiftRevenue').textContent    = '$' + shift.revenue.toFixed(2);
-        document.getElementById('shiftTotalCash').textContent  = '$' + (shift.openingCash + shift.revenue).toFixed(2);
+        document.getElementById('shiftRevenue').textContent = '$' + shift.revenue.toFixed(2);
+        document.getElementById('shiftTotalCash').textContent = '$' + (shift.openingCash + shift.revenue).toFixed(2);
     }
 
     document.getElementById('shiftStartBtn').addEventListener('click', async function () {
         const openCash = parseFloat(document.getElementById('shiftOpeningCash').value) || 0;
-        this.disabled  = true;
+        this.disabled = true;
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងបើក...';
-
         try {
-            const res  = await fetch('/Shift/OpenShift', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ openingCash: openCash })
+            const res = await fetch('/Shift/OpenShift', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({openingCash: openCash})
             });
             const data = await res.json();
-
-            shift.isOpen      = true;
-            shift.shiftId     = data.shiftId;
-            shift.startTime   = Date.now();
+            shift.isOpen = true;
+            shift.shiftId = data.shiftId;
+            shift.startTime = parseCambodiaTime(data.startTime);
             shift.openingCash = openCash;
-            shift.orderCount  = 0;
-            shift.revenue     = 0;
-
+            shift.orderCount = 0;
+            shift.revenue = 0;
             document.getElementById('shiftBtn').classList.add('shift-open');
-
-            const now     = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('shiftStartedTime').textContent     = 'ចាប់ផ្ដើម — ' + timeStr;
+            document.getElementById('shiftStartedTime').textContent = 'ចាប់ផ្ដើម — ' + fmtCambodiaTime(shift.startTime);
             document.getElementById('shiftOpenCashDisplay').textContent = '$' + openCash.toFixed(2);
-
             clearInterval(shift.elapsedTimer);
             shift.elapsedTimer = setInterval(updateShiftStats, 10000);
-
             document.getElementById('shiftClosedView').style.display = 'none';
-            document.getElementById('shiftOpenView').style.display   = 'block';
+            document.getElementById('shiftOpenView').style.display = 'block';
             updateShiftStats();
-
-            // Auto-open customer display when shift starts
             customerDisplayAutoOpen = true;
             setTimeout(() => openCustomerDisplay(), 500);
-
         } catch (e) {
             alert('បើកវេនមិនបានជោគជ័យ: ' + e.message);
         } finally {
-            this.disabled  = false;
+            this.disabled = false;
             this.innerHTML = '<i class="fas fa-play-circle"></i> ចាប់ផ្ដើមវេន';
         }
     });
 
     document.getElementById('shiftEndBtn').addEventListener('click', async function () {
         if (!confirm('បញ្ចប់វេនការងារ?\n\nការកម្មង់: ' + shift.orderCount + '\nចំណូល: $' + shift.revenue.toFixed(2))) return;
-
-        this.disabled  = true;
+        this.disabled = true;
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> កំពុងបិទ...';
-
         try {
-            const res  = await fetch('/Shift/CloseShift', { method: 'POST' });
+            const res = await fetch('/Shift/CloseShift', {method: 'POST'});
             const data = await res.json();
-
             if (!data.success) {
                 alert('មានបញ្ហា: ' + (data.message || 'Unknown error'));
                 return;
             }
 
-            clearInterval(shift.elapsedTimer);
-            shift.isOpen      = false;
-            shift.shiftId     = null;
-            shift.startTime   = null;
-            shift.orderCount  = 0;
-            shift.revenue     = 0;
-            shift.openingCash = 0;
+            const endTimeDt = parseCambodiaTime(data.endTime);
+            const startTimeDt = parseCambodiaTime(data.startTime);
+            console.log('✅ Shift closed — Start:', fmtCambodiaDateTime(startTimeDt), '| End:', fmtCambodiaDateTime(endTimeDt), '| Duration:', data.durationMinutes, 'min');
 
-            // Close customer display when shift ends
+            clearInterval(shift.elapsedTimer);
+            shift.isOpen = false;
+            shift.shiftId = null;
+            shift.startTime = null;
+            shift.orderCount = 0;
+            shift.revenue = 0;
+            shift.openingCash = 0;
             customerDisplayAutoOpen = false;
             closeCustomerDisplay();
-
             document.getElementById('shiftBtn').classList.remove('shift-open');
             document.getElementById('shiftOpeningCash').value = '0';
             hideShiftModal();
-
             window.location.href = '/Shift/ShiftSummary/' + data.shiftId;
-
         } catch (e) {
             alert('បិទវេនមិនបានជោគជ័យ: ' + e.message);
         } finally {
-            this.disabled  = false;
+            this.disabled = false;
             this.innerHTML = '<i class="fas fa-stop-circle"></i> បញ្ចប់វេន';
         }
     });
@@ -2833,7 +1548,6 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                         shift.isOpen &&
                         window.lastOrder &&
                         window.lastOrder.total > 0) {
-
                         shift.orderCount++;
                         shift.revenue += window.lastOrder.total;
                         updateShiftStats();
@@ -2841,10 +1555,9 @@ var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
                 });
             });
         });
-        obs.observe(document.body, { childList: true });
+        obs.observe(document.body, {childList: true});
     })();
 
-    // Start customer display maintenance
     setTimeout(maintainCustomerDisplay, 3000);
 </script>
 </body>

@@ -493,8 +493,6 @@
     /* ════════════════════════════════════════════════════════════
        CAMBODIA TIME HELPERS
     ════════════════════════════════════════════════════════════ */
-
-    // Parse ISO string from server (already Cambodia local, no Z suffix)
     function parseCambodiaTime(isoStr) {
         if (!isoStr) return null;
         const clean = isoStr.replace('Z', '').split('+')[0];
@@ -611,8 +609,7 @@
                     try {
                         customerWindow.moveTo(coords.left, coords.top);
                         customerWindow.resizeTo(coords.width, coords.height);
-                    } catch (e) {
-                    }
+                    } catch (e) {}
                 });
             }
         }
@@ -621,10 +618,7 @@
 
     function postToCustomer(data) {
         if (customerWindow && !customerWindow.closed) {
-            try {
-                customerWindow.postMessage(data, '*');
-            } catch (e) {
-            }
+            try { customerWindow.postMessage(data, '*'); } catch (e) {}
         }
     }
 
@@ -664,6 +658,9 @@
         updateClocks();
 
         /* ── Products from server ── */
+        /* ════════════════════════════════════════════════════════
+           FIX: leading comma removed — use index check instead
+        ════════════════════════════════════════════════════════ */
         const products = [
             @if (ViewBag.Menus != null)
             {
@@ -677,18 +674,26 @@
                     string imageUrl = menu.ImageMenuUrl ?? "";
                     if (!string.IsNullOrEmpty(imageUrl) && !imageUrl.StartsWith("http") && !imageUrl.StartsWith("/"))
                         imageUrl = "/Menu/" + imageUrl;
+
+                    /* ── DISCOUNT FIELDS ── */
+                    decimal originalPrice = menu.Price;
+                    decimal discountAmount = menu.DiscountPrice ?? 0m;
+                    decimal finalPrice = originalPrice - discountAmount;
+                    if (finalPrice < 0) finalPrice = 0;
                     <text>
-                        ,{
-                        id:@menu.Id,
+                        @(index > 0 ? "," : ""){
+                        id: @menu.Id,
                         name: '@Html.Raw(menu.MenuName.Replace("'", "\\'"))',
-                        priceUsd:@((menu.Price - (menu.DiscountPrice ?? 0)).ToString("F2")),
+                        priceUsd: @finalPrice.ToString("F2"),
+                        originalPrice: @originalPrice.ToString("F2"),
+                        discountAmount: @discountAmount.ToString("F2"),
                         category: '@Html.Raw(categoryName.Replace("'", "\\'"))',
-                        categoryId:@(menu.CategoryId ?? 0),
+                        categoryId: @(menu.CategoryId ?? 0),
                         brand: '@Html.Raw(brandName.Replace("'", "\\'"))',
-                        brandId:@(menu.Category?.BrandId ?? 0),
+                        brandId: @(menu.Category?.BrandId ?? 0),
                         icon: '@Html.Raw(imageUrl)',
                         color: '@color'
-                    },
+                    }
                     </text>
                     index++;
                 }
@@ -753,7 +758,9 @@
             currentCategory = 'all';
         }
 
-        /* ── Product grid ── */
+        /* ════════════════════════════════════════════════════════
+           LOAD PRODUCTS — discount badge + save tag + shimmer
+        ════════════════════════════════════════════════════════ */
         function loadProducts() {
             if (!products.length) {
                 $('#productsGrid').html('<div class="state-placeholder"><i class="fas fa-box-open"></i><p>មិនមានផលិតផល</p></div>');
@@ -769,22 +776,66 @@
                 $('#productsGrid').html('<div class="state-placeholder"><i class="fas fa-search"></i><p>រកមិនឃើញ</p><small>ប្ដូរតម្រង</small></div>');
                 return;
             }
+
             let html = '';
             filtered.forEach(p => {
+                const hasDiscount = parseFloat(p.discountAmount) > 0;
+                const origPrice   = parseFloat(p.originalPrice);
+                const finalPrice  = parseFloat(p.priceUsd);
+                const saved       = origPrice - finalPrice;
+
+                /* ── Discount % badge + "Save $X.XX" tag ── */
+                const discPct = hasDiscount && origPrice > 0
+                    ? Math.round((parseFloat(p.discountAmount) / origPrice) * 100)
+                    : 0;
+                const badgeHtml = hasDiscount
+                    ? `<div class="disc-badge"><i class="fas fa-tag"></i> -${discPct}%</div>
+                       <div class="disc-save-tag">Save ${fmtUsd(saved)}</div>`
+                    : '';
+
+                /* ── Price block ── */
+                const khrRate  = paymentCurrency === 'khr' ? CHANGE_RATE_CUSTOMER : EXCHANGE_RATE;
+                const khrFinal = fmtKhr(roundKhr100(finalPrice * khrRate));
+
+                const priceHtml = hasDiscount
+                    ? `<div class="prod-price-block">
+                           <div class="prod-price-row">
+                               <span class="prod-original">${fmtUsd(origPrice)}</span>
+                               <span class="prod-price-disc">${fmtUsd(finalPrice)}</span>
+                           </div>
+                           <div class="prod-price-khr">${khrFinal}</div>
+                       </div>`
+                    : `<div class="prod-price-block">
+                           <div class="prod-price-row">
+                               <span class="prod-price-normal">${fmtUsd(finalPrice)}</span>
+                           </div>
+                           <div class="prod-price-khr">${khrFinal}</div>
+                       </div>`;
+
+                /* ── Image ── */
                 const imgHtml = p.icon
-                    ? `<img src="${p.icon}" alt="${p.name}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
+                    ? `<img src="${p.icon}" alt="${p.name}"
+                           onerror="this.onerror=null;this.style.display='none';
+                           this.parentElement.innerHTML='<i class=\\'fas fa-utensils\\'></i>';">`
                     : '<i class="fas fa-utensils"></i>';
+
                 html += `
-<div class="product-card" style="--product-color:${p.color}"
-     data-id="${p.id}" data-name="${p.name.replace(/'/g, '&apos;')}"
-     data-price="${p.priceUsd}" data-brand-id="${p.brandId || 0}"
-     data-icon="${p.icon || ''}" data-color="${p.color}">
+<div class="product-card ${hasDiscount ? 'has-discount' : ''}"
+     style="--product-color:${p.color}"
+     data-id="${p.id}"
+     data-name="${p.name.replace(/'/g, '&apos;')}"
+     data-price="${finalPrice}"
+     data-brand-id="${p.brandId || 0}"
+     data-icon="${p.icon || ''}"
+     data-color="${p.color}">
+    ${badgeHtml}
     <div class="prod-img" style="background:linear-gradient(160deg,${p.color},#2D3561)">${imgHtml}</div>
-    <div class="prod-price">${p.name}</div>
-    <div class="prod-price-khr">${p.priceUsd}$ = ${fmtKhr(roundKhr100(parseFloat(p.priceUsd) * (paymentCurrency === 'khr' ? CHANGE_RATE_CUSTOMER : EXCHANGE_RATE)))}</div>
+    <div class="prod-name">${p.name}</div>
+    ${priceHtml}
     <button class="prod-add-btn"><i class="fas fa-plus"></i></button>
 </div>`;
             });
+
             $('#productsGrid').fadeOut(70, function () {
                 $(this).html(html).fadeIn(110);
             });
@@ -1229,7 +1280,6 @@
 
         /* ── Invoice ── */
         function showInvoice(order) {
-            // Use Cambodia local time for invoice display
             const now = new Date();
             $('#invoiceDate').text(now.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}));
             $('#invoiceTime').text(now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}));
@@ -1508,11 +1558,9 @@
                 alert('មានបញ្ហា: ' + (data.message || 'Unknown error'));
                 return;
             }
-
             const endTimeDt = parseCambodiaTime(data.endTime);
             const startTimeDt = parseCambodiaTime(data.startTime);
             console.log('✅ Shift closed — Start:', fmtCambodiaDateTime(startTimeDt), '| End:', fmtCambodiaDateTime(endTimeDt), '| Duration:', data.durationMinutes, 'min');
-
             clearInterval(shift.elapsedTimer);
             shift.isOpen = false;
             shift.shiftId = null;

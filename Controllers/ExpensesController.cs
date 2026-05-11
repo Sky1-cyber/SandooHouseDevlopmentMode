@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Sandoohouse.ApplicationProgram;
 
 namespace Sandoohouse.Controllers;
@@ -13,6 +14,7 @@ public class ExpensesController : Controller
         
     // GET
     [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
     public IActionResult Index()
     {
         return View();

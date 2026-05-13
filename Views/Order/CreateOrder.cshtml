@@ -1,10 +1,8 @@
 ﻿@using System.Security.Claims
-﻿@using System.Security.Claims
 @{
     ViewData["Title"] = "POS ផ្ទះបាយសេនឌូ";
     Layout = null;
     var firstName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-    
     var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
 }
 <!DOCTYPE html>

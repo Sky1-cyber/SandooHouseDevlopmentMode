@@ -718,20 +718,10 @@ html, body {
 }
 
 /* ════ SAVE TAG ════
-   Vibrant solid red pill — top-RIGHT corner, clearly visible
 ═══════════════════════════════════════════════ */
 .disc-save-tag {
     position: absolute;
-    top: 9px;
-    right: 9px;
     z-index: 3;
-    background: linear-gradient(135deg, #EF4444, #C0392B);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 3px 9px;
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.50);
     pointer-events: none;
     white-space: nowrap;
     letter-spacing: .15px;
@@ -1397,7 +1387,6 @@ html, body {
     .shift-footer { flex-direction: column; padding: 0 14px 14px; }
     /* Keep discount badges readable on small cards */
     .disc-badge    { font-size: 9px; padding: 2px 6px; }
-    .disc-save-tag { font-size: 9px; padding: 2px 6px; }
 }
 
 @media (max-width: 900px) {

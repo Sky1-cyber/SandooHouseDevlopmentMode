@@ -1,0 +1,1261 @@
+﻿@using System.Globalization
+@using Sandoohouse.Models.Enum
+@model IEnumerable<Order>
+@{
+    ViewData["Title"] = "Dashboard";
+    var now          = DateTime.Now;
+    var curYear      = now.Year;
+    var curMonth     = now.Month;
+    var curMonthName = new DateTime(curYear, curMonth, 1).ToString("MMMM yyyy");
+    var daysInMonth  = DateTime.DaysInMonth(curYear, curMonth);
+
+    var monthOrders = Model.Where(o => o.OrderDate.Year == curYear && o.OrderDate.Month == curMonth).ToList();
+
+    var dailyRevenue = new decimal[daysInMonth + 1];
+    var dailyCount   = new int[daysInMonth + 1];
+    foreach (var o in monthOrders)
+    {
+        var d = o.OrderDate.Day;
+        if (d >= 1 && d <= daysInMonth)
+        {
+            dailyRevenue[d] += o.TotalAmount;
+            dailyCount[d]++;
+        }
+    }
+
+    var mPaid     = monthOrders.Count(o => o.OrderStatus == OrderStatus.Paid);
+    var mPending  = monthOrders.Count(o => o.OrderStatus == OrderStatus.Pending);
+    var mCanceled = monthOrders.Count(o => o.OrderStatus == OrderStatus.Canceled);
+    var mRevenue  = monthOrders.Sum(o => o.TotalAmount);
+    var mDiscount = monthOrders.Sum(o => o.DiscountAmount);
+
+    // ── Popular items — resolved in controller, read from ViewBag ──
+    var popLabels    = (ViewBag.PopularItemNames   as List<string>)  ?? new List<string>();
+    var popQty       = (ViewBag.PopularItemQty     as List<int>)     ?? new List<int>();
+    var popRevenueD  = (ViewBag.PopularItemRevenue as List<double>)  ?? new List<double>();
+    var totalQtySold = (int)(ViewBag.PopularItemTotal ?? 0);
+    var popCount     = (int)(ViewBag.PopularItemCount ?? 0);
+
+    // Build a simple list for the legend — zip labels + qty + revenue
+    var popularItems = popLabels.Select((name, i) => new {
+        Name    = name,
+        Qty     = i < popQty.Count     ? popQty[i]      : 0,
+        Revenue = i < popRevenueD.Count ? popRevenueD[i] : 0.0
+    }).ToList();
+
+    // ── Shift + Best Sale from ViewBag ──────────────────────────
+    bool    shiftOpen         = ViewBag.CurrentShiftOpen      ?? false;
+    int     shiftId           = ViewBag.CurrentShiftId        ?? 0;
+    string  shiftCashier      = ViewBag.CurrentShiftCashier   ?? "—";
+    decimal shiftRevenue      = ViewBag.CurrentShiftRevenue   ?? 0m;
+    int     shiftOrders       = ViewBag.CurrentShiftOrders    ?? 0;
+    decimal shiftOpening      = ViewBag.CurrentShiftOpening   ?? 0m;
+    DateTime? shiftStart      = ViewBag.CurrentShiftStartTime;
+
+    int     todayShiftCount   = ViewBag.TodayShiftCount       ?? 0;
+    decimal todayRevenue      = ViewBag.TodayShiftRevenue     ?? 0m;
+    int     todayShiftOrders  = ViewBag.TodayShiftOrders      ?? 0;
+
+    int     monthShiftCount   = ViewBag.MonthShiftCount       ?? 0;
+    decimal monthShiftRevenue = ViewBag.MonthShiftRevenue     ?? 0m;
+    int     totalShifts       = ViewBag.TotalShiftsAllTime    ?? 0;
+
+    string  bestDay           = ViewBag.BestSaleDayDate       ?? "—";
+    decimal bestDayRev        = ViewBag.BestSaleDayRevenue    ?? 0m;
+    int     bestDayOrders     = ViewBag.BestSaleDayOrders     ?? 0;
+    string  bestHour          = ViewBag.BestHour              ?? "—";
+    decimal bestHourRev       = ViewBag.BestHourRevenue       ?? 0m;
+    string  bestItem          = ViewBag.BestItemName          ?? "—";
+    int     bestItemQty       = ViewBag.BestItemQty           ?? 0;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- PDF Loading Overlay -->
+<div class="pdf-overlay" id="pdfOverlay">
+    <div class="pdf-spinner-box">
+        <div class="pdf-spin-ring"></div>
+        <p>Generating PDF Report</p>
+        <small>Please wait a moment…</small>
+    </div>
+</div>
+
+<style>
+:root {
+    --brand:        #FF6B35;
+    --brand-dark:   #E85520;
+    --brand-light:  #FFF0EA;
+    --accent:       #2D3561;
+    --success:      #00B894;
+    --warning:      #FDCB6E;
+    --danger:       #FF7675;
+    --bg:           #F7F4F0;
+    --surface:      #FFFFFF;
+    --surface2:     #FAF8F5;
+    --border:       #EDE8E0;
+    --text:         #1A1714;
+    --text-sub:     #7A736B;
+    --text-light:   #B5AFA8;
+    --shadow-sm:    0 2px 8px rgba(0,0,0,.06);
+    --shadow-md:    0 8px 24px rgba(0,0,0,.10);
+    --shadow-lg:    0 20px 48px rgba(0,0,0,.14);
+    --r-sm:10px; --r-md:16px; --r-lg:22px; --r-xl:30px;
+    --font-main:'Khmer OS battambang','Sora','Noto Sans Khmer',sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; }
+
+.db-page {
+    font-family:var(--font-main);
+    background:var(--bg); color:var(--text);
+    font-size:14px; padding:24px; min-height:100vh;
+}
+
+/* TOP BAR */
+.db-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:14px; }
+.db-topbar-left h3 { font-size:22px; font-weight:700; color:var(--text); margin:0 0 3px; letter-spacing:-.3px; }
+.db-topbar-left p  { font-size:12px; color:var(--text-light); margin:0; font-weight:500; }
+.db-topbar-right   { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+.btn-tp {
+    display:inline-flex; align-items:center; gap:7px;
+    padding:9px 18px; border-radius:var(--r-sm);
+    font-family:var(--font-main); font-size:13px; font-weight:600;
+    cursor:pointer; border:none; text-decoration:none;
+    transition:all .18s ease; white-space:nowrap;
+}
+.btn-tp-outline { background:var(--surface); border:1.5px solid var(--border); color:var(--text-sub); }
+.btn-tp-outline:hover { border-color:var(--brand); color:var(--brand); background:var(--brand-light); text-decoration:none; }
+.btn-tp-accent  { background:var(--accent); color:#fff; }
+.btn-tp-accent:hover  { background:#232954; color:#fff; text-decoration:none; transform:translateY(-1px); box-shadow:0 6px 18px rgba(45,53,97,.25); }
+.btn-tp-danger  { background:var(--danger); color:#fff; }
+.btn-tp-danger:hover  { background:#ff5252; color:#fff; transform:translateY(-1px); box-shadow:0 6px 18px rgba(255,118,117,.35); }
+
+/* SECTION TITLE */
+.section-title {
+    font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--text-light);
+    display:flex; align-items:center; gap:8px;
+    margin:22px 0 12px;
+}
+.section-title::after { content:''; flex:1; height:1.5px; background:var(--border); }
+
+/* STAT CARDS */
+.stats-grid {
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:14px; margin-bottom:6px;
+}
+.stat-card {
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:var(--r-lg); padding:20px 22px;
+    display:flex; align-items:center; gap:16px;
+    transition:all .2s ease; position:relative; overflow:hidden;
+}
+.stat-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
+.stat-card.sc-brand::before   { background:var(--brand); }
+.stat-card.sc-success::before { background:var(--success); }
+.stat-card.sc-accent::before  { background:var(--accent); }
+.stat-card.sc-warning::before { background:var(--warning); }
+.stat-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:transparent; }
+.stat-icon {
+    width:50px; height:50px; border-radius:var(--r-sm);
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; flex-shrink:0;
+}
+.sc-brand   .stat-icon { background:var(--brand-light); color:var(--brand); }
+.sc-success .stat-icon { background:#E6FAF4; color:var(--success); }
+.sc-accent  .stat-icon { background:#EEF0FF; color:var(--accent); }
+.sc-warning .stat-icon { background:#FFF8E6; color:#C08000; }
+.stat-body  { flex:1; min-width:0; }
+.stat-label { font-size:11px; font-weight:600; color:var(--text-light); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+.stat-value { font-size:1.5rem; font-weight:700; color:var(--text); letter-spacing:-.5px; line-height:1; }
+
+/* SHIFT BANNER */
+.shift-banner {
+    border-radius:var(--r-lg); padding:16px 22px;
+    display:flex; align-items:center; gap:18px;
+    border:1.5px solid; margin-bottom:14px; flex-wrap:wrap;
+}
+.shift-banner.open   { background:#E6FAF4; border-color:rgba(0,184,148,.25); }
+.shift-banner.closed { background:var(--surface2); border-color:var(--border); }
+.shift-banner-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.shift-banner.open   .shift-banner-dot { background:var(--success); box-shadow:0 0 0 3px rgba(0,184,148,.2); animation:pulse-dot 1.5s infinite; }
+.shift-banner.closed .shift-banner-dot { background:var(--text-light); }
+@@keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 3px rgba(0,184,148,.2)} 50%{box-shadow:0 0 0 6px rgba(0,184,148,.06)} }
+.shift-banner-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+.shift-banner.open   .shift-banner-label { color:var(--success); }
+.shift-banner.closed .shift-banner-label { color:var(--text-light); }
+.shift-banner-name { font-size:14px; font-weight:700; color:var(--text); }
+.shift-banner-meta { font-size:11px; color:var(--text-sub); margin-top:2px; }
+.shift-banner-spacer { flex:1; }
+.shift-stat-chip {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:8px 16px; background:rgba(255,255,255,.6);
+    border:1.5px solid rgba(255,255,255,.9); border-radius:var(--r-sm);
+}
+.shift-banner.closed .shift-stat-chip { background:var(--surface); border-color:var(--border); }
+.shift-stat-chip-val   { font-size:17px; font-weight:800; color:var(--text); line-height:1; }
+.shift-stat-chip-val.green { color:var(--success); }
+.shift-stat-chip-val.brand { color:var(--brand); }
+.shift-stat-chip-label { font-size:9.5px; font-weight:600; color:var(--text-light); text-transform:uppercase; letter-spacing:.05em; }
+.shift-banner-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:8px 16px; border-radius:var(--r-sm);
+    font-family:var(--font-main); font-size:12px; font-weight:700;
+    text-decoration:none; transition:all .15s; border:1.5px solid;
+}
+.shift-banner.open   .shift-banner-btn { background:var(--success); color:#fff; border-color:var(--success); }
+.shift-banner.open   .shift-banner-btn:hover { background:#009e7e; color:#fff; text-decoration:none; }
+.shift-banner.closed .shift-banner-btn { background:var(--surface); color:var(--text-sub); border-color:var(--border); }
+.shift-banner.closed .shift-banner-btn:hover { border-color:var(--brand); color:var(--brand); background:var(--brand-light); text-decoration:none; }
+
+/* KPI GRID */
+.kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(3,1fr) 20px repeat(3,1fr);
+    gap:10px; margin-bottom:20px;
+}
+.kpi-card {
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:var(--r-md); padding:16px 18px;
+    display:flex; align-items:center; gap:13px;
+    transition:all .18s; position:relative; overflow:hidden;
+}
+.kpi-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:3px; background:var(--kc,var(--border)); }
+.kpi-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); border-color:transparent; }
+.kpi-card-icon {
+    width:42px; height:42px; border-radius:var(--r-sm); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:17px;
+    background:var(--ki,var(--surface2)); color:var(--kc,var(--text-light));
+}
+.kpi-card-body  { flex:1; min-width:0; }
+.kpi-card-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--text-light); margin-bottom:4px; }
+.kpi-card-val   { font-size:20px; font-weight:800; color:var(--text); letter-spacing:-.4px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.kpi-card-sub   { font-size:10.5px; color:var(--text-sub); margin-top:3px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.kpi-divider    { display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--border); user-select:none; }
+.kpi-brand  { --kc:var(--brand);   --ki:var(--brand-light); }
+.kpi-green  { --kc:var(--success); --ki:#E6FAF4; }
+.kpi-accent { --kc:var(--accent);  --ki:#EEF0FF; }
+.kpi-warn   { --kc:var(--warning); --ki:#FFF8E6; }
+.kpi-gold   { --kc:#C08000;        --ki:#FFF8E6; }
+
+/* CHARTS */
+.charts-row { display:grid; grid-template-columns:1fr 300px; gap:14px; margin-bottom:20px; }
+.chart-card { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-lg); overflow:hidden; }
+.chart-head {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:18px 22px 14px; border-bottom:1.5px solid var(--border);
+    gap:12px; flex-wrap:wrap;
+}
+.chart-head-title { font-size:14px; font-weight:700; color:var(--text); margin:0 0 3px; display:flex; align-items:center; gap:8px; }
+.ch-dot  { width:8px; height:8px; border-radius:50%; background:var(--brand); flex-shrink:0; }
+.chart-sub { font-size:11px; color:var(--text-light); margin:0; }
+.chart-sub strong { color:var(--text-sub); }
+.chart-kpi { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.chart-kpi-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--text-light); }
+.chart-kpi-val   { font-size:17px; font-weight:700; color:var(--brand); }
+.chart-badge { font-size:11px; font-weight:600; color:var(--brand); background:var(--brand-light); padding:3px 10px; border-radius:20px; }
+.chart-body  { padding:18px 20px; }
+
+/* Status side card */
+.status-card-body   { padding:20px; display:flex; flex-direction:column; gap:10px; }
+.status-leg-item    { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--surface2); border:1.5px solid var(--border); border-radius:var(--r-sm); }
+.status-leg-dot     { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.status-leg-name    { flex:1; font-size:13px; font-weight:500; color:var(--text-sub); }
+.status-leg-count   { font-size:15px; font-weight:700; color:var(--text); min-width:24px; text-align:right; }
+.status-leg-pct     { font-size:11px; color:var(--text-light); min-width:36px; text-align:right; }
+.status-divider     { border:none; border-top:1.5px dashed var(--border); margin:4px 0; }
+.status-disc-row    { display:flex; align-items:center; justify-content:space-between; padding:6px 14px; }
+.status-disc-label  { font-size:12px; font-weight:600; color:var(--text-sub); display:flex; align-items:center; gap:6px; }
+.status-disc-val    { font-size:14px; font-weight:700; color:#9A6800; background:#FFF8E6; padding:3px 10px; border-radius:20px; }
+
+/* FILTER BAR */
+.filter-bar {
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:var(--r-lg); padding:16px 20px;
+    margin-bottom:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+}
+.filter-field { position:relative; display:flex; align-items:center; flex:1; min-width:160px; }
+.filter-field.wide { flex:2; min-width:220px; }
+.filter-icon  { position:absolute; left:13px; color:var(--text-light); font-size:12px; pointer-events:none; z-index:1; }
+.filter-inp, .filter-sel {
+    width:100%; height:40px; border:1.5px solid var(--border); border-radius:var(--r-sm);
+    padding:0 14px 0 36px; font-family:var(--font-main); font-size:13px; color:var(--text);
+    background:var(--surface2); outline:none; appearance:none; transition:border-color .15s, background .15s;
+}
+.filter-inp:focus, .filter-sel:focus { border-color:var(--brand); background:var(--surface); box-shadow:0 0 0 3px rgba(255,107,53,.1); }
+.filter-inp::placeholder { color:var(--text-light); }
+.filter-sel {
+    cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23B5AFA8' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center;
+}
+.btn-clear-filters {
+    display:inline-flex; align-items:center; gap:6px;
+    height:40px; padding:0 16px; background:var(--surface); border:1.5px solid var(--border);
+    border-radius:var(--r-sm); font-family:var(--font-main); font-size:12px; font-weight:600;
+    color:var(--text-sub); cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0;
+}
+.btn-clear-filters:hover { border-color:var(--danger); color:var(--danger); background:#FFF5F5; }
+
+/* TABLE CARD */
+.table-card { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--r-lg); overflow:hidden; }
+.table-card-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 24px; border-bottom:1.5px solid var(--border); flex-wrap:wrap; gap:10px;
+}
+.table-card-left  { display:flex; align-items:center; gap:10px; }
+.table-card-left h5 { font-size:15px; font-weight:700; color:var(--text); margin:0; }
+.table-card-dot   { width:8px; height:8px; border-radius:50%; background:var(--brand); flex-shrink:0; }
+.count-pill       { font-size:11px; font-weight:600; color:var(--brand); background:var(--brand-light); padding:3px 10px; border-radius:20px; }
+.table-card-right { display:flex; align-items:center; gap:8px; }
+.table-card-label { font-size:12px; color:var(--text-light); font-weight:500; }
+.page-size-sel {
+    height:34px; padding:0 28px 0 10px; border:1.5px solid var(--border); border-radius:var(--r-sm);
+    background:var(--surface2); font-family:var(--font-main); font-size:12px; color:var(--text);
+    outline:none; appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23B5AFA8' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 8px center; transition:border-color .15s;
+}
+.page-size-sel:focus { border-color:var(--brand); }
+
+.orders-table { width:100%; border-collapse:collapse; }
+.orders-table thead th {
+    padding:11px 16px; font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--text-light); background:var(--surface2);
+    border-bottom:1.5px solid var(--border); white-space:nowrap; text-align:left;
+}
+.orders-table tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
+.orders-table tbody tr:last-child { border-bottom:none; }
+.orders-table tbody tr:hover { background:var(--brand-light); }
+.orders-table td { padding:13px 16px; font-size:13px; color:var(--text); vertical-align:middle; }
+
+.order-ref       { display:flex; align-items:center; gap:12px; }
+.order-avatar    { width:38px; height:38px; border-radius:var(--r-sm); background:var(--brand-light); color:var(--brand); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.order-ref-info  { display:flex; flex-direction:column; gap:2px; }
+.order-num-text  { font-size:13px; font-weight:600; color:var(--text); }
+.order-id-text   { font-size:11px; color:var(--text-light); }
+.date-main       { display:block; font-size:13px; font-weight:500; color:var(--text); }
+.date-time       { display:block; font-size:11px; color:var(--text-light); margin-top:2px; }
+.items-pill      { display:inline-flex; align-items:center; gap:4px; background:var(--surface2); border:1.5px solid var(--border); color:var(--text-sub); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; white-space:nowrap; }
+.disc-badge      { display:inline-flex; align-items:center; gap:4px; background:#FFF8E6; color:#9A6800; border:1.5px solid #FFE89A; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; }
+.amount-val      { font-size:14px; font-weight:700; color:var(--text); }
+.status-badge    { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:5px 12px; border-radius:20px; white-space:nowrap; }
+.status-paid     { background:#E6FAF4; color:#007A56; }
+.status-pending  { background:#FFF8E6; color:#9A6800; }
+.status-cancel   { background:#FFE8E8; color:#C0392B; }
+.status-default  { background:var(--surface2); color:var(--text-sub); }
+.pay-info        { display:flex; flex-direction:column; gap:3px; }
+.pay-row         { display:flex; align-items:center; gap:6px; font-size:12px; }
+.pay-lbl         { color:var(--text-light); min-width:44px; font-weight:500; }
+.pay-amt         { font-weight:600; color:var(--text); }
+.pay-row.muted .pay-amt { color:var(--text-sub); }
+.action-btns     { display:flex; align-items:center; justify-content:flex-end; gap:5px; }
+.act-btn         { width:32px; height:32px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; transition:all .15s ease; }
+.act-view:hover  { background:#EEF0FF; border-color:var(--accent); color:var(--accent); }
+.act-edit:hover  { background:var(--brand-light); border-color:var(--brand); color:var(--brand); }
+.act-del:hover   { background:#FFE8E8; border-color:var(--danger); color:var(--danger); }
+
+/* PAGINATION */
+.table-footer {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px; border-top:1.5px solid var(--border); flex-wrap:wrap; gap:10px;
+}
+.showing-text { font-size:12px; color:var(--text-sub); }
+.showing-text strong { color:var(--text); }
+.pager { list-style:none; display:flex; gap:4px; margin:0; padding:0; }
+.page-link {
+    display:inline-flex; align-items:center; justify-content:center;
+    height:32px; min-width:32px; padding:0 10px; border:1.5px solid var(--border);
+    border-radius:8px; background:var(--surface); font-size:12px; font-weight:600;
+    color:var(--text-sub); text-decoration:none; cursor:pointer; transition:all .15s ease;
+}
+.page-link:hover { border-color:var(--brand); color:var(--brand); background:var(--brand-light); }
+.page-item.active   .page-link { background:var(--brand); border-color:var(--brand); color:#fff; box-shadow:0 3px 10px rgba(255,107,53,.3); }
+.page-item.disabled .page-link { opacity:.45; pointer-events:none; cursor:default; }
+
+/* DELETE MODAL */
+.del-modal-content { border:none; border-radius:var(--r-lg); overflow:hidden; box-shadow:var(--shadow-lg); }
+.del-modal-head { padding:36px 32px 20px; text-align:center; background:var(--surface); border-bottom:1.5px solid var(--border); }
+.del-icon-ring  { width:64px; height:64px; border-radius:50%; background:#FFE8E8; color:var(--danger); font-size:24px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.del-modal-head h5 { font-size:17px; font-weight:700; color:var(--text); margin-bottom:8px; }
+.del-modal-head p  { font-size:13px; color:var(--text-sub); margin:0; }
+.del-warn       { font-size:12px; color:var(--danger); font-weight:600; }
+.del-modal-foot { display:flex; gap:10px; padding:18px 32px; justify-content:center; background:var(--surface2); }
+.del-btn-cancel  { height:42px; padding:0 22px; border:1.5px solid var(--border); border-radius:var(--r-sm); background:var(--surface); font-family:var(--font-main); font-size:13px; font-weight:600; color:var(--text-sub); cursor:pointer; display:flex; align-items:center; gap:7px; transition:all .15s; }
+.del-btn-cancel:hover { border-color:var(--text-sub); color:var(--text); }
+.del-btn-confirm { height:42px; padding:0 22px; border:none; border-radius:var(--r-sm); background:var(--danger); color:#fff; font-family:var(--font-main); font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:7px; box-shadow:0 4px 14px rgba(255,118,117,.3); transition:all .18s; }
+.del-btn-confirm:hover { background:#ff5252; transform:translateY(-1px); }
+
+/* EMPTY STATE */
+.empty-state-row td { padding:60px 20px !important; }
+.empty-state-container { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; max-width:400px; margin:0 auto; }
+.empty-state-icon { width:100px; height:100px; background:linear-gradient(135deg,#e3eaf3,#d1ddec); border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:24px; }
+.empty-state-icon i { font-size:42px; color:#4f6f9f; opacity:.7; }
+.empty-state-title   { font-size:24px; font-weight:600; color:#2c3e50; margin-bottom:12px; }
+.empty-state-message { font-size:16px; color:#6c7a8d; line-height:1.6; margin-bottom:28px; }
+
+/* PDF OVERLAY */
+.pdf-overlay { display:none; position:fixed; inset:0; background:rgba(26,23,20,.6); z-index:99999; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.pdf-overlay.show { display:flex; }
+.pdf-spinner-box { background:var(--surface); border-radius:var(--r-lg); padding:36px 48px; text-align:center; box-shadow:var(--shadow-lg); display:flex; flex-direction:column; align-items:center; gap:12px; }
+.pdf-spin-ring   { width:48px; height:48px; border:4px solid var(--border); border-top-color:var(--brand); border-radius:50%; animation:spin .8s linear infinite; }
+@@keyframes spin { to { transform:rotate(360deg); } }
+.pdf-spinner-box p     { font-size:14px; font-weight:700; color:var(--text); margin:0; }
+.pdf-spinner-box small { font-size:12px; color:var(--text-light); }
+
+/* RESPONSIVE */
+@@media (max-width:1200px) {
+    .stats-grid { grid-template-columns:repeat(2,1fr); }
+    .charts-row { grid-template-columns:1fr; }
+    .kpi-grid   { grid-template-columns:repeat(3,1fr); }
+    .kpi-divider{ display:none; }
+}
+@@media (max-width:768px) {
+    .db-page    { padding:14px; }
+    .stats-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+    .kpi-grid   { grid-template-columns:1fr 1fr; }
+    .filter-bar { flex-direction:column; }
+    .filter-field,.filter-field.wide { min-width:unset; width:100%; flex:unset; }
+    .btn-clear-filters { width:100%; justify-content:center; }
+}
+@@media (max-width:480px) {
+    .stats-grid { grid-template-columns:1fr 1fr; gap:8px; }
+    .stat-card  { padding:14px 16px; }
+    .stat-value { font-size:1.2rem; }
+    .stat-icon  { width:40px; height:40px; font-size:16px; }
+}
+</style>
+
+<div class="db-page">
+
+    <!-- ── TOP BAR ── -->
+    <div class="db-topbar">
+        <div class="db-topbar-left">
+            <h3>Dashboard</h3>
+            <p>Admin Dashboard &nbsp;·&nbsp; Sandoo House</p>
+        </div>
+        <div class="db-topbar-right">
+            <a asp-controller="Account" asp-action="CreateAccount" class="btn-tp btn-tp-outline">
+                <i class="fas fa-user-plus"></i> Add Account
+            </a>
+            <a asp-controller="Order" asp-action="CreateOrder" class="btn-tp btn-tp-accent">
+                <i class="fas fa-plus"></i> Create Order
+            </a>
+            <button type="button" onclick="downloadSalesReport()" class="btn-tp btn-tp-danger">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="section-title"><i class="fas fa-chart-pie" style="color:var(--brand);font-size:11px;"></i> Overview</div>
+    <div class="stats-grid">
+        <div class="stat-card sc-brand">
+            <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value">@Model.Count()</div>
+            </div>
+        </div>
+        <div class="stat-card sc-success">
+            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value">$@Model.Sum(o => o.TotalAmount).ToString("N2")</div>
+            </div>
+        </div>
+        <div class="stat-card sc-accent">
+            <div class="stat-icon"><i class="fas fa-tags"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Total Discount</div>
+                <div class="stat-value">$@Model.Sum(o => o.DiscountAmount).ToString("N2")</div>
+            </div>
+        </div>
+        <div class="stat-card sc-warning">
+            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Avg. Order Value</div>
+                <div class="stat-value">$@(Model.Any() ? Model.Average(o => o.TotalAmount).ToString("N2") : "0.00")</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SHIFT BANNER ── -->
+    <div class="section-title"><i class="fas fa-clock" style="color:var(--brand);font-size:11px;"></i> Current Shift</div>
+
+    @if (shiftOpen)
+    {
+        var elapsed    = shiftStart.HasValue ? DateTime.UtcNow - shiftStart.Value : TimeSpan.Zero;
+        var elapsedStr = elapsed.TotalHours >= 1
+            ? $"{(int)elapsed.TotalHours}h {elapsed.Minutes}m"
+            : $"{elapsed.Minutes}m";
+
+        <div class="shift-banner open">
+            <div class="shift-banner-dot"></div>
+            <div>
+                <div class="shift-banner-label">Shift Active</div>
+                <div class="shift-banner-name">@shiftCashier</div>
+                <div class="shift-banner-meta">
+                    Started @shiftStart?.ToLocalTime().ToString("hh:mm tt")
+                    &nbsp;·&nbsp; Running @elapsedStr
+                </div>
+            </div>
+            <div class="shift-banner-spacer"></div>
+            <div class="shift-stat-chip">
+                <span class="shift-stat-chip-val brand">@shiftOrders</span>
+                <span class="shift-stat-chip-label">Orders</span>
+            </div>
+            <div class="shift-stat-chip">
+                <span class="shift-stat-chip-val green">$@shiftRevenue.ToString("N2")</span>
+                <span class="shift-stat-chip-label">Revenue</span>
+            </div>
+            <div class="shift-stat-chip">
+                <span class="shift-stat-chip-val">$@((shiftOpening + shiftRevenue).ToString("N2"))</span>
+                <span class="shift-stat-chip-label">Est. Drawer</span>
+            </div>
+            @if (shiftId > 0)
+            {
+                <a href="/Shift/ShiftSummary/@shiftId" class="shift-banner-btn">
+                    <i class="fas fa-eye"></i> View Shift
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="shift-banner closed">
+            <div class="shift-banner-dot"></div>
+            <div>
+                <div class="shift-banner-label">No Active Shift</div>
+                <div class="shift-banner-name" style="color:var(--text-sub);">No shift is currently open</div>
+                <div class="shift-banner-meta">Open a shift from the POS to start tracking</div>
+            </div>
+            <div class="shift-banner-spacer"></div>
+            <a href="/Order/CreateOrder" class="shift-banner-btn">
+                <i class="fas fa-cash-register"></i> Open POS
+            </a>
+        </div>
+    }
+
+    <!-- ── SHIFT + BEST SALE KPIs ── -->
+    <div class="section-title"><i class="fas fa-chart-bar" style="color:var(--brand);font-size:11px;"></i> Shift Stats &amp; Best Sales</div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-brand">
+            <div class="kpi-card-icon"><i class="fas fa-sun"></i></div>
+            <div class="kpi-card-body">
+                <div class="kpi-card-label">Today's Shifts</div>
+                <div class="kpi-card-val">@todayShiftCount</div>
+                <div class="kpi-card-sub">@todayShiftOrders orders · $@todayRevenue.ToString("N2")</div>
+            </div>
+        </div>
+        <div class="kpi-card kpi-green">
+            <div class="kpi-card-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="kpi-card-body">
+                <div class="kpi-card-label">Month Shifts</div>
+                <div class="kpi-card-val">@monthShiftCount</div>
+                <div class="kpi-card-sub">$@monthShiftRevenue.ToString("N2") revenue</div>
+            </div>
+        </div>
+        <div class="kpi-card kpi-accent">
+            <div class="kpi-card-icon"><i class="fas fa-history"></i></div>
+            <div class="kpi-card-body">
+                <div class="kpi-card-label">Total Shifts</div>
+                <div class="kpi-card-val">@totalShifts</div>
+                <div class="kpi-card-sub">
+                    <a href="/Sale/ShiftTable" style="color:var(--accent);text-decoration:none;font-weight:600;">View all →</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-divider">|</div>
+
+        <div class="kpi-card kpi-gold">
+            <div class="kpi-card-icon"><i class="fas fa-trophy"></i></div>
+            <div class="kpi-card-body">
+                <div class="kpi-card-label">Best Day</div>
+                <div class="kpi-card-val" style="font-size:15px;">@bestDay</div>
+                <div class="kpi-card-sub">$@bestDayRev.ToString("N2") · @bestDayOrders orders</div>
+            </div>
+        </div>
+        <div class="kpi-card kpi-warn">
+            <div class="kpi-card-icon"><i class="fas fa-bolt"></i></div>
+            <div class="kpi-card-body">
+                <div class="kpi-card-label">Peak Hour</div>
+                <div class="kpi-card-val" style="font-size:15px;">@bestHour</div>
+                <div class="kpi-card-sub">$@bestHourRev.ToString("N2") revenue</div>
+            </div>
+        </div>
+        <div class="kpi-card kpi-brand">
+            <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+            <div class="kpi-card-body">
+                <div class="kpi-card-label">Best Seller</div>
+                <div class="kpi-card-val" style="font-size:14px;white-space:normal;line-height:1.3;">@bestItem</div>
+                <div class="kpi-card-sub">@bestItemQty units sold</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CHARTS ── -->
+    <div class="section-title"><i class="fas fa-chart-area" style="color:var(--brand);font-size:11px;"></i> Monthly Analytics</div>
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-head">
+                <div>
+                    <div class="chart-head-title"><span class="ch-dot"></span>Daily Revenue</div>
+                    <p class="chart-sub">Revenue per day &nbsp;·&nbsp; <strong>@curMonthName</strong></p>
+                </div>
+                <div class="chart-kpi">
+                    <span class="chart-kpi-label">Month Total</span>
+                    <span class="chart-kpi-val">$@mRevenue.ToString("N2")</span>
+                    <span class="chart-badge">@monthOrders.Count orders</span>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="dailyRevenueChart" height="240"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-head">
+                <div>
+                    <div class="chart-head-title"><span class="ch-dot"></span>Order Status</div>
+                    <p class="chart-sub">Breakdown &nbsp;·&nbsp; @curMonthName</p>
+                </div>
+            </div>
+            <div class="status-card-body">
+                <div class="status-leg-item">
+                    <span class="status-leg-dot" style="background:var(--success)"></span>
+                    <span class="status-leg-name">Paid</span>
+                    <span class="status-leg-count">@mPaid</span>
+                    <span class="status-leg-pct">@(monthOrders.Count > 0 ? Math.Round((decimal)mPaid / monthOrders.Count * 100) : 0)%</span>
+                </div>
+                <div class="status-leg-item">
+                    <span class="status-leg-dot" style="background:var(--warning)"></span>
+                    <span class="status-leg-name">Pending</span>
+                    <span class="status-leg-count">@mPending</span>
+                    <span class="status-leg-pct">@(monthOrders.Count > 0 ? Math.Round((decimal)mPending / monthOrders.Count * 100) : 0)%</span>
+                </div>
+                <div class="status-leg-item">
+                    <span class="status-leg-dot" style="background:var(--danger)"></span>
+                    <span class="status-leg-name">Canceled</span>
+                    <span class="status-leg-count">@mCanceled</span>
+                    <span class="status-leg-pct">@(monthOrders.Count > 0 ? Math.Round((decimal)mCanceled / monthOrders.Count * 100) : 0)%</span>
+                </div>
+                <hr class="status-divider"/>
+                <div class="status-disc-row">
+                    <span class="status-disc-label">
+                        <i class="fas fa-tag" style="font-size:12px;"></i> Month Discount
+                    </span>
+                    <span class="status-disc-val">-$@mDiscount.ToString("N2")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── POPULAR FOOD CHART ── -->
+    <div class="chart-card" style="margin-bottom:20px;">
+        <div class="chart-head">
+            <div>
+                <div class="chart-head-title"><span class="ch-dot"></span>Popular Food This Month</div>
+                <p class="chart-sub">Top items by quantity sold &nbsp;·&nbsp; <strong>@curMonthName</strong></p>
+            </div>
+            <div class="chart-kpi">
+                <span class="chart-kpi-label">Total Sold</span>
+                <span class="chart-kpi-val">@totalQtySold units</span>
+                <span class="chart-badge">@popularItems.Count items</span>
+            </div>
+        </div>
+        <div class="chart-body" style="padding:20px 24px;">
+            @if (popularItems.Any())
+            {
+                <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:center;">
+                    <!-- Bar chart -->
+                    <canvas id="popularFoodChart" height="260"></canvas>
+                    <!-- Legend list -->
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        @{
+                            string[] rankColors = { "#FF6B35","#E85520","#2D3561","#00B894","#FDCB6E","#6C5CE7","#00CEC9","#E17055" };
+                        }
+                        @for (int i = 0; i < popularItems.Count; i++)
+                        {
+                            var item   = popularItems[i];
+                            var color  = rankColors[i % rankColors.Length];
+                            var pct    = totalQtySold > 0 ? (int)Math.Round((decimal)item.Qty / totalQtySold * 100) : 0;
+                            <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);transition:background .13s;"
+                                 onmouseover="this.style.background='var(--brand-light)'" onmouseout="this.style.background='var(--surface2)'">
+                                <div style="width:28px;height:28px;border-radius:8px;background:@color;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;">@(i+1)</div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@item.Name</div>
+                                    <div style="margin-top:4px;height:4px;background:var(--border);border-radius:4px;overflow:hidden;">
+                                        <div style="height:100%;width:@pct%;background:@color;border-radius:4px;transition:width .6s ease;"></div>
+                                    </div>
+                                </div>
+                                <div style="text-align:right;flex-shrink:0;">
+                                    <div style="font-size:14px;font-weight:800;color:var(--text);">@item.Qty</div>
+                                    <div style="font-size:10px;color:var(--text-light);font-weight:600;">@pct%</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div style="display:flex;flex-direction:column;align-items:center;padding:40px;gap:10px;color:var(--text-light);">
+                    <i class="fas fa-utensils" style="font-size:28px;opacity:.3;"></i>
+                    <p style="font-size:13px;font-weight:600;margin:0;">No order items this month</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── FILTER BAR ── -->
+    <div class="filter-bar">
+        <div class="filter-field wide">
+            <i class="fas fa-search filter-icon"></i>
+            <input type="text" id="searchInput" class="filter-inp"
+                   placeholder="Search by order #, amount, date…" autocomplete="off"/>
+        </div>
+        <div class="filter-field">
+            <i class="fas fa-circle-dot filter-icon"></i>
+            <select id="statusFilter" class="filter-sel">
+                <option value="">All Statuses</option>
+                @foreach (var status in Enum.GetValues(typeof(OrderStatus)))
+                {
+                    <option value="@status">@status</option>
+                }
+            </select>
+        </div>
+        <div class="filter-field">
+            <i class="fas fa-calendar filter-icon"></i>
+            <select id="dateFilter" class="filter-sel">
+                <option value="">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+            </select>
+        </div>
+        <button type="button" class="btn-clear-filters" id="clearFilters">
+            <i class="fas fa-rotate-left"></i> Reset
+        </button>
+    </div>
+
+    <!-- ── TABLE CARD ── -->
+    <div class="table-card" id="tableCard">
+        <div class="table-card-head">
+            <div class="table-card-left">
+                <span class="table-card-dot"></span>
+                <h5>All Orders</h5>
+                <span class="count-pill" id="visibleCount">@Model.Count() total</span>
+            </div>
+            <div class="table-card-right">
+                <span class="table-card-label">Rows per page</span>
+                <select id="pageSizeSelect" class="page-size-sel">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="orders-table" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th style="min-width:180px">Order</th>
+                        <th style="min-width:130px">Date</th>
+                        <th style="min-width:90px">Items</th>
+                        <th style="min-width:110px">Discount</th>
+                        <th style="min-width:110px">Total</th>
+                        <th style="min-width:130px">Payment</th>
+                        <th style="min-width:120px;text-align:right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var order in Model)
+                    {
+                        <tr class="order-row"
+                            data-order-id="@order.Id"
+                            data-order-num="@order.OrderNumber"
+                            data-date="@order.OrderDate.ToString("yyyy-MM-dd")"
+                            data-display-date="@order.OrderDate.ToString("MMM dd, yyyy")"
+                            data-items="@(order.OrderItems?.Count ?? 0)"
+                            data-total="@order.TotalAmount"
+                            data-status="@order.OrderStatus.ToString()"
+                            data-cash="@order.CashReceived"
+                            data-change="@order.ChangeAmount">
+                            <td>
+                                <div class="order-ref">
+                                    <div class="order-avatar"><i class="fas fa-receipt"></i></div>
+                                    <div class="order-ref-info">
+                                        <span class="order-num-text">@order.OrderNumber</span>
+                                        <span class="order-id-text">ID #@order.Id</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="date-main">@order.OrderDate.ToString("MMM dd, yyyy")</span>
+                                <span class="date-time">@order.OrderDate.ToString("hh:mm tt")</span>
+                            </td>
+                            <td>
+                                <span class="items-pill">
+                                    <i class="fas fa-box" style="font-size:10px;"></i>
+                                    @(order.OrderItems?.Count ?? 0) items
+                                </span>
+                            </td>
+                            <td>
+                                <span class="disc-badge">
+                                    <i class="fas fa-tag" style="font-size:10px;"></i>
+                                    $@order.DiscountAmount.ToString("N2")
+                                </span>
+                            </td>
+                            <td><span class="amount-val">$@order.TotalAmount.ToString("N2")</span></td>
+                            <td>
+                                <div class="pay-info">
+                                    <span class="pay-row">
+                                        <span class="pay-lbl">Cash</span>
+                                        <span class="pay-amt">$@order.CashReceived.ToString("N2")</span>
+                                    </span>
+                                    <span class="pay-row muted">
+                                        <span class="pay-lbl">Change</span>
+                                        <span class="pay-amt">$@order.ChangeAmount.ToString("N2")</span>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <button type="button" class="act-btn act-view" onclick="viewOrder(@order.Id)" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="act-btn act-edit" onclick="editOrder(@order.Id)" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button type="button" class="act-btn act-del"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                            onclick="setDeleteData(@order.Id, '@order.OrderNumber.Replace("'", "\\'")')"
+                                            title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr class="empty-state-row">
+                        <td colspan="7">
+                            <div class="empty-state-container">
+                                <div class="empty-state-icon"><i class="fas fa-receipt"></i></div>
+                                <h3 class="empty-state-title">No Orders Yet</h3>
+                                <p class="empty-state-message">There are no orders to display at the moment.<br>New orders will appear here once they're created.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-footer">
+            <span class="showing-text" id="showingText">Showing <strong>0</strong> of <strong>0</strong> entries</span>
+            <nav><ul class="pager" id="pager"></ul></nav>
+        </div>
+    </div>
+
+</div><!-- /.db-page -->
+
+<!-- ── DELETE MODAL ── -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content del-modal-content">
+            <div class="del-modal-head">
+                <div class="del-icon-ring"><i class="fas fa-triangle-exclamation"></i></div>
+                <h5>Delete Order</h5>
+                <p>
+                    Are you sure you want to delete <strong id="orderNumberDisplay"></strong>?<br>
+                    <span class="del-warn">This action cannot be undone.</span>
+                </p>
+            </div>
+            <div class="del-modal-foot">
+                <button type="button" class="del-btn-cancel" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <form id="deleteForm" method="post" asp-controller="Order" asp-action="DeleteOrder">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="orderIdToDelete"/>
+                    <button type="submit" class="del-btn-confirm">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+const DAYS_IN_MONTH = @daysInMonth;
+const MONTH_NAME    = "@curMonthName";
+const DAILY_REVENUE = @Html.Raw("[" + string.Join(",", Enumerable.Range(1, daysInMonth).Select(d => dailyRevenue[d].ToString("F2", CultureInfo.InvariantCulture))) + "]");
+const DAILY_COUNTS  = @Html.Raw("[" + string.Join(",", Enumerable.Range(1, daysInMonth).Select(d => dailyCount[d])) + "]");
+
+const POPULAR_LABELS  = @Html.Raw("[" + string.Join(",", popLabels.Select(n => "\"" + n.Replace("\"","\\\"").Replace("'","\\'") + "\"")) + "]");
+const POPULAR_QTY     = @Html.Raw("[" + string.Join(",", popQty) + "]");
+const POPULAR_REVENUE = @Html.Raw("[" + string.Join(",", popRevenueD.Select(r => r.ToString("F2", CultureInfo.InvariantCulture))) + "]");
+
+$(document).ready(function () {
+    initializeChart();
+    initializePopularChart();
+    initializeTableFilters();
+});
+
+/* ── Daily Revenue Chart ── */
+function initializeChart() {
+    const labels = Array.from({length: DAYS_IN_MONTH}, (_, i) => String(i + 1));
+    const ctx = document.getElementById("dailyRevenueChart")?.getContext("2d");
+    if (!ctx) return;
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+    gradient.addColorStop(0,   "rgba(255,107,53,0.85)");
+    gradient.addColorStop(0.6, "rgba(232,85,32,0.50)");
+    gradient.addColorStop(1,   "rgba(255,107,53,0.04)");
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Revenue",
+                data: DAILY_REVENUE,
+                backgroundColor: gradient,
+                borderColor: "#FF6B35",
+                borderWidth: 1.5,
+                borderRadius: 6,
+                borderSkipped: false,
+                hoverBackgroundColor: "rgba(232,85,32,0.9)"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: "#1A1714",
+                    titleColor: "#fff",
+                    bodyColor: "rgba(255,255,255,0.75)",
+                    padding: 10,
+                    cornerRadius: 10,
+                    callbacks: {
+                        title:       c => "Day " + c[0].label,
+                        label:       c => " Revenue: $" + parseFloat(c.parsed.y).toFixed(2),
+                        afterLabel:  c => DAILY_COUNTS[c.dataIndex] > 0 ? " Orders: " + DAILY_COUNTS[c.dataIndex] : ""
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 11 }, color: "#B5AFA8",
+                        callback: (val, index) => (index % 5 === 0 || index === DAYS_IN_MONTH - 1) ? labels[index] : ""
+                    }
+                },
+                y: {
+                    grid: { color: "#EDE8E0", drawBorder: false },
+                    ticks: { font: { size: 11 }, color: "#B5AFA8", callback: val => "$" + val }
+                }
+            }
+        }
+    });
+}
+
+/* ── Popular Food Chart ── */
+function initializePopularChart() {
+    const ctx = document.getElementById("popularFoodChart")?.getContext("2d");
+    if (!ctx || !POPULAR_LABELS.length) return;
+
+    const colors = [
+        "#FF6B35","#E85520","#2D3561","#00B894",
+        "#FDCB6E","#6C5CE7","#00CEC9","#E17055"
+    ];
+    const bgColors     = POPULAR_LABELS.map((_, i) => colors[i % colors.length]);
+    const borderColors = bgColors.map(c => c);
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: POPULAR_LABELS,
+            datasets: [{
+                label: "Qty Sold",
+                data: POPULAR_QTY,
+                backgroundColor: bgColors.map(c => c + "CC"),
+                borderColor: borderColors,
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+                hoverBackgroundColor: bgColors
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: "#1A1714",
+                    titleColor: "#fff",
+                    bodyColor: "rgba(255,255,255,.75)",
+                    padding: 10,
+                    cornerRadius: 10,
+                    callbacks: {
+                        label: c => "  Sold: " + c.parsed.x + " units",
+                        afterLabel: c => "  Revenue: $" + parseFloat(POPULAR_REVENUE[c.dataIndex]).toFixed(2)
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: "#EDE8E0", drawBorder: false },
+                    ticks: { font: { size: 11 }, color: "#B5AFA8", callback: val => val + " u" }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 11 }, color: "#7A736B",
+                        callback: function(val) {
+                            const label = this.getLabelForValue(val);
+                            return label.length > 18 ? label.substring(0, 16) + "…" : label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+/* ── Filtering + Pagination ── */
+function initializeTableFilters() {
+    let pageSize = 20, currentPage = 1, filteredRows = [];
+    const allRows = $("#ordersTable tbody tr").toArray();
+
+    function applyFilters() {
+        const search  = $("#searchInput").val().toLowerCase().trim();
+        const status  = $("#statusFilter").val().toLowerCase().trim();
+        const dateVal = $("#dateFilter").val();
+        const now     = new Date();
+        const today   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const weekStart  = new Date(today); weekStart.setDate(today.getDate() - today.getDay());
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        filteredRows = allRows.filter(function (row) {
+            const $row = $(row);
+            if (search && !$row.text().toLowerCase().includes(search)) return false;
+            if (status && !$row.data('status').toString().toLowerCase().includes(status)) return false;
+            if (dateVal) {
+                const rowDate     = new Date($row.data('date'));
+                const rowDateOnly = new Date(rowDate.getFullYear(), rowDate.getMonth(), rowDate.getDate());
+                if (!isNaN(rowDate.getTime())) {
+                    if (dateVal === "today" && rowDateOnly.getTime() !== today.getTime()) return false;
+                    if (dateVal === "week"  && rowDateOnly < weekStart) return false;
+                    if (dateVal === "month" && rowDateOnly < monthStart) return false;
+                }
+            }
+            return true;
+        });
+
+        currentPage = 1;
+        renderPage();
+    }
+
+    function renderPage() {
+        const total      = filteredRows.length;
+        const totalPages = Math.max(1, Math.ceil(total / pageSize));
+        currentPage      = Math.min(currentPage, totalPages);
+        const start      = (currentPage - 1) * pageSize;
+        const end        = Math.min(start + pageSize, total);
+
+        allRows.forEach(r => $(r).hide());
+        filteredRows.slice(start, end).forEach(r => $(r).show());
+
+        $("#visibleCount").text(total + " total");
+        $("#showingText").html(total === 0
+            ? "No entries found"
+            : "Showing <strong>" + (start + 1) + "–" + end + "</strong> of <strong>" + total + "</strong> entries");
+
+        renderPager(totalPages);
+    }
+
+    function renderPager(totalPages) {
+        const $pager = $("#pager").empty();
+        $pager.append(makePage("‹ Prev", currentPage - 1, currentPage === 1));
+
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage   = Math.min(totalPages, startPage + maxVisible - 1);
+        if (endPage - startPage + 1 < maxVisible) startPage = Math.max(1, endPage - maxVisible + 1);
+
+        if (startPage > 1) {
+            $pager.append(makePage("1", 1));
+            if (startPage > 2) $pager.append('<li class="page-item disabled"><span class="page-link">…</span></li>');
+        }
+        for (let p = startPage; p <= endPage; p++) $pager.append(makePage(String(p), p, false, p === currentPage));
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) $pager.append('<li class="page-item disabled"><span class="page-link">…</span></li>');
+            $pager.append(makePage(String(totalPages), totalPages));
+        }
+
+        $pager.append(makePage("Next ›", currentPage + 1, currentPage === totalPages));
+    }
+
+    function makePage(label, target, disabled, isActive) {
+        const $li   = $('<li class="page-item"></li>');
+        if (disabled) $li.addClass("disabled");
+        if (isActive) $li.addClass("active");
+        const $link = $('<a class="page-link" href="#">' + label + '</a>');
+        if (!disabled && !isActive) {
+            $link.on("click", function (e) {
+                e.preventDefault();
+                currentPage = target;
+                renderPage();
+                document.querySelector(".table-card").scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        } else {
+            $link.on("click", e => e.preventDefault());
+        }
+        $li.append($link);
+        return $li;
+    }
+
+    let searchTimer;
+    $("#searchInput").on("input", function () { clearTimeout(searchTimer); searchTimer = setTimeout(applyFilters, 250); });
+    $("#statusFilter, #dateFilter").on("change", applyFilters);
+    $("#pageSizeSelect").on("change", function () { pageSize = parseInt(this.value); applyFilters(); });
+    $("#clearFilters").on("click", function () { $("#searchInput").val(""); $("#statusFilter").val(""); $("#dateFilter").val(""); applyFilters(); });
+
+    applyFilters();
+}
+
+/* ── PDF Export ── */
+async function downloadSalesReport() {
+    document.getElementById("pdfOverlay").classList.add("show");
+    await new Promise(resolve => setTimeout(resolve, 60));
+
+    try {
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF({ orientation:"landscape", unit:"mm", format:"a4" });
+        const now = new Date();
+        const printed = now.toLocaleDateString("en-GB", {day:"2-digit",month:"short",year:"numeric"})
+            + " " + now.toLocaleTimeString("en-US", {hour:"2-digit",minute:"2-digit",hour12:true});
+
+        doc.setFillColor(255,107,53);
+        doc.rect(0,0,297,22,"F");
+        doc.setTextColor(255,255,255);
+        doc.setFontSize(16); doc.setFont("helvetica","bold");
+        doc.text("Sales Performance Report",14,10);
+        doc.setFontSize(9); doc.setFont("helvetica","normal");
+        doc.text("Generated: " + printed, 14, 17);
+        doc.text("Sandoo House", 297-14, 17, {align:"right"});
+
+        const tableRows = document.querySelectorAll('.order-row');
+        let totalRevenue = 0, totalOrders = 0, totalDiscount = 0;
+        const currentYear = now.getFullYear(), currentMonthIndex = now.getMonth();
+
+        tableRows.forEach(function(row) {
+            const orderTotal = parseFloat(row.dataset.total) || 0;
+            totalRevenue += orderTotal; totalOrders++;
+        });
+
+        const kpis = [
+            {label:"Total Revenue", value:"$"+totalRevenue.toFixed(2), color:[255,107,53]},
+            {label:"Total Orders",  value:String(totalOrders),          color:[0,184,148]},
+            {label:"Avg Order",     value:"$"+(totalOrders>0?totalRevenue/totalOrders:0).toFixed(2), color:[45,53,97]},
+            {label:"This Month",    value:"$@mRevenue.ToString("F2")", color:[253,203,110]}
+        ];
+        const kpiWidth = (297-28-9)/4;
+        kpis.forEach(function(kpi, index) {
+            const xPos = 14 + index*(kpiWidth+3);
+            doc.setFillColor(kpi.color[0],kpi.color[1],kpi.color[2]);
+            doc.roundedRect(xPos,26,kpiWidth,18,3,3,"F");
+            doc.setTextColor(255,255,255);
+            doc.setFontSize(8); doc.setFont("helvetica","normal");
+            doc.text(kpi.label.toUpperCase(), xPos+4, 32);
+            doc.setFontSize(11); doc.setFont("helvetica","bold");
+            doc.text(kpi.value, xPos+4, 40);
+        });
+
+        const visibleRows = Array.from(document.querySelectorAll('.order-row'))
+            .filter(row => row.style.display !== 'none').slice(0,20);
+
+        const tableBodyData = visibleRows.map(function(row, idx) {
+            return [
+                (idx+1).toString(),
+                row.dataset.orderNum || '',
+                row.dataset.displayDate || '',
+                row.dataset.items + ' items',
+                '$'+parseFloat(row.dataset.total||0).toFixed(2),
+                row.dataset.status || 'Paid'
+            ];
+        });
+
+        doc.autoTable({
+            startY: 52,
+            head:[["#","Order No.","Date","Items","Total","Status"]],
+            body: tableBodyData,
+            styles:{fontSize:7,cellPadding:2},
+            headStyles:{fillColor:[255,107,53],textColor:255,fontStyle:"bold"},
+            columnStyles:{0:{cellWidth:8,halign:"center"},1:{cellWidth:55},2:{cellWidth:28},3:{cellWidth:18,halign:"center"},4:{cellWidth:22,halign:"right"},5:{cellWidth:22,halign:"center"}},
+            theme:"grid",
+            alternateRowStyles:{fillColor:[255,240,234]},
+            didParseCell: function(data) {
+                if (data.section==="body" && data.column.index===5) {
+                    const t = (data.cell.raw||"").toString().toLowerCase();
+                    if (t.includes("paid"))   { data.cell.styles.textColor=[0,122,86]; data.cell.styles.fontStyle="bold"; }
+                    else if (t.includes("pending")) { data.cell.styles.textColor=[154,104,0]; }
+                    else if (t.includes("cancel"))  { data.cell.styles.textColor=[192,57,43]; }
+                }
+            }
+        });
+
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i=1; i<=pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8); doc.setTextColor(181,175,168); doc.setFont("helvetica","normal");
+            doc.text("Page "+i+" of "+pageCount, 297-14, 205, {align:"right"});
+            doc.text("Sandoo House — Sales Report", 14, 205);
+        }
+
+        const fileName = "sales-report-" + now.getFullYear() + "-"
+            + String(now.getMonth()+1).padStart(2,"0") + "-"
+            + String(now.getDate()).padStart(2,"0") + ".pdf";
+        doc.save(fileName);
+
+    } catch(err) {
+        console.error("PDF error:", err);
+        alert("PDF generation failed: " + err.message);
+    } finally {
+        document.getElementById("pdfOverlay").classList.remove("show");
+    }
+}
+
+function viewOrder(id)  { window.location.href = '/Order/GetOrderDetails/' + id; }
+function editOrder(id)  { window.location.href = '/Order/EditOrder/' + id; }
+function setDeleteData(id, orderNumber) {
+    document.getElementById("orderIdToDelete").value = id;
+    document.getElementById("orderNumberDisplay").innerText = "Order #" + orderNumber;
+}
+</script>
+}

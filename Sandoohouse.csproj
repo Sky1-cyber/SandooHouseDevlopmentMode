@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <_ContentIncludedByDefault Remove="wwwroot\js\site.js" />
+        <_ContentIncludedByDefault Remove="wwwroot\updates\Admin\747bdf11-a4e3-44d5-9b46-183c182ab513.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\075ceb5f-f064-4909-b7e2-059ae04275f8.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\3417a3ab-1123-4043-84f9-bcbf2ff9941a.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\589d0cd8-3371-419f-a94b-7217ad9efc31.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\747a6736-cce6-4386-91e5-f7e65aec3a5d.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\b9ce682b-90d4-4118-b7ab-ed9340be6493.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\c434613b-77e8-42cf-b698-7c9f0a7be45b.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\dadd9618-cec8-4adb-b66e-f052f0c8fc3b.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\e76e9178-64ff-42d1-9dc8-55b3d9c89b48.png" />
+        <_ContentIncludedByDefault Remove="wwwroot\Admin\fcfb3f64-3d52-4ad9-b488-a6e407974465.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Menu\18786ebc-6639-4ba1-a89f-b09232c91ada.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Menu\391b9a2c-d959-4251-af62-73a2d927f24b.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Menu\4fb91087-99fa-4123-b9b3-6c37b3264124.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Menu\a65b4f16-3660-4f35-925b-5f460618b848.jpg" />
+        <_ContentIncludedByDefault Remove="wwwroot\Menu\c821f9ee-d21c-4ccd-8731-6293a04adeea.jpg" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+        <PackageReference Include="CloudinaryDotNet" Version="1.28.0" />
+        <PackageReference Include="MailKit" Version="4.15.1" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.0" />
+
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+
+        <PackageReference Include="MimeKit" Version="4.15.1" />
+
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+
+        <PackageReference Include="QuestPDF" Version="2026.2.3" />
+
+        <PackageReference Include="Supabase" Version="1.1.1" />
+    </ItemGroup>
+
+</Project>

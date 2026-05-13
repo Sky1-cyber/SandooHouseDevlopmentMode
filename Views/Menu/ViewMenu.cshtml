@@ -1,0 +1,567 @@
+﻿@model Sandoohouse.Models.Menu
+@{
+    ViewData["Title"] = Model.MenuName + " — Details";
+    bool    hasDiscount = Model.DiscountPrice.HasValue && Model.DiscountPrice < Model.Price;
+    decimal finalPrice  = Model.DiscountPrice ?? Model.Price;
+    decimal savings     = Model.Price - finalPrice;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+:root {
+    --brand:        #FF6B35;
+    --brand-dark:   #E85520;
+    --brand-light:  #FFF0EA;
+    --brand-mid:    rgba(255,107,53,.13);
+    --accent:       #1C2340;
+    --success:      #00B894;
+    --success-bg:   rgba(0,184,148,.1);
+    --warning:      #F0A500;
+    --warning-bg:   rgba(240,165,0,.1);
+    --danger:       #E84545;
+    --danger-bg:    rgba(232,69,69,.1);
+    --bg:           #F2EFE9;
+    --surface:      #FFFFFF;
+    --surface2:     #FAF8F5;
+    --surface3:     #F4F1EC;
+    --border:       #EAE5DC;
+    --border-s:     #D8D2C8;
+    --text:         #18150F;
+    --text-sub:     #6E685F;
+    --text-light:   #AEA89F;
+    --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+    --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+    --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+    --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+    --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+    --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+    --font: 'Sora', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.md-page {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+    padding: 28px 24px;
+    color: var(--text);
+}
+
+/* ── Topbar ── */
+.md-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+    max-width: 960px; margin-left: auto; margin-right: auto;
+}
+.md-topbar-left h1 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 5px; letter-spacing: -.4px; }
+.md-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+}
+.md-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+.md-breadcrumb a:hover { color: var(--brand); }
+.md-breadcrumb .sep { color: var(--border-s); }
+.md-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+.btn-back {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 38px; padding: 0 18px;
+    border: 1.5px solid var(--border); border-radius: var(--r-xl);
+    background: var(--surface); color: var(--text-sub);
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all .16s;
+}
+.btn-back:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); text-decoration: none; }
+
+/* ── Wrapper ── */
+.md-wrap { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Hero ── */
+.md-hero {
+    background: var(--accent);
+    border-radius: var(--r-lg);
+    padding: 32px 36px;
+    display: flex; align-items: center; gap: 24px;
+    position: relative; overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+.md-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 22px 22px; pointer-events: none;
+}
+.md-hero-orb1 { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,107,53,.07); top: -110px; right: -70px; pointer-events: none; }
+.md-hero-orb2 { position: absolute; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.03); bottom: -70px; left: 220px; pointer-events: none; }
+
+/* Menu image */
+.md-img-wrap {
+    width: 90px; height: 90px; border-radius: var(--r-md);
+    overflow: hidden; flex-shrink: 0; z-index: 1;
+    border: 2px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.08); box-shadow: var(--shadow-md);
+}
+.md-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.md-img-placeholder {
+    width: 90px; height: 90px; border-radius: var(--r-md); flex-shrink: 0; z-index: 1;
+    background: var(--brand); border: 2px solid rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; color: #fff; box-shadow: var(--shadow-brand);
+}
+
+.md-hero-info { z-index: 1; flex: 1; min-width: 0; }
+.md-hero-info h2 { font-size: 24px; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -.4px; line-height: 1.2; }
+
+/* Price display in hero */
+.md-hero-price {
+    display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;
+}
+.md-hero-price-final { font-size: 22px; font-weight: 800; color: var(--brand); letter-spacing: -.4px; }
+.md-hero-price-orig  { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.4); text-decoration: line-through; }
+.md-hero-price-save  {
+    font-size: 11px; font-weight: 700;
+    background: var(--success-bg); color: var(--success);
+    border: 1px solid rgba(0,184,148,.25);
+    padding: 3px 10px; border-radius: 20px;
+}
+
+.md-hero-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+.md-meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.12);
+}
+.md-meta-chip i { font-size: 10px; }
+.md-meta-chip.active   { background: var(--success-bg); color: var(--success); border-color: rgba(0,184,148,.25); }
+.md-meta-chip.inactive { background: rgba(255,255,255,.06); color: rgba(255,255,255,.4); }
+.md-meta-chip.cat      { background: var(--brand-mid); color: var(--brand); border-color: rgba(255,107,53,.25); }
+.md-meta-chip.discount { background: var(--danger-bg); color: var(--danger); border-color: rgba(232,69,69,.25); }
+
+/* Hero actions */
+.md-hero-actions { display: flex; flex-direction: column; gap: 8px; z-index: 1; flex-shrink: 0; }
+.btn-edit-hero {
+    height: 38px; padding: 0 18px;
+    background: var(--brand); color: #fff; border: none; border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    text-decoration: none; box-shadow: var(--shadow-brand); transition: all .16s; white-space: nowrap;
+}
+.btn-edit-hero:hover { background: var(--brand-dark); color: #fff; transform: translateY(-1px); text-decoration: none; }
+
+/* ── KPI strip ── */
+.md-kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.md-kpi {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--r-md); padding: 18px 20px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow-xs); transition: all .2s;
+    position: relative; overflow: hidden;
+}
+.md-kpi::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    height: 3px; width: 100%;
+    background: var(--kc, var(--brand));
+    transform: scaleX(0); transform-origin: left; transition: transform .3s;
+}
+.md-kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.md-kpi:hover::after { transform: scaleX(1); }
+.md-kpi-icon {
+    width: 42px; height: 42px; border-radius: var(--r-sm);
+    background: var(--ki, var(--brand-light)); color: var(--kc, var(--brand));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+}
+.md-kpi-text { min-width: 0; }
+.md-kpi-label { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .06em; }
+.md-kpi-val   { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -.4px; line-height: 1; margin-top: 3px; }
+.md-kpi-sub   { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.kpi-brand  { --kc: var(--brand);   --ki: var(--brand-light); }
+.kpi-green  { --kc: var(--success); --ki: var(--success-bg); }
+.kpi-danger { --kc: var(--danger);  --ki: var(--danger-bg); }
+.kpi-accent { --kc: var(--accent);  --ki: rgba(28,35,64,.08); }
+
+/* ── Main content card ── */
+.md-content {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+.md-content-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; border-bottom: 1.5px solid var(--border);
+    background: var(--surface2);
+}
+.md-content-title { display: flex; align-items: center; gap: 10px; }
+.md-title-bar { width: 4px; height: 20px; background: var(--brand); border-radius: 4px; }
+.md-content-title h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; }
+.md-content-title small { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+/* ── Detail rows ── */
+.md-detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+.md-detail-row {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 20px 28px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+}
+.md-detail-row:nth-child(even) { border-right: none; }
+.md-detail-row:nth-last-child(-n+2) { border-bottom: none; }
+.md-detail-label {
+    font-size: 9px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--text-light);
+    display: flex; align-items: center; gap: 6px;
+}
+.md-detail-label i { color: var(--brand); font-size: 11px; }
+.md-detail-value { font-size: 14px; font-weight: 600; color: var(--text); }
+.md-detail-value.muted { color: var(--text-sub); font-weight: 400; font-style: italic; }
+.md-detail-value.price-green { color: var(--success); }
+.md-detail-value.price-red   { color: var(--danger); }
+
+/* Price row special */
+.md-price-compound {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.md-price-big    { font-size: 20px; font-weight: 800; color: var(--brand); letter-spacing: -.3px; }
+.md-price-strike { font-size: 13px; color: var(--text-light); text-decoration: line-through; }
+.md-save-tag {
+    font-size: 11px; font-weight: 700;
+    background: var(--success-bg); color: var(--success);
+    border: 1px solid rgba(0,184,148,.2);
+    padding: 3px 10px; border-radius: 20px;
+}
+
+/* Status badge in detail */
+.md-status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; width: fit-content;
+}
+.md-status-badge.active   { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.2); }
+.md-status-badge.inactive { background: var(--surface2); color: var(--text-sub); border: 1px solid var(--border); }
+
+/* ── Parent info footer (category + brand) ── */
+.md-parents {
+    border-top: 1.5px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr;
+}
+.md-parent-cell {
+    padding: 20px 28px; display: flex; align-items: center; gap: 14px;
+}
+.md-parent-cell:first-child { border-right: 1px solid var(--border); }
+
+.md-parent-thumb {
+    width: 44px; height: 44px; border-radius: var(--r-sm);
+    overflow: hidden; border: 1.5px solid var(--border);
+    background: var(--surface3); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.md-parent-thumb img   { width: 100%; height: 100%; object-fit: cover; display: block; }
+.md-parent-thumb.cat   { background: var(--brand-light); color: var(--brand); }
+.md-parent-thumb.brand { background: var(--accent-mid, rgba(28,35,64,.08)); color: var(--accent); }
+
+.md-parent-info { display: flex; flex-direction: column; gap: 2px; }
+.md-parent-sub  { font-size: 10px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: .06em; }
+.md-parent-name { font-size: 14px; font-weight: 700; color: var(--text); }
+
+.md-parent-link {
+    margin-left: auto; font-size: 12px; font-weight: 700;
+    color: var(--brand); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+    transition: color .14s;
+}
+.md-parent-link:hover { color: var(--brand-dark); text-decoration: none; }
+
+/* ── Responsive ── */
+@@media (max-width: 760px) {
+    .md-kpi-strip { grid-template-columns: 1fr 1fr; }
+    .md-hero { flex-direction: column; align-items: flex-start; padding: 24px 22px; gap: 16px; }
+    .md-hero-actions { flex-direction: row; }
+    .md-detail-grid { grid-template-columns: 1fr; }
+    .md-detail-row { border-right: none; }
+    .md-detail-row:last-child { border-bottom: none; }
+    .md-parents { grid-template-columns: 1fr; }
+    .md-parent-cell:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .md-content-head { padding: 14px 18px; }
+}
+@@media (max-width: 500px) {
+    .md-page { padding: 14px 12px; }
+    .md-kpi-strip { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<div class="md-page">
+
+    <!-- ── Topbar ── -->
+    <div class="md-topbar">
+        <div class="md-topbar-left">
+            <h1>Menu Details</h1>
+            <nav class="md-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Menu" asp-action="Index">Menu</a>
+                <span class="sep">›</span>
+                <span class="cur">@Model.MenuName</span>
+            </nav>
+        </div>
+        <a asp-controller="Menu" asp-action="Index" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="md-wrap">
+
+        <!-- ── Hero ── -->
+        <div class="md-hero">
+            <div class="md-hero-orb1"></div>
+            <div class="md-hero-orb2"></div>
+
+            @if (!string.IsNullOrEmpty(Model.ImageMenuUrl))
+            {
+                <div class="md-img-wrap">
+                    <img src="@Url.Content($"{Model.ImageMenuUrl}")" alt="@Model.MenuName" />
+                </div>
+            }
+            else
+            {
+                <div class="md-img-placeholder"><i class="bi bi-egg-fried"></i></div>
+            }
+
+            <div class="md-hero-info">
+                <h2>@Model.MenuName</h2>
+
+                <div class="md-hero-price">
+                    <span class="md-hero-price-final">$@finalPrice.ToString("F2")</span>
+                    @if (hasDiscount)
+                    {
+                        <span class="md-hero-price-orig">$@Model.Price.ToString("F2")</span>
+                        <span class="md-hero-price-save">Save $@savings.ToString("F2")</span>
+                    }
+                </div>
+
+                <div class="md-hero-meta">
+                    <span class="md-meta-chip @(Model.Status ? "active" : "inactive")">
+                        <i class="bi bi-circle-fill" style="font-size:7px;"></i>
+                        @(Model.Status ? "Active" : "Inactive")
+                    </span>
+                    @if (Model.Category != null)
+                    {
+                        <span class="md-meta-chip cat">
+                            <i class="bi bi-folder2-open"></i> @Model.Category.CategoryName
+                        </span>
+                    }
+                    @if (Model.Category?.Brand != null)
+                    {
+                        <span class="md-meta-chip">
+                            <i class="bi bi-building"></i> @Model.Category.Brand.BrandName
+                        </span>
+                    }
+                    @if (hasDiscount)
+                    {
+                        <span class="md-meta-chip discount">
+                            <i class="bi bi-percent"></i> On Discount
+                        </span>
+                    }
+                    <span class="md-meta-chip">
+                        <i class="bi bi-tag"></i> ID #@Model.Id
+                    </span>
+                </div>
+            </div>
+
+            <div class="md-hero-actions">
+                <a asp-controller="Menu" asp-action="EditMenu" asp-route-id="@Model.Id"
+                   class="btn-edit-hero">
+                    <i class="bi bi-pencil-fill"></i> Edit Menu
+                </a>
+            </div>
+        </div>
+
+        <!-- ── KPI strip ── -->
+        <div class="md-kpi-strip">
+            <div class="md-kpi kpi-brand">
+                <div class="md-kpi-icon"><i class="bi bi-currency-dollar"></i></div>
+                <div class="md-kpi-text">
+                    <div class="md-kpi-label">Regular Price</div>
+                    <div class="md-kpi-val">$@Model.Price.ToString("F2")</div>
+                </div>
+            </div>
+            <div class="md-kpi kpi-green">
+                <div class="md-kpi-icon"><i class="bi bi-check-circle"></i></div>
+                <div class="md-kpi-text">
+                    <div class="md-kpi-label">Final Price</div>
+                    <div class="md-kpi-val">$@finalPrice.ToString("F2")</div>
+                    @if (hasDiscount)
+                    {
+                        <div class="md-kpi-sub">After discount</div>
+                    }
+                </div>
+            </div>
+            <div class="md-kpi kpi-danger">
+                <div class="md-kpi-icon"><i class="bi bi-percent"></i></div>
+                <div class="md-kpi-text">
+                    <div class="md-kpi-label">Discount</div>
+                    @if (hasDiscount)
+                    {
+                        <div class="md-kpi-val">$@savings.ToString("F2")</div>
+                        <div class="md-kpi-sub">Savings</div>
+                    }
+                    else
+                    {
+                        <div class="md-kpi-val" style="font-size:14px;color:var(--text-light);font-weight:500;">None</div>
+                    }
+                </div>
+            </div>
+            <div class="md-kpi kpi-accent">
+                <div class="md-kpi-icon"><i class="bi bi-folder2-open"></i></div>
+                <div class="md-kpi-text">
+                    <div class="md-kpi-label">Category</div>
+                    <div class="md-kpi-val" style="font-size:13px;line-height:1.3;margin-top:4px;">
+                        @(Model.Category?.CategoryName ?? "—")
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Details card ── -->
+        <div class="md-content">
+
+            <div class="md-content-head">
+                <div class="md-content-title">
+                    <span class="md-title-bar"></span>
+                    <div>
+                        <h3>Menu Item Details</h3>
+                        <small>Full information for this menu item</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail grid -->
+            <div class="md-detail-grid">
+
+                <!-- Menu Name -->
+                <div class="md-detail-row">
+                    <div class="md-detail-label"><i class="bi bi-tag-fill"></i> Menu Name</div>
+                    <div class="md-detail-value">@Model.MenuName</div>
+                </div>
+
+                <!-- Status -->
+                <div class="md-detail-row">
+                    <div class="md-detail-label"><i class="bi bi-toggle-on"></i> Status</div>
+                    <div class="md-detail-value">
+                        <span class="md-status-badge @(Model.Status ? "active" : "inactive")">
+                            <i class="bi bi-circle-fill" style="font-size:6px;"></i>
+                            @(Model.Status ? "Active" : "Inactive")
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Regular Price -->
+                <div class="md-detail-row">
+                    <div class="md-detail-label"><i class="bi bi-currency-dollar"></i> Regular Price</div>
+                    <div class="md-detail-value price-green">$@Model.Price.ToString("F2")</div>
+                </div>
+
+                <!-- Discount Price -->
+                <div class="md-detail-row">
+                    <div class="md-detail-label"><i class="bi bi-percent"></i> Discount Price</div>
+                    <div class="md-detail-value">
+                        @if (hasDiscount)
+                        {
+                            <div class="md-price-compound">
+                                <span class="md-price-big">$@Model.DiscountPrice!.Value.ToString("F2")</span>
+                                <span class="md-price-strike">$@Model.Price.ToString("F2")</span>
+                                <span class="md-save-tag">Save $@savings.ToString("F2")</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="muted" style="color:var(--text-light);font-style:italic;font-size:13px;">No discount</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Final Price -->
+                <div class="md-detail-row">
+                    <div class="md-detail-label"><i class="bi bi-check-circle-fill"></i> Final Price</div>
+                    <div class="md-detail-value">
+                        <span class="md-price-big">$@finalPrice.ToString("F2")</span>
+                    </div>
+                </div>
+
+                <!-- Menu ID -->
+                <div class="md-detail-row">
+                    <div class="md-detail-label"><i class="bi bi-hash"></i> Menu ID</div>
+                    <div class="md-detail-value">#@Model.Id</div>
+                </div>
+
+            </div><!-- /.md-detail-grid -->
+
+            <!-- ── Parent: Category + Brand ── -->
+            <div class="md-parents">
+
+                <!-- Category -->
+                <div class="md-parent-cell">
+                    @if (!string.IsNullOrEmpty(Model.Category?.CategoryImageUrl))
+                    {
+                        <div class="md-parent-thumb">
+                            <img src="@Url.Content($"{Model.Category.CategoryImageUrl}")" alt="@Model.Category.CategoryName" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="md-parent-thumb cat"><i class="bi bi-folder2-open"></i></div>
+                    }
+                    <div class="md-parent-info">
+                        <span class="md-parent-sub">Category</span>
+                        <span class="md-parent-name">@(Model.Category?.CategoryName ?? "No Category")</span>
+                    </div>
+                    @if (Model.Category != null)
+                    {
+                        <a asp-controller="Category" asp-action="ViewCategory" asp-route-id="@Model.Category.Id"
+                           class="md-parent-link">
+                            View <i class="bi bi-arrow-right"></i>
+                        </a>
+                    }
+                </div>
+
+                <!-- Brand -->
+                <div class="md-parent-cell">
+                    @if (!string.IsNullOrEmpty(Model.Category?.Brand?.LogoBrandUrl))
+                    {
+                        <div class="md-parent-thumb">
+                            <img src="@Url.Content($"{Model.Category.Brand.LogoBrandUrl}")" alt="@Model.Category.Brand.BrandName" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="md-parent-thumb brand"><i class="bi bi-building"></i></div>
+                    }
+                    <div class="md-parent-info">
+                        <span class="md-parent-sub">Brand</span>
+                        <span class="md-parent-name">@(Model.Category?.Brand?.BrandName ?? "No Brand")</span>
+                    </div>
+                    @if (Model.Category?.Brand != null)
+                    {
+                        <a asp-controller="Brand" asp-action="ViewBrand" asp-route-id="@Model.Category.Brand.Id"
+                           class="md-parent-link">
+                            View <i class="bi bi-arrow-right"></i>
+                        </a>
+                    }
+                </div>
+
+            </div><!-- /.md-parents -->
+
+        </div><!-- /.md-content -->
+
+    </div><!-- /.md-wrap -->
+</div><!-- /.md-page -->

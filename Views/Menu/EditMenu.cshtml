@@ -1,0 +1,765 @@
+﻿@model Sandoohouse.Models.ModelViewer.MenuModelViewer.MenuViewerModel
+@{
+ViewData["Title"] = "Edit Menu";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --brand:        #FF6B35;
+        --brand-dark:   #E85520;
+        --brand-light:  #FFF0EA;
+        --brand-mid:    rgba(255,107,53,.13);
+        --accent:       #1C2340;
+        --success:      #00B894;
+        --success-bg:   rgba(0,184,148,.1);
+        --warning:      #F0A500;
+        --warning-bg:   rgba(240,165,0,.1);
+        --danger:       #E84545;
+        --danger-bg:    rgba(232,69,69,.1);
+        --bg:           #F2EFE9;
+        --surface:      #FFFFFF;
+        --surface2:     #FAF8F5;
+        --surface3:     #F4F1EC;
+        --border:       #EAE5DC;
+        --border-s:     #D8D2C8;
+        --text:         #18150F;
+        --text-sub:     #6E685F;
+        --text-light:   #AEA89F;
+        --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+        --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+        --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+        --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+        --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+        --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+        --font: 'Sora', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .em-page {
+        font-family: var(--font);
+        background: var(--bg);
+        background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+        background-size: 28px 28px;
+        min-height: 100vh;
+        padding: 28px 24px;
+        color: var(--text);
+    }
+
+    /* ── Top bar ── */
+    .em-topbar {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+        max-width: 1060px; margin-left: auto; margin-right: auto;
+    }
+    .em-topbar-left h1 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 5px; letter-spacing: -.4px; }
+    .em-breadcrumb {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+    }
+    .em-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+    .em-breadcrumb a:hover { color: var(--brand); }
+    .em-breadcrumb .sep { color: var(--border-s); }
+    .em-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+    /* ── Wrapper ── */
+    .em-wrap { max-width: 1060px; margin: 0 auto; display: flex; flex-direction: column; }
+
+    /* ── Hero ── */
+    .em-hero {
+        background: var(--accent);
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+        padding: 32px 36px;
+        display: flex; align-items: center; gap: 20px;
+        position: relative; overflow: hidden;
+    }
+    .em-hero::before {
+        content: ''; position: absolute; inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+    .em-hero::after {
+        content: ''; position: absolute; width: 280px; height: 280px; border-radius: 50%;
+        background: rgba(255,107,53,.08); top: -100px; right: -60px; pointer-events: none;
+    }
+    .em-hero-circle {
+        position: absolute; width: 200px; height: 200px; border-radius: 50%;
+        background: rgba(255,255,255,.03); bottom: -80px; left: 160px; pointer-events: none;
+    }
+    .em-hero-badge {
+        width: 58px; height: 58px; border-radius: 16px; background: var(--brand);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 26px; color: #fff; flex-shrink: 0; z-index: 1; box-shadow: var(--shadow-brand);
+    }
+    .em-hero-text { z-index: 1; flex: 1; }
+    .em-hero-text h2 { font-size: 20px; font-weight: 800; color: #fff; margin: 0 0 5px; letter-spacing: -.3px; line-height: 1.2; }
+    .em-hero-text p  { font-size: 12px; color: rgba(255,255,255,.5); margin: 0; font-weight: 500; }
+    .em-hero-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 14px; border-radius: 20px; z-index: 1; flex-shrink: 0;
+        background: var(--success-bg); color: var(--success);
+        border: 1px solid rgba(0,184,148,.25); font-size: 11px; font-weight: 700;
+    }
+
+    /* ── Form area ── */
+    .em-form-area {
+        background: var(--surface);
+        border: 1.5px solid var(--border); border-top: none;
+        border-radius: 0 0 var(--r-lg) var(--r-lg);
+        box-shadow: var(--shadow-md); overflow: hidden;
+    }
+
+    /* ── Two-panel layout ── */
+    .em-panels { display: grid; grid-template-columns: 1fr 300px; min-height: 580px; }
+
+    /* ── Left panel ── */
+    .em-left { padding: 32px 36px; border-right: 1.5px solid var(--border); }
+
+    .em-sec {
+        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+        color: var(--text-light); margin: 0 0 18px; padding-bottom: 10px;
+        border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+    }
+    .em-sec i { font-size: 12px; color: var(--brand); }
+
+    /* Grid helpers */
+    .em-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Field */
+    .em-field { margin-bottom: 20px; }
+    .em-label {
+        display: flex; align-items: baseline; gap: 5px;
+        font-size: 11px; font-weight: 700; color: var(--text-sub);
+        text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
+    }
+    .em-label .req { color: var(--brand); font-size: 14px; line-height: .8; text-transform: none; letter-spacing: 0; }
+    .em-label .opt { font-size: 10px; color: var(--text-light); font-weight: 500; text-transform: none; letter-spacing: 0; }
+
+    .em-control {
+        display: flex; align-items: stretch;
+        border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        background: var(--surface2); overflow: hidden;
+        transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .em-control:focus-within {
+        border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-mid); background: var(--surface);
+    }
+    .em-control.err { border-color: var(--danger); }
+    .em-control.err:focus-within { box-shadow: 0 0 0 3px var(--danger-bg); }
+
+    .em-prefix {
+        width: 44px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; color: var(--text-light);
+        border-right: 1.5px solid var(--border); background: var(--surface);
+        transition: color .15s, border-color .15s;
+    }
+    .em-control:focus-within .em-prefix { color: var(--brand); border-color: var(--brand); }
+
+    .em-suffix {
+        width: 44px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 700; color: var(--text-light);
+        border-left: 1.5px solid var(--border); background: var(--surface);
+        transition: color .15s, border-color .15s;
+    }
+    .em-control:focus-within .em-suffix { color: var(--brand); border-color: var(--brand); }
+
+    .em-inp {
+        flex: 1; height: 46px; padding: 0 14px;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+    }
+    .em-inp::placeholder { color: var(--text-light); font-weight: 400; }
+
+    .em-select {
+        flex: 1; height: 46px; padding: 0 36px 0 14px;
+        border: none; background: none; outline: none;
+        font-family: var(--font); font-size: 13px; color: var(--text); font-weight: 500;
+        appearance: none; cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23AEA89F' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 14px center;
+    }
+
+    .em-val-msg { font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+    .em-hint    { font-size: 11px; color: var(--text-light); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+
+    /* ── Price summary card ── */
+    .em-price-summary {
+        padding: 16px 18px;
+        background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;
+        margin-top: 4px;
+    }
+    .em-price-col {
+        display: flex; flex-direction: column; gap: 4px; padding: 0 14px;
+        border-right: 1px solid var(--border);
+    }
+    .em-price-col:first-child { padding-left: 0; }
+    .em-price-col:last-child  { padding-right: 0; border-right: none; }
+    .em-price-col-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-light); }
+    .em-price-col-val   { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -.4px; line-height: 1; }
+    .em-price-col-val.brand   { color: var(--brand); }
+    .em-price-col-val.success { color: var(--success); }
+
+    .em-chip {
+        display: none; align-items: center; gap: 5px;
+        padding: 3px 10px; border-radius: 20px;
+        font-size: 10px; font-weight: 700; margin-top: 2px;
+    }
+    .em-chip.green  { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.2); }
+    .em-chip.orange { background: rgba(255,107,53,.1); color: var(--brand); border: 1px solid rgba(255,107,53,.2); }
+
+    /* ── Status toggle ── */
+    .em-toggle-card {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 18px;
+        background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r-sm);
+        gap: 16px; transition: border-color .15s;
+    }
+    .em-toggle-card:hover { border-color: var(--border-s); }
+    .em-toggle-desc h6 {
+        font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 3px;
+        display: flex; align-items: center; gap: 7px;
+    }
+    .em-toggle-desc h6 i { color: var(--brand); }
+    .em-toggle-desc p { font-size: 11px; color: var(--text-light); margin: 0; }
+
+    .sw-wrap { flex-shrink: 0; }
+    .sw-wrap input[type="checkbox"] { display: none; }
+    .sw-track {
+        display: block; width: 52px; height: 28px; border-radius: 14px;
+        background: var(--border-s); cursor: pointer; transition: background .22s; position: relative;
+    }
+    .sw-track::after {
+        content: ''; position: absolute; top: 4px; left: 4px;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: #fff; box-shadow: var(--shadow-sm); transition: transform .22s, box-shadow .22s;
+    }
+    .sw-wrap input:checked + .sw-track { background: var(--success); }
+    .sw-wrap input:checked + .sw-track::after { transform: translateX(24px); box-shadow: 0 3px 10px rgba(0,184,148,.4); }
+
+    /* Status chip */
+    .em-status-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; transition: all .2s;
+    }
+    .em-status-chip.active   { background: var(--success-bg); color: var(--success); border: 1px solid rgba(0,184,148,.2); }
+    .em-status-chip.inactive { background: var(--surface2);   color: var(--text-sub); border: 1px solid var(--border); }
+
+    /* ── Last updated notice ── */
+    .em-notice {
+        display: flex; align-items: center; gap: 10px;
+        padding: 12px 15px; margin-top: 20px;
+        background: var(--warning-bg); border: 1px solid rgba(240,165,0,.22);
+        border-left: 3px solid var(--warning); border-radius: var(--r-sm);
+        font-size: 12px; color: var(--text-sub); font-weight: 500;
+    }
+    .em-notice i { color: var(--warning); font-size: 14px; flex-shrink: 0; }
+    .em-notice strong { color: var(--text); }
+
+    /* ── Actions ── */
+    .em-actions { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+    .btn-save {
+        flex: 1; height: 48px; min-width: 160px;
+        background: var(--brand); color: #fff;
+        border: none; border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: var(--shadow-brand); transition: all .18s; letter-spacing: .01em;
+    }
+    .btn-save:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,107,53,.4); }
+    .btn-save:active { transform: translateY(0); }
+    .btn-discard {
+        height: 48px; padding: 0 20px; min-width: 120px;
+        background: var(--surface); color: var(--text-sub);
+        border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        font-family: var(--font); font-size: 14px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        text-decoration: none; transition: all .18s;
+    }
+    .btn-discard:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); text-decoration: none; }
+
+    /* ── Right panel: image ── */
+    .em-right {
+        background: var(--surface3); padding: 32px 28px;
+        display: flex; flex-direction: column; align-items: center;
+        border-left: 1.5px solid var(--border);
+    }
+    .em-img-heading {
+        font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+        color: var(--text-light); margin-bottom: 20px; align-self: flex-start;
+        display: flex; align-items: center; gap: 7px;
+    }
+    .em-img-heading i { color: var(--brand); font-size: 12px; }
+
+    .em-img-box {
+        width: 200px; height: 200px; border-radius: var(--r-md);
+        overflow: hidden; cursor: pointer; position: relative;
+        border: 2px dashed var(--border-s);
+        background: var(--surface); transition: all .2s; box-shadow: var(--shadow-xs);
+    }
+    .em-img-box:hover { border-color: var(--brand); border-style: solid; box-shadow: var(--shadow-brand); transform: translateY(-2px); }
+    .em-img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .em-img-cover {
+        position: absolute; inset: 0; border-radius: calc(var(--r-md) - 2px);
+        background: rgba(24,21,15,.55);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+        opacity: 0; transition: opacity .2s;
+    }
+    .em-img-cover i    { font-size: 30px; color: #fff; }
+    .em-img-cover span { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 700; }
+    .em-img-box:hover .em-img-cover { opacity: 1; }
+
+    .em-img-badge {
+        width: 100%; margin-top: 14px; padding: 9px 12px;
+        background: var(--success-bg); border: 1px solid rgba(0,184,148,.2);
+        border-radius: var(--r-sm);
+        display: flex; align-items: center; gap: 8px; font-size: 11px;
+    }
+    .em-img-badge i    { color: var(--success); flex-shrink: 0; font-size: 14px; }
+    .em-img-badge span { color: var(--text-sub); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .em-img-div { width: 100%; height: 1px; background: var(--border); margin: 20px 0; }
+
+    .em-img-btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .btn-img-pick {
+        height: 40px; width: 100%;
+        border: 1.5px solid var(--brand); border-radius: var(--r-xl);
+        background: var(--brand-light); color: var(--brand);
+        font-family: var(--font); font-size: 12px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+        transition: all .16s;
+    }
+    .btn-img-pick:hover { background: var(--brand); color: #fff; }
+
+    .em-img-hints { margin-top: 16px; width: 100%; display: flex; flex-direction: column; gap: 5px; }
+    .em-img-hints span { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 6px; }
+
+    .em-fname {
+        margin-top: 12px; font-size: 11px; color: var(--text-sub);
+        display: none; align-items: center; gap: 5px; width: 100%;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .em-fname i { color: var(--brand); flex-shrink: 0; }
+
+    /* ── Delete modal ── */
+    .del-modal { border: none; border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-lg); font-family: var(--font); }
+    .del-modal-head { padding: 28px 28px 18px; text-align: center; border-bottom: 1.5px solid var(--border); }
+    .del-icon {
+        width: 56px; height: 56px; border-radius: 50%;
+        background: var(--danger-bg); color: var(--danger); font-size: 20px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 12px; border: 2px solid rgba(232,69,69,.2);
+    }
+    .del-modal-head h5 { font-size: 16px; font-weight: 700; color: var(--text); margin: 0 0 7px; }
+    .del-modal-head p  { font-size: 13px; color: var(--text-sub); margin: 0; line-height: 1.6; }
+    .del-warn { font-size: 11px; color: var(--danger); font-weight: 600; display: block; margin-top: 4px; }
+    .del-modal-foot { display: flex; justify-content: center; gap: 10px; padding: 14px 28px; background: var(--surface2); }
+    .del-cancel {
+        height: 38px; padding: 0 18px; border: 1.5px solid var(--border); border-radius: var(--r-xl);
+        background: var(--surface); color: var(--text-sub);
+        font-family: var(--font); font-size: 13px; font-weight: 600;
+        cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .18s;
+    }
+    .del-cancel:hover { border-color: var(--text-sub); color: var(--text); }
+    .del-confirm {
+        height: 38px; padding: 0 18px; border: none; border-radius: var(--r-xl);
+        background: var(--danger); color: #fff;
+        font-family: var(--font); font-size: 13px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; gap: 6px;
+        box-shadow: 0 3px 10px rgba(232,69,69,.28); transition: all .18s;
+    }
+    .del-confirm:hover { background: #cc2929; transform: translateY(-1px); }
+
+    /* ── Responsive ── */
+    @@media (max-width: 860px) {
+        .em-panels { grid-template-columns: 1fr; }
+        .em-right { border-left: none; border-top: 1.5px solid var(--border); }
+        .em-img-box { width: 160px; height: 160px; }
+        .em-grid-2 { grid-template-columns: 1fr; }
+        .em-price-summary { grid-template-columns: 1fr; }
+        .em-price-col { border-right: none; border-bottom: 1px solid var(--border); padding: 10px 0; }
+        .em-price-col:last-child { border-bottom: none; }
+    }
+    @@media (max-width: 600px) {
+        .em-page { padding: 16px 14px; }
+        .em-hero { padding: 24px 22px; gap: 14px; }
+        .em-hero-badge { width: 46px; height: 46px; font-size: 20px; border-radius: 12px; }
+        .em-left { padding: 24px 20px; }
+        .em-right { padding: 24px 20px; }
+        .em-actions { flex-direction: column; }
+        .btn-save, .btn-discard { min-width: unset; }
+    }
+</style>
+
+<div class="em-page">
+
+    <!-- Top bar -->
+    <div class="em-topbar">
+        <div class="em-topbar-left">
+            <h1>Edit Menu</h1>
+            <nav class="em-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Menu" asp-action="Index">Menu</a>
+                <span class="sep">›</span>
+                <span class="cur">Edit · @Model.MenuName</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="em-wrap">
+
+        <!-- ── Hero ── -->
+        <div class="em-hero">
+            <div class="em-hero-circle"></div>
+            <div class="em-hero-badge"><i class="bi bi-pencil-square"></i></div>
+            <div class="em-hero-text">
+                <h2>@Model.MenuName</h2>
+                <p>Edit menu item details · ID #@Model.Id</p>
+            </div>
+            <span class="em-hero-pill">
+                <i class="bi bi-pencil-fill" style="font-size:10px;"></i> Editing
+            </span>
+        </div>
+
+        <!-- ── Form area ── -->
+        <div class="em-form-area">
+            <form asp-controller="Menu" asp-action="EditMenu" method="post"
+                  enctype="multipart/form-data" class="needs-validation" novalidate
+                  id="editMenuForm">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ImageMenuUrl" id="existingImageUrl" />
+                {{--
+                This hidden field receives the computed final dollar price
+                just before submit, so your controller still gets a plain decimal value.
+                --}}
+                <input type="hidden" name="DiscountPrice" id="discountPriceHidden" />
+
+                <div class="em-panels">
+
+                    <!-- ════ LEFT ════ -->
+                    <div class="em-left">
+
+                        <div class="em-sec"><i class="bi bi-menu-button-wide-fill"></i> Menu Information</div>
+
+                        <!-- Menu name -->
+                        <div class="em-field">
+                            <label class="em-label">Menu Name <span class="req">*</span></label>
+                            <div class="em-control @(ViewData.ModelState["MenuName"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="em-prefix"><i class="bi bi-tag"></i></span>
+                                <input asp-for="MenuName" class="em-inp" placeholder="e.g. Iced Latte, Caesar Salad…" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="MenuName" class="em-val-msg"></span>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="em-field">
+                            <label class="em-label">Category <span class="req">*</span></label>
+                            <div class="em-control @(ViewData.ModelState["CategoryId"]?.Errors.Any() == true ? "err" : "")">
+                                <span class="em-prefix"><i class="bi bi-grid"></i></span>
+                                <select asp-for="CategoryId" class="em-select">
+                                    <option value="">— Select Category —</option>
+                                    @if (ViewBag.Categories != null)
+                                    {
+                                    foreach (var cat in ViewBag.Categories)
+                                    {
+                                    <option value="@cat.Id">@cat.CategoryName</option>
+                                    }
+                                    }
+                                </select>
+                            </div>
+                            <span asp-validation-for="CategoryId" class="em-val-msg"></span>
+                        </div>
+
+                        <!-- Price section -->
+                        <div class="em-sec" style="margin-top:8px;"><i class="bi bi-currency-dollar"></i> Pricing</div>
+
+                        <div class="em-grid-2">
+                            <!-- Regular price -->
+                            <div class="em-field">
+                                <label class="em-label">Regular Price <span class="req">*</span></label>
+                                <div class="em-control @(ViewData.ModelState["Price"]?.Errors.Any() == true ? "err" : "")">
+                                    <span class="em-prefix"><i class="bi bi-currency-dollar"></i></span>
+                                    <input asp-for="Price" class="em-inp" type="number" step="0.01" placeholder="0.00" id="priceInput" />
+                                </div>
+                                <span asp-validation-for="Price" class="em-val-msg"></span>
+                                <span class="em-hint"><i class="bi bi-info-circle"></i> Base selling price</span>
+                            </div>
+
+                            <!-- Discount % input -->
+                            <div class="em-field">
+                                <label class="em-label">Discount % <span class="opt">&nbsp;optional</span></label>
+                                <div class="em-control">
+                                    <span class="em-prefix"><i class="bi bi-scissors"></i></span>
+                                    <input class="em-inp" type="number" step="1" min="0" max="99"
+                                           placeholder="e.g. 30" id="discountPctInput"
+                                           value="@(Model.DiscountPrice.HasValue && Model.Price > 0
+                                           ? ((int)Math.Round((1m - Model.DiscountPrice.Value / Model.Price) * 100)).ToString()
+                                           : "")" />
+                                    <span class="em-suffix">%</span>
+                                </div>
+                                <span class="em-hint"><i class="bi bi-info-circle"></i> Enter 0 or leave blank for no discount</span>
+                            </div>
+                        </div>
+
+                        <!-- Price summary -->
+                        <div class="em-field">
+                            <div class="em-price-summary">
+
+                                <!-- Regular -->
+                                <div class="em-price-col">
+                                    <span class="em-price-col-label">Regular</span>
+                                    <span class="em-price-col-val" id="regularDisplay">$@Model.Price.ToString("F2")</span>
+                                </div>
+
+                                <!-- Discount -->
+                                <div class="em-price-col">
+                                    <span class="em-price-col-label">Discount</span>
+                                    <span class="em-price-col-val success" id="discountDisplay">
+                                        @(Model.DiscountPrice.HasValue && Model.Price > 0
+                                        ? ((int)Math.Round((1m - Model.DiscountPrice.Value / Model.Price) * 100)) + "%"
+                                        : "—")
+                                    </span>
+                                    <span class="em-chip orange" id="pctChip">
+                                        <i class="bi bi-percent" style="font-size:10px;"></i>
+                                        <span id="pctChipLabel"></span> off
+                                    </span>
+                                </div>
+
+                                <!-- Final -->
+                                <div class="em-price-col">
+                                    <span class="em-price-col-label">Final Price</span>
+                                    <span class="em-price-col-val brand" id="finalDisplay">
+                                        $@((Model.DiscountPrice ?? Model.Price).ToString("F2"))
+                                    </span>
+                                    <span class="em-chip green" id="savingsChip">
+                                        <i class="bi bi-tags-fill" style="font-size:10px;"></i>
+                                        Save <span id="savingsAmt"></span>
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Settings -->
+                        <div class="em-sec" style="margin-top:4px;"><i class="bi bi-sliders"></i> Settings</div>
+
+                        <div class="em-field">
+                            <div class="em-toggle-card">
+                                <div class="em-toggle-desc">
+                                    <h6><i class="bi bi-toggle-on"></i> Menu Visibility</h6>
+                                    <p>Enable to make this item visible and available for orders</p>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <span class="em-status-chip @(Model.Status ? "active" : "inactive")" id="statusChip">
+                                        @(Model.Status ? "Active" : "Inactive")
+                                    </span>
+                                    <div class="sw-wrap">
+                                        <input asp-for="Status" type="checkbox" id="statusSwitch" />
+                                        <label class="sw-track" for="statusSwitch"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Last updated notice -->
+                        <div class="em-notice">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Last updated: <strong id="currentDateTime">—</strong></span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="em-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="bi bi-check-circle-fill"></i> Save Changes
+                            </button>
+                            <a asp-controller="Menu" asp-action="Index" class="btn-discard">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+
+                    </div>
+                    <!-- ════ END LEFT ════ -->
+
+                    <!-- ════ RIGHT: image ════ -->
+                    <div class="em-right">
+
+                        <div class="em-img-heading">
+                            <i class="bi bi-image-fill"></i> Menu Image
+                        </div>
+
+                        <div class="em-img-box" onclick="document.getElementById('menuImageInput').click();">
+                            <img id="previewImage"
+                                 src="@Url.Content(!string.IsNullOrEmpty(Model.ImageMenuUrl) ? $"{Model.ImageMenuUrl}" : "~/no-image.png.jpg")"
+                                 alt="@Model.MenuName" />
+                            <div class="em-img-cover">
+                                <i class="bi bi-camera-fill"></i>
+                                <span>Click to change</span>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.ImageMenuUrl))
+                        {
+                        <div class="em-img-badge">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span title="@Model.ImageMenuUrl">@Model.ImageMenuUrl</span>
+                        </div>
+                        }
+
+                        <input asp-for="ImageFile" id="menuImageInput" type="file"
+                               style="display:none;" accept="image/*" onchange="previewImg(event)" />
+
+                        <div class="em-img-div"></div>
+
+                        <div class="em-img-btns">
+                            <label for="menuImageInput" class="btn-img-pick">
+                                <i class="bi bi-cloud-arrow-up-fill"></i> Change Image
+                            </label>
+                        </div>
+
+                        <div class="em-img-hints">
+                            <span><i class="bi bi-file-earmark-image"></i> JPG, PNG or GIF · Max 2 MB</span>
+                            <span><i class="bi bi-aspect-ratio"></i> Recommended 500 × 500 px</span>
+                            <span><i class="bi bi-arrow-repeat"></i> Leave blank to keep current</span>
+                        </div>
+
+                        <div class="em-fname" id="fileNameRow">
+                            <i class="bi bi-paperclip"></i>
+                            <span id="selectedFileName"></span>
+                        </div>
+
+                    </div>
+                    <!-- ════ END RIGHT ════ -->
+
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<!-- Delete modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+        <div class="modal-content del-modal">
+            <div class="del-modal-head">
+                <div class="del-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <h5>Delete Menu Item</h5>
+                <p>
+                    Are you sure you want to delete this item?
+                    <span class="del-warn">This action cannot be undone.</span>
+                </p>
+            </div>
+            <div class="del-modal-foot">
+                <button type="button" class="del-cancel" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> Cancel
+                </button>
+                <form asp-controller="Menu" asp-action="DeleteMenu" method="post" style="display:contents;">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="del-confirm">
+                        <i class="bi bi-trash3"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    /* ── Image preview ── */
+    function previewImg(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { alert('File must be under 2 MB.'); e.target.value = ''; return; }
+        if (!file.type.match('image.*'))  { alert('Please select an image file.'); e.target.value = ''; return; }
+        const r = new FileReader();
+        r.onload = ev => {
+            document.getElementById('previewImage').src = ev.target.result;
+            document.getElementById('existingImageUrl').value = '';
+            document.getElementById('selectedFileName').textContent = file.name;
+            document.getElementById('fileNameRow').style.display = 'flex';
+        };
+        r.readAsDataURL(file);
+    }
+
+    /* ── Price summary ── */
+    function updatePrices() {
+        const price   = parseFloat(document.getElementById('priceInput').value) || 0;
+        const pct     = Math.min(Math.max(parseFloat(document.getElementById('discountPctInput').value) || 0, 0), 99);
+        const savings = parseFloat((price * pct / 100).toFixed(2));
+        const final   = parseFloat((price - savings).toFixed(2));
+
+        document.getElementById('regularDisplay').textContent  = '$' + price.toFixed(2);
+        document.getElementById('discountDisplay').textContent = pct > 0 ? pct + '%' : '—';
+        document.getElementById('finalDisplay').textContent    = '$' + final.toFixed(2);
+
+        const pctChip     = document.getElementById('pctChip');
+        const savingsChip = document.getElementById('savingsChip');
+
+        if (pct > 0 && price > 0) {
+            pctChip.style.display     = 'flex';
+            savingsChip.style.display = 'flex';
+            document.getElementById('pctChipLabel').textContent = pct + '%';
+            document.getElementById('savingsAmt').textContent   = '$' + savings.toFixed(2);
+        } else {
+            pctChip.style.display     = 'none';
+            savingsChip.style.display = 'none';
+        }
+}
+
+    /* ── Before submit: write the computed final dollar price into the hidden field ── */
+    document.getElementById('editMenuForm').addEventListener('submit', function () {
+        const price = parseFloat(document.getElementById('priceInput').value) || 0;
+        const pct   = Math.min(Math.max(parseFloat(document.getElementById('discountPctInput').value) || 0, 0), 99);
+        if (pct > 0 && price > 0) {
+            const final = parseFloat((price - price * pct / 100).toFixed(2));
+            document.getElementById('discountPriceHidden').value = final;
+        } else {
+            document.getElementById('discountPriceHidden').value = '';
+        }
+});
+
+    /* ── Status chip ── */
+    function updateChip(checked) {
+        const chip = document.getElementById('statusChip');
+        chip.textContent = checked ? 'Active' : 'Inactive';
+        chip.className   = 'em-status-chip ' + (checked ? 'active' : 'inactive');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        /* Price inputs */
+        document.getElementById('priceInput').addEventListener('input', updatePrices);
+        document.getElementById('discountPctInput').addEventListener('input', updatePrices);
+        updatePrices();
+
+        /* Status toggle */
+        const sw = document.getElementById('statusSwitch');
+        if (sw) { updateChip(sw.checked); sw.addEventListener('change', () => updateChip(sw.checked)); }
+
+        /* Date notice */
+        const el = document.getElementById('currentDateTime');
+        if (el) {
+            const now = new Date();
+            el.textContent = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        }
+
+        /* Validation */
+        document.querySelectorAll('.needs-validation').forEach(form => {
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+<partial name="_ValidationScriptsPartial" />
+}

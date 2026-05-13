@@ -1,0 +1,546 @@
+﻿@model Sandoohouse.Models.Brand
+@{
+    ViewData["Title"] = Model.BrandName + " — Details";
+    int totalMenus = Model.Categories?.Sum(c => c.Menus?.Count ?? 0) ?? 0;
+    int activeMenus = Model.Categories?.Sum(c => c.Menus?.Count(m => m.Status) ?? 0) ?? 0;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+:root {
+    --brand:        #FF6B35;
+    --brand-dark:   #E85520;
+    --brand-light:  #FFF0EA;
+    --brand-mid:    rgba(255,107,53,.13);
+    --accent:       #1C2340;
+    --success:      #00B894;
+    --success-bg:   rgba(0,184,148,.1);
+    --warning:      #F0A500;
+    --warning-bg:   rgba(240,165,0,.1);
+    --danger:       #E84545;
+    --danger-bg:    rgba(232,69,69,.1);
+    --bg:           #F2EFE9;
+    --surface:      #FFFFFF;
+    --surface2:     #FAF8F5;
+    --surface3:     #F4F1EC;
+    --border:       #EAE5DC;
+    --border-s:     #D8D2C8;
+    --text:         #18150F;
+    --text-sub:     #6E685F;
+    --text-light:   #AEA89F;
+    --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+    --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+    --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+    --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+    --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+    --r-xs: 6px; --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+    --font: 'Sora', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.bd-page {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+    padding: 28px 24px;
+    color: var(--text);
+}
+
+/* ── Topbar ── */
+.bd-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 26px; flex-wrap: wrap; gap: 12px;
+    max-width: 960px; margin-left: auto; margin-right: auto;
+}
+.bd-topbar-left h1 { font-size: 20px; font-weight: 700; color: var(--text); margin: 0 0 5px; letter-spacing: -.4px; }
+.bd-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; margin: 0; padding: 0; list-style: none;
+}
+.bd-breadcrumb a { color: var(--text-light); text-decoration: none; transition: color .14s; }
+.bd-breadcrumb a:hover { color: var(--brand); }
+.bd-breadcrumb .sep { color: var(--border-s); }
+.bd-breadcrumb .cur { color: var(--text-sub); font-weight: 600; }
+
+.btn-back {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 38px; padding: 0 18px;
+    border: 1.5px solid var(--border); border-radius: var(--r-xl);
+    background: var(--surface); color: var(--text-sub);
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all .16s;
+}
+.btn-back:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); text-decoration: none; }
+
+/* ── Wrapper ── */
+.bd-wrap { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Hero card ── */
+.bd-hero {
+    background: var(--accent);
+    border-radius: var(--r-lg);
+    padding: 32px 36px;
+    display: flex; align-items: center; gap: 24px;
+    position: relative; overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+.bd-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+}
+.bd-hero::after {
+    content: ''; position: absolute; width: 300px; height: 300px; border-radius: 50%;
+    background: rgba(255,107,53,.07); top: -110px; right: -70px; pointer-events: none;
+}
+.bd-hero-circle {
+    position: absolute; width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,.03); bottom: -80px; left: 200px; pointer-events: none;
+}
+
+/* Brand logo in hero */
+.bd-logo-wrap {
+    width: 80px; height: 80px; border-radius: var(--r-md);
+    overflow: hidden; flex-shrink: 0; z-index: 1;
+    border: 2px solid rgba(255,255,255,.15);
+    background: rgba(255,255,255,.08);
+    box-shadow: var(--shadow-md);
+}
+.bd-logo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bd-logo-placeholder {
+    width: 80px; height: 80px; border-radius: var(--r-md); flex-shrink: 0; z-index: 1;
+    background: var(--brand); border: 2px solid rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; color: #fff; box-shadow: var(--shadow-brand);
+}
+
+.bd-hero-info { z-index: 1; flex: 1; min-width: 0; }
+.bd-hero-info h2 {
+    font-size: 24px; font-weight: 800; color: #fff;
+    margin: 0 0 6px; letter-spacing: -.4px; line-height: 1.2;
+}
+.bd-hero-info p { font-size: 12px; color: rgba(255,255,255,.5); margin: 0 0 12px; font-weight: 500; }
+
+.bd-hero-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+.bd-meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.12);
+}
+.bd-meta-chip i { font-size: 10px; }
+.bd-meta-chip.active { background: var(--success-bg); color: var(--success); border-color: rgba(0,184,148,.25); }
+.bd-meta-chip.inactive { background: rgba(255,255,255,.06); color: rgba(255,255,255,.4); }
+
+/* Hero action buttons */
+.bd-hero-actions { display: flex; flex-direction: column; gap: 8px; z-index: 1; flex-shrink: 0; }
+.btn-edit-hero {
+    height: 38px; padding: 0 18px;
+    background: var(--brand); color: #fff;
+    border: none; border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 12px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    text-decoration: none; box-shadow: var(--shadow-brand); transition: all .16s;
+    white-space: nowrap;
+}
+.btn-edit-hero:hover { background: var(--brand-dark); color: #fff; transform: translateY(-1px); text-decoration: none; }
+
+/* ── KPI strip ── */
+.bd-kpi-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.bd-kpi {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--r-md); padding: 18px 20px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow-xs); transition: all .2s;
+    position: relative; overflow: hidden;
+}
+.bd-kpi::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    height: 3px; width: 100%;
+    background: var(--kc, var(--brand));
+    transform: scaleX(0); transform-origin: left; transition: transform .3s;
+}
+.bd-kpi:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.bd-kpi:hover::after { transform: scaleX(1); }
+
+.bd-kpi-icon {
+    width: 42px; height: 42px; border-radius: var(--r-sm);
+    background: var(--ki, var(--brand-light)); color: var(--kc, var(--brand));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+}
+.bd-kpi-text { min-width: 0; }
+.bd-kpi-label { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .06em; }
+.bd-kpi-val   { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -.4px; line-height: 1; margin-top: 3px; }
+.kpi-brand  { --kc: var(--brand);   --ki: var(--brand-light); }
+.kpi-green  { --kc: var(--success); --ki: var(--success-bg); }
+.kpi-accent { --kc: var(--accent);  --ki: rgba(28,35,64,.08); }
+
+/* ── Main content ── */
+.bd-content {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+/* Content header */
+.bd-content-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; border-bottom: 1.5px solid var(--border);
+    background: var(--surface2);
+}
+.bd-content-title { display: flex; align-items: center; gap: 10px; }
+.bd-title-bar { width: 4px; height: 20px; background: var(--brand); border-radius: 4px; }
+.bd-content-title h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 0; }
+.bd-content-title small { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.bd-count-pill {
+    font-size: 11px; font-weight: 700; color: var(--brand);
+    background: var(--brand-light); padding: 3px 10px; border-radius: 20px;
+}
+
+/* ── Empty state ── */
+.bd-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 64px 24px; gap: 12px;
+}
+.bd-empty-icon {
+    width: 60px; height: 60px; border-radius: var(--r-md);
+    background: var(--surface2); color: var(--text-light);
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
+}
+.bd-empty strong { font-size: 15px; color: var(--text-sub); }
+.bd-empty p { font-size: 13px; color: var(--text-light); text-align: center; margin: 0; max-width: 280px; }
+
+/* ── Category block ── */
+.bd-category {
+    border-bottom: 1.5px solid var(--border);
+}
+.bd-category:last-child { border-bottom: none; }
+
+.bd-cat-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px;
+    background: var(--surface2);
+    cursor: pointer; transition: background .14s;
+    user-select: none;
+}
+.bd-cat-head:hover { background: var(--brand-light); }
+
+.bd-cat-head-left { display: flex; align-items: center; gap: 12px; }
+.bd-cat-icon {
+    width: 36px; height: 36px; border-radius: var(--r-sm);
+    background: var(--brand-light); color: var(--brand);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+}
+.bd-cat-name  { font-size: 14px; font-weight: 700; color: var(--text); }
+.bd-cat-count { font-size: 11px; color: var(--text-light); font-weight: 500; margin-top: 1px; }
+
+.bd-cat-caret {
+    font-size: 12px; color: var(--text-light);
+    transition: transform .22s; flex-shrink: 0;
+}
+.bd-category.open .bd-cat-caret { transform: rotate(90deg); }
+
+/* ── Menu items grid ── */
+.bd-menu-grid {
+    display: none;
+    padding: 20px 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+}
+.bd-category:not(.open) .bd-menu-grid { display: none; }
+.bd-category.open .bd-menu-grid { display: grid; }
+
+/* Menu item card */
+.bd-menu-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--r-md); overflow: hidden;
+    transition: all .2s; position: relative;
+}
+.bd-menu-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border-s); }
+
+.bd-menu-img {
+    width: 100%; height: 130px; overflow: hidden;
+    background: var(--surface3);
+    display: flex; align-items: center; justify-content: center;
+}
+.bd-menu-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+.bd-menu-card:hover .bd-menu-img img { transform: scale(1.04); }
+.bd-menu-img-placeholder { font-size: 32px; color: var(--text-light); }
+
+.bd-menu-body { padding: 14px 16px; }
+.bd-menu-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+
+.bd-menu-price-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.bd-price-final { font-size: 16px; font-weight: 800; color: var(--brand); letter-spacing: -.3px; }
+.bd-price-original {
+    font-size: 11px; font-weight: 500; color: var(--text-light);
+    text-decoration: line-through;
+}
+.bd-price-save {
+    font-size: 10px; font-weight: 700;
+    background: var(--success-bg); color: var(--success);
+    padding: 2px 7px; border-radius: 20px; margin-left: auto;
+}
+
+.bd-menu-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-top: 1px solid var(--border);
+    background: var(--surface2);
+}
+.bd-menu-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+}
+.bd-menu-status.active   { background: var(--success-bg); color: var(--success); }
+.bd-menu-status.inactive { background: var(--surface2); color: var(--text-light); border: 1px solid var(--border); }
+
+/* ── No menus in category ── */
+.bd-cat-empty {
+    padding: 28px; text-align: center;
+    font-size: 13px; color: var(--text-light); font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.bd-cat-empty i { font-size: 16px; }
+
+/* ── Responsive ── */
+@@media (max-width: 760px) {
+    .bd-kpi-strip { grid-template-columns: 1fr 1fr; }
+    .bd-hero { flex-direction: column; align-items: flex-start; padding: 24px 22px; gap: 16px; }
+    .bd-hero-actions { flex-direction: row; }
+    .bd-menu-grid { grid-template-columns: 1fr 1fr; padding: 14px 18px; }
+    .bd-cat-head { padding: 14px 18px; }
+    .bd-content-head { padding: 14px 18px; }
+}
+@@media (max-width: 500px) {
+    .bd-page { padding: 14px 12px; }
+    .bd-kpi-strip { grid-template-columns: 1fr; }
+    .bd-menu-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="bd-page">
+
+    <!-- Topbar -->
+    <div class="bd-topbar">
+        <div class="bd-topbar-left">
+            <h1>Brand Details</h1>
+            <nav class="bd-breadcrumb">
+                <a asp-controller="Home"  asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <a asp-controller="Brand" asp-action="Index">Brand</a>
+                <span class="sep">›</span>
+                <span class="cur">@Model.BrandName</span>
+            </nav>
+        </div>
+        <a asp-controller="Brand" asp-action="Index" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="bd-wrap">
+
+        <!-- ── Hero ── -->
+        <div class="bd-hero">
+            <div class="bd-hero-circle"></div>
+
+            @if (!string.IsNullOrEmpty(Model.LogoBrandUrl))
+            {
+                <div class="bd-logo-wrap">
+                    <img src="@Model.LogoBrandUrl" alt="@Model.BrandName" />
+                </div>
+            }
+            else
+            {
+                <div class="bd-logo-placeholder"><i class="bi bi-building"></i></div>
+            }
+
+            <div class="bd-hero-info">
+                <h2>@Model.BrandName</h2>
+                <p>
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    { @Model.Description }
+                    else
+                    { <text>No description provided</text> }
+                </p>
+                <div class="bd-hero-meta">
+                    <span class="bd-meta-chip @(Model.Status ? "active" : "inactive")">
+                        <i class="bi bi-circle-fill" style="font-size:7px;"></i>
+                        @(Model.Status ? "Active" : "Inactive")
+                    </span>
+                    <span class="bd-meta-chip">
+                        <i class="bi bi-calendar-check"></i>
+                        Created @Model.CreatedAt.ToString("MMM dd, yyyy")
+                    </span>
+                    <span class="bd-meta-chip">
+                        <i class="bi bi-tag"></i>
+                        ID #@Model.Id
+                    </span>
+                </div>
+            </div>
+
+            <div class="bd-hero-actions">
+                <a asp-controller="Brand" asp-action="EditBrand" asp-route-id="@Model.Id"
+                   class="btn-edit-hero">
+                    <i class="bi bi-pencil-fill"></i> Edit Brand
+                </a>
+            </div>
+        </div>
+
+        <!-- ── KPI strip ── -->
+        <div class="bd-kpi-strip">
+            <div class="bd-kpi kpi-brand">
+                <div class="bd-kpi-icon"><i class="bi bi-layers"></i></div>
+                <div class="bd-kpi-text">
+                    <div class="bd-kpi-label">Categories</div>
+                    <div class="bd-kpi-val">@(Model.Categories?.Count ?? 0)</div>
+                </div>
+            </div>
+            <div class="bd-kpi kpi-green">
+                <div class="bd-kpi-icon"><i class="bi bi-grid"></i></div>
+                <div class="bd-kpi-text">
+                    <div class="bd-kpi-label">Total Menu Items</div>
+                    <div class="bd-kpi-val">@totalMenus</div>
+                </div>
+            </div>
+            <div class="bd-kpi kpi-accent">
+                <div class="bd-kpi-icon"><i class="bi bi-check-circle"></i></div>
+                <div class="bd-kpi-text">
+                    <div class="bd-kpi-label">Active Items</div>
+                    <div class="bd-kpi-val">@activeMenus</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Categories & menus ── -->
+        <div class="bd-content">
+
+            <div class="bd-content-head">
+                <div class="bd-content-title">
+                    <span class="bd-title-bar"></span>
+                    <div>
+                        <h3>Categories & Menu Items</h3>
+                        <small>All categories under this brand</small>
+                    </div>
+                </div>
+                <span class="bd-count-pill">@(Model.Categories?.Count ?? 0) categories</span>
+            </div>
+
+            @if (Model.Categories == null || !Model.Categories.Any())
+            {
+                <div class="bd-empty">
+                    <div class="bd-empty-icon"><i class="bi bi-folder-x"></i></div>
+                    <strong>No categories yet</strong>
+                    <p>This brand doesn't have any categories assigned to it yet.</p>
+                </div>
+            }
+            else
+            {
+                int catIndex = 0;
+                foreach (var category in Model.Categories)
+                {
+                    int menuCount = category.Menus?.Count ?? 0;
+                    <div class="bd-category @(catIndex == 0 ? "open" : "")" id="cat-@category.Id">
+                        <div class="bd-cat-head" onclick="toggleCat('cat-@category.Id')">
+                            <div class="bd-cat-head-left">
+                                <div class="bd-cat-icon"><i class="bi bi-folder2-open"></i></div>
+                                <div>
+                                    <div class="bd-cat-name">@category.CategoryName</div>
+                                    <div class="bd-cat-count">@menuCount menu item@(menuCount == 1 ? "" : "s")</div>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right bd-cat-caret"></i>
+                        </div>
+
+                        @if (menuCount == 0)
+                        {
+                            <div class="bd-cat-empty" style="display:none;" id="cat-empty-@category.Id">
+                                <i class="bi bi-inbox"></i> No menu items in this category
+                            </div>
+                        }
+
+                        <div class="bd-menu-grid">
+                            @if (menuCount == 0)
+                            {
+                                <div style="grid-column:1/-1;">
+                                    <div class="bd-cat-empty">
+                                        <i class="bi bi-inbox"></i> No menu items in this category
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                foreach (var menu in category.Menus!)
+                                {
+                                    decimal finalPrice = menu.DiscountPrice ?? menu.Price;
+                                    bool hasDiscount   = menu.DiscountPrice.HasValue && menu.DiscountPrice < menu.Price;
+                                    decimal savings    = menu.Price - finalPrice;
+
+                                    <div class="bd-menu-card">
+                                        <div class="bd-menu-img">
+                                            @if (!string.IsNullOrEmpty(menu.ImageMenuUrl))
+                                            {
+                                                <img src="@Url.Content($"~/Menu/{menu.ImageMenuUrl}")" alt="@menu.MenuName" />
+                                            }
+                                            else
+                                            {
+                                                <span class="bd-menu-img-placeholder"><i class="bi bi-image"></i></span>
+                                            }
+                                        </div>
+                                        <div class="bd-menu-body">
+                                            <div class="bd-menu-name">@menu.MenuName</div>
+                                            <div class="bd-menu-price-row">
+                                                <span class="bd-price-final">$@finalPrice.ToString("F2")</span>
+                                                @if (hasDiscount)
+                                                {
+                                                    <span class="bd-price-original">$@menu.Price.ToString("F2")</span>
+                                                    <span class="bd-price-save">-$@savings.ToString("F2")</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="bd-menu-foot">
+                                            <span class="bd-menu-status @(menu.Status ? "active" : "inactive")">
+                                                <i class="bi bi-circle-fill" style="font-size:6px;"></i>
+                                                @(menu.Status ? "Active" : "Inactive")
+                                            </span>
+                                            <span style="font-size:11px;color:var(--text-light);">ID #@menu.Id</span>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    catIndex++;
+                }
+            }
+
+        </div><!-- /.bd-content -->
+
+    </div><!-- /.bd-wrap -->
+
+</div><!-- /.bd-page -->
+
+<script>
+function toggleCat(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('open');
+}
+
+/* Open first category by default on page load (already done via class in razor) */
+</script>

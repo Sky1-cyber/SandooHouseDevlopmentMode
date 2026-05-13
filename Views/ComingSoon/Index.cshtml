@@ -1,0 +1,397 @@
+﻿@{
+    ViewData["Title"] = "Coming Soon";
+    var launchDate = new DateTime(2026, 4, 21);
+    var daysLeft   = Math.Max(0, (int)(launchDate - DateTime.Now).TotalDays);
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+:root {
+    --brand:        #FF6B35;
+    --brand-dark:   #E85520;
+    --brand-light:  #FFF0EA;
+    --brand-mid:    rgba(255,107,53,.13);
+    --accent:       #1C2340;
+    --success:      #00B894;
+    --success-bg:   rgba(0,184,148,.1);
+    --warning:      #F0A500;
+    --danger:       #E84545;
+    --bg:           #F2EFE9;
+    --surface:      #FFFFFF;
+    --surface2:     #FAF8F5;
+    --surface3:     #F4F1EC;
+    --border:       #EAE5DC;
+    --border-s:     #D8D2C8;
+    --text:         #18150F;
+    --text-sub:     #6E685F;
+    --text-light:   #AEA89F;
+    --shadow-xs:    0 1px 3px rgba(24,21,15,.05);
+    --shadow-sm:    0 2px 8px rgba(24,21,15,.07);
+    --shadow-md:    0 6px 24px rgba(24,21,15,.10);
+    --shadow-lg:    0 16px 48px rgba(24,21,15,.14);
+    --shadow-brand: 0 6px 20px rgba(255,107,53,.32);
+    --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+    --font: 'Sora', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.cs-page {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image: radial-gradient(circle, #D8D2C8 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px;
+    color: var(--text);
+}
+
+.cs-wrap {
+    width: 100%; max-width: 760px;
+    display: flex; flex-direction: column; align-items: center; gap: 32px;
+}
+
+/* ── Logo / brand mark ── */
+.cs-logo {
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none;
+}
+.cs-logo-mark {
+    width: 48px; height: 48px; border-radius: var(--r-sm);
+    background: var(--brand); color: #fff; font-size: 22px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-brand);
+    animation: cs-pulse 3s ease-in-out infinite;
+}
+.cs-logo-text {
+    font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -.4px;
+}
+.cs-logo-text span { color: var(--brand); }
+
+@@keyframes cs-pulse {
+    0%, 100% { box-shadow: var(--shadow-brand); transform: scale(1); }
+    50%       { box-shadow: 0 8px 28px rgba(255,107,53,.5); transform: scale(1.04); }
+}
+
+/* ── Hero card ── */
+.cs-card {
+    width: 100%;
+    background: var(--accent);
+    border-radius: var(--r-lg);
+    padding: 56px 48px;
+    text-align: center;
+    position: relative; overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+.cs-card-orb1 { position: absolute; width: 360px; height: 360px; border-radius: 50%; background: rgba(255,107,53,.06); top: -140px; right: -100px; pointer-events: none; }
+.cs-card-orb2 { position: absolute; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.03); bottom: -80px; left: -60px; pointer-events: none; }
+.cs-card::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 22px 22px; pointer-events: none;
+}
+
+.cs-card-inner { position: relative; z-index: 1; }
+
+/* Countdown pill */
+.cs-countdown-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; border-radius: 20px;
+    background: var(--brand-mid); color: var(--brand);
+    border: 1px solid rgba(255,107,53,.25);
+    font-size: 12px; font-weight: 700;
+    margin-bottom: 24px;
+    animation: cs-fadein .6s ease both;
+}
+
+/* Headline */
+.cs-headline {
+    font-size: clamp(32px, 6vw, 52px); font-weight: 800; color: #fff;
+    letter-spacing: -.8px; line-height: 1.1; margin-bottom: 16px;
+    animation: cs-fadein .6s .1s ease both;
+}
+.cs-headline span { color: var(--brand); }
+
+.cs-sub {
+    font-size: 15px; color: rgba(255,255,255,.5); font-weight: 400;
+    line-height: 1.7; max-width: 480px; margin: 0 auto 40px;
+    animation: cs-fadein .6s .2s ease both;
+}
+
+/* ── Countdown timer ── */
+.cs-timer {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-bottom: 44px;
+    animation: cs-fadein .6s .3s ease both;
+}
+.cs-unit {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+    border-radius: var(--r-md); padding: 16px 20px; min-width: 80px;
+}
+.cs-unit-num {
+    font-size: 36px; font-weight: 800; color: #fff; letter-spacing: -.8px;
+    line-height: 1; font-variant-numeric: tabular-nums;
+}
+.cs-unit-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .1em; margin-top: 6px; }
+.cs-timer-sep { font-size: 28px; font-weight: 700; color: var(--brand); line-height: 1; margin-bottom: 18px; }
+
+/* ── Notify form ── */
+.cs-notify {
+    display: flex; align-items: center; gap: 8px; max-width: 440px; margin: 0 auto;
+    animation: cs-fadein .6s .4s ease both;
+}
+.cs-notify-input {
+    flex: 1; height: 46px; padding: 0 16px;
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.15); border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 13px; color: #fff; outline: none;
+    transition: border-color .15s, background .15s;
+}
+.cs-notify-input::placeholder { color: rgba(255,255,255,.35); }
+.cs-notify-input:focus { border-color: var(--brand); background: rgba(255,107,53,.08); }
+.cs-notify-btn {
+    height: 46px; padding: 0 22px; flex-shrink: 0;
+    background: var(--brand); color: #fff; border: none; border-radius: var(--r-xl);
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; gap: 7px;
+    box-shadow: var(--shadow-brand); transition: all .18s; white-space: nowrap;
+}
+.cs-notify-btn:hover { background: var(--brand-dark); transform: translateY(-1px); }
+.cs-notify-btn:active { transform: translateY(0); }
+
+.cs-notify-success {
+    display: none; align-items: center; gap: 8px; justify-content: center;
+    padding: 12px 20px; border-radius: var(--r-xl);
+    background: var(--success-bg); border: 1px solid rgba(0,184,148,.25);
+    font-size: 13px; font-weight: 600; color: var(--success);
+    animation: cs-fadein .3s ease;
+}
+
+/* ── Feature pills ── */
+.cs-features {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; flex-wrap: wrap;
+    animation: cs-fadein .6s .5s ease both;
+}
+.cs-feat-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px;
+    background: rgba(255,255,255,.06); color: rgba(255,255,255,.6);
+    border: 1px solid rgba(255,255,255,.1);
+    font-size: 12px; font-weight: 600;
+}
+.cs-feat-pill i { color: var(--brand); font-size: 11px; }
+
+/* ── Bottom info cards ── */
+.cs-bottom {
+    width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    animation: cs-fadein .6s .6s ease both;
+}
+.cs-info-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--r-md); padding: 22px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center;
+    transition: all .2s; position: relative; overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+.cs-info-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    height: 3px; width: 100%;
+    background: var(--brand);
+    transform: scaleX(0); transform-origin: left; transition: transform .3s;
+}
+.cs-info-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.cs-info-card:hover::after { transform: scaleX(1); }
+
+.cs-info-icon {
+    width: 44px; height: 44px; border-radius: var(--r-sm);
+    background: var(--brand-light); color: var(--brand);
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.cs-info-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.cs-info-desc  { font-size: 12px; color: var(--text-light); line-height: 1.6; }
+
+/* ── Footer ── */
+.cs-footer {
+    font-size: 12px; color: var(--text-light); text-align: center;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center;
+    animation: cs-fadein .6s .7s ease both;
+}
+.cs-footer a { color: var(--text-sub); text-decoration: none; transition: color .14s; }
+.cs-footer a:hover { color: var(--brand); }
+.cs-footer-sep { color: var(--border-s); }
+
+/* ── Animations ── */
+@@keyframes cs-fadein {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@@media (max-width: 600px) {
+    .cs-card { padding: 40px 24px; }
+    .cs-unit { padding: 12px 14px; min-width: 64px; }
+    .cs-unit-num { font-size: 28px; }
+    .cs-timer-sep { font-size: 22px; }
+    .cs-notify { flex-direction: column; }
+    .cs-notify-input, .cs-notify-btn { width: 100%; justify-content: center; }
+    .cs-bottom { grid-template-columns: 1fr; }
+}
+@@media (max-width: 400px) {
+    .cs-timer { gap: 4px; }
+    .cs-timer-sep { display: none; }
+}
+</style>
+
+<div class="cs-page">
+    <div class="cs-wrap">
+
+        <!-- Hero card -->
+        <div class="cs-card">
+            <div class="cs-card-orb1"></div>
+            <div class="cs-card-orb2"></div>
+
+            <div class="cs-card-inner">
+
+                <!-- Pill -->
+                <div class="cs-countdown-pill">
+                    <i class="bi bi-rocket-takeoff-fill" style="font-size:12px;"></i>
+                    @daysLeft days to launch
+                </div>
+
+                <!-- Headline -->
+                <h1 class="cs-headline">Something <span>delicious</span><br>is coming</h1>
+                <p class="cs-sub">
+                    We're cooking up something great. Our new feature will be ready soon —
+                    sign up to be the first to know when we go live.
+                </p>
+
+                <!-- Countdown timer -->
+                <div class="cs-timer" id="countdown">
+                    <div class="cs-unit">
+                        <div class="cs-unit-num" id="cd-days">--</div>
+                        <div class="cs-unit-label">Days</div>
+                    </div>
+                    <span class="cs-timer-sep">:</span>
+                    <div class="cs-unit">
+                        <div class="cs-unit-num" id="cd-hours">--</div>
+                        <div class="cs-unit-label">Hours</div>
+                    </div>
+                    <span class="cs-timer-sep">:</span>
+                    <div class="cs-unit">
+                        <div class="cs-unit-num" id="cd-mins">--</div>
+                        <div class="cs-unit-label">Minutes</div>
+                    </div>
+                    <span class="cs-timer-sep">:</span>
+                    <div class="cs-unit">
+                        <div class="cs-unit-num" id="cd-secs">--</div>
+                        <div class="cs-unit-label">Seconds</div>
+                    </div>
+                </div>
+
+                <!-- Notify form -->
+                <div class="cs-notify" id="notifyForm">
+                    <input type="email" class="cs-notify-input" id="notifyEmail"
+                           placeholder="Enter your email address…" />
+                    <button type="button" class="cs-notify-btn" onclick="submitNotify()">
+                        <i class="bi bi-bell-fill" style="font-size:12px;"></i> Notify me
+                    </button>
+                </div>
+                <div class="cs-notify-success" id="notifySuccess">
+                    <i class="bi bi-check-circle-fill" style="font-size:14px;"></i>
+                    You're on the list! We'll notify you at launch.
+                </div>
+
+                <!-- Feature pills -->
+                <div class="cs-features" style="margin-top:28px;">
+                    <span class="cs-feat-pill"><i class="bi bi-lightning-charge-fill"></i> Faster ordering</span>
+                    <span class="cs-feat-pill"><i class="bi bi-grid-fill"></i> New menu explorer</span>
+                    <span class="cs-feat-pill"><i class="bi bi-phone-fill"></i> Mobile-first</span>
+                    <span class="cs-feat-pill"><i class="bi bi-shield-check-fill"></i> Secure checkout</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Info cards -->
+        <div class="cs-bottom">
+            <div class="cs-info-card">
+                <div class="cs-info-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="cs-info-title">Real-time updates</div>
+                <div class="cs-info-desc">Live menu availability and instant order tracking.</div>
+            </div>
+            <div class="cs-info-card">
+                <div class="cs-info-icon"><i class="bi bi-star-fill"></i></div>
+                <div class="cs-info-title">Curated selections</div>
+                <div class="cs-info-desc">Hand-picked categories from the best restaurant brands.</div>
+            </div>
+            <div class="cs-info-card">
+                <div class="cs-info-icon"><i class="bi bi-people-fill"></i></div>
+                <div class="cs-info-title">Multi-brand support</div>
+                <div class="cs-info-desc">Browse and order across multiple brands in one place.</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="cs-footer">
+            <span>© @DateTime.Now.Year Sandoohouse</span>
+            <span class="cs-footer-sep">·</span>
+            <a asp-controller="Home" asp-action="Index">Home</a>
+            <span class="cs-footer-sep">·</span>
+            <a asp-controller="Brand" asp-action="Index">Brands</a>
+            <span class="cs-footer-sep">·</span>
+            <a asp-controller="Menu" asp-action="Index">Menu</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+/* ── Countdown ── */
+(function () {
+    var launch = new Date('@launchDate.ToString("yyyy-MM-dd")T00:00:00');
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+        var now  = new Date();
+        var diff = Math.max(0, launch - now);
+        var secs  = Math.floor(diff / 1000);
+        var mins  = Math.floor(secs  / 60);
+        var hours = Math.floor(mins  / 60);
+        var days  = Math.floor(hours / 24);
+
+        document.getElementById('cd-days').textContent  = pad(days);
+        document.getElementById('cd-hours').textContent = pad(hours % 24);
+        document.getElementById('cd-mins').textContent  = pad(mins  % 60);
+        document.getElementById('cd-secs').textContent  = pad(secs  % 60);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+})();
+
+/* ── Notify form ── */
+function submitNotify() {
+    var input = document.getElementById('notifyEmail');
+    var val   = input.value.trim();
+    var re    = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+
+    if (!re.test(val)) {
+        input.style.borderColor = '#E84545';
+        input.focus();
+        setTimeout(function () { input.style.borderColor = ''; }, 1800);
+        return;
+    }
+
+    document.getElementById('notifyForm').style.display    = 'none';
+    document.getElementById('notifySuccess').style.display = 'flex';
+}
+</script>

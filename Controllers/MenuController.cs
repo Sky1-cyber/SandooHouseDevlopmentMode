@@ -1,0 +1,235 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Sandoohouse.ApplicationProgram;
+using Sandoohouse.Helpers;
+using Sandoohouse.Models;
+using Sandoohouse.Models.ModelViewer.MenuModelViewer;
+using Sandoohouse.Service;
+
+namespace Sandoohouse.Controllers;
+
+public class MenuController : Controller
+{
+    private readonly ApplicationDbContext _applicationDbContext;
+    private readonly CloudinaryService _cloudinaryService;
+    public MenuController(ApplicationDbContext applicationDbContext, CloudinaryService cloudinaryService)
+    {
+        _applicationDbContext = applicationDbContext;
+        _cloudinaryService = cloudinaryService;
+    }
+    
+    // GET
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> Index()
+    {
+        var menus = await _applicationDbContext.Menus
+            .Include(m => m.Category)
+            .Select(m => new MenuViewerModel
+            {
+                Id = m.Id,
+                MenuName = m.MenuName,
+                Price = m.Price,
+                DiscountPrice = m.DiscountPrice,
+                Status = m.Status,
+                CategoryId = m.CategoryId,
+                CategoryName = m.Category != null ? m.Category.CategoryName : "No Category",
+                ImageMenuUrl = m.ImageMenuUrl
+            })
+            .ToListAsync();
+        
+        return View(menus);
+    }
+    
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> CreateMenu()
+    {
+        var categories = await _applicationDbContext.Categories
+            .Where(c => c.Status)
+            .ToListAsync();
+        ViewBag.Categories = categories;
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> CreateMenu(MenuViewerModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Categories = await _applicationDbContext.Categories
+                .Where(c => c.Status)
+                .ToListAsync();
+            return View(model);
+        }
+
+        var existingMenu = await _applicationDbContext.Menus
+            .AnyAsync(m => m.MenuName == model.MenuName);
+
+        if (existingMenu)
+        {
+            ModelState.AddModelError("MenuName", "Menu name already exists.");
+            ViewBag.Categories = await _applicationDbContext.Categories
+                .Where(c => c.Status)
+                .ToListAsync();
+            return View(model);
+        }
+
+        // Upload image to Cloudinary
+        string? imageUrl = null;
+        if (model.ImageFile != null)
+        {
+            imageUrl = await _cloudinaryService.UploadImageAsync(
+                model.ImageFile,
+                folder: "Menu"
+            );
+        }
+
+        var adminId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+
+        var menu = new Menu
+        {
+            MenuName      = model.MenuName,
+            Price         = model.Price,
+            DiscountPrice = model.DiscountPrice,
+            Status        = model.Status,
+            CategoryId    = model.CategoryId,
+            ImageMenuUrl  = imageUrl,
+            CreatedBy     = adminId
+        };
+
+        _applicationDbContext.Menus.Add(menu);
+        await _applicationDbContext.SaveChangesAsync();
+
+        return RedirectToAction("Index", "Menu");
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> ViewMenu(int? id)
+    {
+        if (id == null || id <= 0)
+            return NotFound();
+        var menu = await _applicationDbContext.Menus
+            .Include(m => m.Category)
+            .ThenInclude(c => c.Brand)
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (menu == null)
+            return NotFound();
+        
+        return View(menu);
+    }
+    
+    [HttpGet]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> EditMenu(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var menu = await _applicationDbContext.Menus
+            .Include(m => m.Category)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (menu == null)
+            return NotFound();
+
+        var modelMenu = new MenuViewerModel
+        {
+            Id = menu.Id,
+            MenuName = menu.MenuName,
+            Price = menu.Price,
+            DiscountPrice = menu.DiscountPrice,
+            Status = menu.Status,
+            CategoryId = menu.CategoryId,
+            CategoryName = menu.Category?.CategoryName,
+            ImageMenuUrl = menu.ImageMenuUrl
+        };
+
+        ViewBag.Categories = await _applicationDbContext.Categories
+            .Where(c => c.Status)
+            .ToListAsync();
+
+        return View(modelMenu);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "SuperAdmin,Owner,Manager")]
+    public async Task<IActionResult> EditMenu(MenuViewerModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Categories = await _applicationDbContext.Categories
+                .Where(c => c.Status)
+                .ToListAsync();
+            return View(model);
+        }
+
+        var menu = await _applicationDbContext.Menus
+            .FirstOrDefaultAsync(m => m.Id == model.Id);
+
+        if (menu == null)
+            return NotFound();
+
+        var exists = await _applicationDbContext.Menus
+            .AnyAsync(m => m.MenuName == model.MenuName && m.Id != model.Id);
+
+        if (exists)
+        {
+            ModelState.AddModelError("MenuName", "Menu name already exists.");
+            ViewBag.Categories = await _applicationDbContext.Categories
+                .Where(c => c.Status)
+                .ToListAsync();
+            return View(model);
+        }
+
+        // If a new image was uploaded, delete the old one and upload the new one
+        if (model.ImageFile != null)
+        {
+            // Delete old image from Cloudinary
+            await _cloudinaryService.DeleteImageAsync(menu.ImageMenuUrl);
+
+            // Upload new image
+            menu.ImageMenuUrl = await _cloudinaryService.UploadImageAsync(
+                model.ImageFile,
+                folder: "Menu"
+            );
+        }
+
+        menu.MenuName      = model.MenuName;
+        menu.Price         = model.Price;
+        menu.DiscountPrice = model.DiscountPrice;
+        menu.Status        = model.Status;
+        menu.CategoryId    = model.CategoryId;
+        menu.UpdatedAt     = DateTime.UtcNow;
+
+        _applicationDbContext.Menus.Update(menu);
+        await _applicationDbContext.SaveChangesAsync();
+
+        return RedirectToAction("Index", "Menu");
+    }
+    
+    [HttpPost]
+    [Authorize(Roles = "SuperAdmin,Owner")]
+    public async Task<IActionResult> DeleteMenu(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var menu = await _applicationDbContext.Menus.FindAsync(id);
+        if (menu == null)
+            return NotFound();
+
+        // Delete image from Cloudinary
+        await _cloudinaryService.DeleteImageAsync(menu.ImageMenuUrl);
+
+        _applicationDbContext.Menus.Remove(menu);
+        await _applicationDbContext.SaveChangesAsync();
+
+        return RedirectToAction("Index", "Menu");
+    }
+}

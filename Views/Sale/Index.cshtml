@@ -1,0 +1,482 @@
+﻿@model List<Sandoohouse.Models.Order>
+@{
+    ViewData["Title"] = "Sale Report";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root {
+    --brand:       #FF6B35;
+    --brand-dark:  #E85520;
+    --brand-light: #FFF0EA;
+    --brand-mid:   rgba(255,107,53,.12);
+    --accent:      #1C2340;
+    --accent2:     #2D3561;
+    --success:     #00B894;
+    --success-bg:  rgba(0,184,148,.1);
+    --warning:     #F0A500;
+    --warning-bg:  rgba(240,165,0,.1);
+    --danger:      #E84545;
+    --danger-bg:   rgba(232,69,69,.1);
+    --bg:          #F2EFE9;
+    --surface:     #FFFFFF;
+    --surface2:    #FAF8F5;
+    --surface3:    #F4F1EC;
+    --border:      #EAE5DC;
+    --border-s:    #D8D2C8;
+    --text:        #18150F;
+    --text-sub:    #6E685F;
+    --text-light:  #AEA89F;
+    --shadow-sm:   0 2px 8px rgba(24,21,15,.07);
+    --shadow-md:   0 6px 24px rgba(24,21,15,.10);
+    --shadow-lg:   0 16px 48px rgba(24,21,15,.14);
+    --shadow-brand:0 6px 20px rgba(255,107,53,.32);
+    --r-xs:6px; --r-sm:10px; --r-md:16px; --r-lg:24px; --r-xl:32px;
+    --font:'Sora',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;}
+
+.sr-page{
+    font-family:var(--font);
+    background:var(--bg);
+    background-image:radial-gradient(circle,#D8D2C8 1px,transparent 1px);
+    background-size:28px 28px;
+    min-height:100vh;
+    padding:28px 24px;
+    color:var(--text);
+}
+
+/* ── Topbar ── */
+.sr-topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:26px;flex-wrap:wrap;gap:12px;
+    max-width:1100px;margin-left:auto;margin-right:auto;
+}
+.sr-topbar h1{font-size:20px;font-weight:700;color:var(--text);margin:0 0 5px;letter-spacing:-.4px;}
+.sr-breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;margin:0;padding:0;list-style:none;}
+.sr-breadcrumb a{color:var(--text-light);text-decoration:none;transition:color .14s;}
+.sr-breadcrumb a:hover{color:var(--brand);}
+.sr-breadcrumb .sep{color:var(--border-s);}
+.sr-breadcrumb .cur{color:var(--text-sub);font-weight:600;}
+
+/* ── Outer wrap ── */
+.sr-wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px;}
+
+/* ── Hero header ── */
+.sr-hero{
+    background:var(--accent);
+    border-radius:var(--r-lg) var(--r-lg) 0 0;
+    padding:28px 36px;
+    display:flex;align-items:center;gap:18px;
+    position:relative;overflow:hidden;
+}
+.sr-hero::before{
+    content:'';position:absolute;inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E");
+    pointer-events:none;
+}
+.sr-hero::after{
+    content:'';position:absolute;width:280px;height:280px;border-radius:50%;
+    background:rgba(255,107,53,.08);top:-110px;right:-70px;pointer-events:none;
+}
+.sr-hero-circle{
+    position:absolute;width:200px;height:200px;border-radius:50%;
+    background:rgba(255,255,255,.03);bottom:-80px;left:220px;pointer-events:none;
+}
+.sr-hero-badge{
+    width:56px;height:56px;border-radius:15px;background:var(--brand);
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;color:#fff;flex-shrink:0;z-index:1;box-shadow:var(--shadow-brand);
+}
+.sr-hero-text{z-index:1;flex:1;}
+.sr-hero-text h2{font-size:20px;font-weight:800;color:#fff;margin:0 0 5px;letter-spacing:-.3px;}
+.sr-hero-text p{font-size:12px;color:rgba(255,255,255,.5);margin:0;font-weight:500;}
+.sr-hero-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:5px 14px;border-radius:20px;z-index:1;flex-shrink:0;
+    background:var(--brand-mid);color:var(--brand);
+    border:1px solid rgba(255,107,53,.25);font-size:11px;font-weight:700;
+}
+
+/* ── Content area (white surface attached to hero) ── */
+.sr-content{
+    background:var(--surface);
+    border:1.5px solid var(--border);border-top:none;
+    border-radius:0 0 var(--r-lg) var(--r-lg);
+    box-shadow:var(--shadow-md);
+    overflow:hidden;
+}
+
+/* ── Filter bar ── */
+.sr-filter-bar{
+    padding:16px 28px;
+    background:var(--surface2);
+    border-bottom:1.5px solid var(--border);
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.sr-filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;}
+.sr-filter-field{position:relative;display:flex;align-items:center;}
+.sr-filter-icon{
+    position:absolute;left:12px;color:var(--text-light);
+    font-size:12px;pointer-events:none;z-index:1;
+}
+.sr-date-inp{
+    height:38px;padding:0 14px 0 34px;
+    border:1.5px solid var(--border);border-radius:var(--r-xl);
+    background:var(--surface);font-family:var(--font);
+    font-size:13px;color:var(--text);outline:none;
+    transition:border-color .15s,box-shadow .15s;min-width:160px;
+}
+.sr-date-inp:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-mid);}
+
+.sr-filter-sep{font-size:11px;color:var(--text-light);font-weight:500;}
+
+.btn-filter{
+    height:38px;padding:0 20px;
+    background:var(--brand);color:#fff;
+    border:none;border-radius:var(--r-xl);
+    font-family:var(--font);font-size:13px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;gap:7px;
+    box-shadow:var(--shadow-brand);transition:all .18s;white-space:nowrap;
+}
+.btn-filter:hover{background:var(--brand-dark);transform:translateY(-1px);}
+
+.btn-reset-filter{
+    height:38px;padding:0 16px;
+    background:var(--surface);color:var(--text-sub);
+    border:1.5px solid var(--border);border-radius:var(--r-xl);
+    font-family:var(--font);font-size:12px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:6px;
+    transition:all .18s;text-decoration:none;
+}
+.btn-reset-filter:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-bg);text-decoration:none;}
+
+/* ── KPI strip ── */
+.sr-kpi-strip{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    border-bottom:1.5px solid var(--border);
+}
+.sr-kpi-cell{
+    padding:22px 28px;border-right:1px solid var(--border);
+    display:flex;align-items:center;gap:16px;
+    position:relative;overflow:hidden;transition:background .2s;
+}
+.sr-kpi-cell:last-child{border-right:none;}
+.sr-kpi-cell::after{
+    content:'';position:absolute;bottom:0;left:0;right:0;
+    height:3px;background:var(--kc,var(--brand));
+    transform:scaleX(0);transform-origin:left;transition:transform .3s;
+}
+.sr-kpi-cell:hover{background:var(--brand-light);}
+.sr-kpi-cell:hover::after{transform:scaleX(1);}
+.sr-kpi-icon{
+    width:48px;height:48px;border-radius:var(--r-sm);
+    background:var(--ki,var(--brand-light));color:var(--kc,var(--brand));
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex-shrink:0;
+}
+.sr-kpi-info{display:flex;flex-direction:column;gap:3px;}
+.sr-kpi-label{font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;}
+.sr-kpi-val{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1;}
+.kpi-green{--kc:var(--success);--ki:var(--success-bg);}
+.kpi-brand{--kc:var(--brand);  --ki:var(--brand-light);}
+
+/* ── Table head ── */
+.sr-table-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px;border-bottom:1.5px solid var(--border);
+    flex-wrap:wrap;gap:10px;
+}
+.sr-table-title{display:flex;align-items:center;gap:10px;}
+.title-bar{width:4px;height:20px;background:var(--brand);border-radius:4px;flex-shrink:0;}
+.sr-table-title h4{font-size:15px;font-weight:700;color:var(--text);margin:0;}
+.sr-table-title small{font-size:12px;color:var(--text-light);}
+.count-pill{font-size:11px;font-weight:700;color:var(--brand);background:var(--brand-light);padding:3px 10px;border-radius:20px;}
+
+/* ── Table ── */
+.sr-table{width:100%;border-collapse:collapse;}
+.sr-table thead th{
+    padding:10px 14px;font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.07em;
+    color:var(--text-light);background:var(--surface2);
+    border-bottom:1.5px solid var(--border);white-space:nowrap;
+}
+.sr-table thead th:first-child{padding-left:28px;}
+.sr-table thead th:last-child{padding-right:28px;text-align:right;}
+.sr-table tbody tr{transition:background .13s;}
+.sr-table tbody tr:hover{background:var(--brand-light);}
+.sr-table tbody td{
+    padding:14px;border-bottom:1px solid var(--border);
+    font-size:13px;color:var(--text);vertical-align:middle;
+}
+.sr-table tbody tr:last-child td{border-bottom:none;}
+.sr-table tbody td:first-child{padding-left:28px;}
+.sr-table tbody td:last-child{padding-right:28px;text-align:right;}
+
+/* Order number cell */
+.order-num{font-size:13px;font-weight:700;color:var(--text);}
+.order-id{font-size:11px;color:var(--text-light);margin-top:2px;}
+
+/* Date cell */
+.date-main{font-size:13px;font-weight:600;color:var(--text);}
+.date-time{font-size:11px;color:var(--text-light);margin-top:2px;display:flex;align-items:center;gap:4px;}
+
+/* Amount */
+.amount-val{font-size:14px;font-weight:800;color:var(--success);letter-spacing:-.3px;}
+
+/* Status badge */
+.s-badge{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:4px 12px;border-radius:20px;
+    font-size:11px;font-weight:700;white-space:nowrap;
+}
+.s-paid     {background:var(--success-bg);color:var(--success);border:1px solid rgba(0,184,148,.2);}
+.s-pending  {background:var(--warning-bg);color:var(--warning);border:1px solid rgba(240,165,0,.2);}
+.s-cancelled{background:var(--danger-bg); color:var(--danger); border:1px solid rgba(232,69,69,.2);}
+.s-default  {background:var(--surface2);  color:var(--text-sub);border:1px solid var(--border);}
+
+/* Items badge */
+.items-badge{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:12px;font-weight:600;color:var(--text-sub);
+}
+
+/* Empty state */
+.sr-empty{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:56px 24px;gap:12px;
+}
+.sr-empty-icon{
+    width:60px;height:60px;border-radius:var(--r-md);
+    background:var(--surface2);color:var(--text-light);
+    display:flex;align-items:center;justify-content:center;font-size:26px;
+}
+.sr-empty strong{font-size:15px;color:var(--text-sub);}
+.sr-empty p{font-size:13px;color:var(--text-light);text-align:center;margin:0;max-width:280px;}
+
+/* ── Summary footer ── */
+.sr-footer{
+    padding:14px 28px;border-top:1.5px solid var(--border);
+    background:var(--surface2);
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:10px;
+}
+.sr-footer-stats{display:flex;align-items:center;gap:20px;font-size:12px;color:var(--text-sub);}
+.sr-footer-stat{display:flex;align-items:center;gap:6px;font-weight:600;}
+.sr-footer-stat i{color:var(--brand);font-size:13px;}
+.sr-footer-total{
+    font-size:14px;font-weight:800;color:var(--text);
+    display:flex;align-items:center;gap:8px;
+}
+.sr-footer-total span{color:var(--success);font-size:16px;}
+
+/* ── Responsive ── */
+@@media (max-width:900px){
+    .sr-kpi-strip{grid-template-columns:1fr;}
+    .sr-kpi-cell{border-right:none;border-bottom:1px solid var(--border);}
+}
+@@media (max-width:680px){
+    .sr-page{padding:16px 14px;}
+    .sr-filter-bar{flex-direction:column;}
+    .sr-date-inp{width:100%;}
+    .sr-hero{padding:22px 20px;gap:14px;}
+    .sr-hero-badge{width:46px;height:46px;font-size:20px;border-radius:12px;}
+    .sr-table thead th:first-child{padding-left:16px;}
+    .sr-table tbody td:first-child{padding-left:16px;}
+}
+</style>
+
+@{
+    decimal totalSales  = ViewBag.TotalSales  ?? 0m;
+    int     totalOrders = ViewBag.TotalOrders ?? 0;
+}
+
+<div class="sr-page">
+
+    <!-- Topbar -->
+    <div class="sr-topbar">
+        <div>
+            <h1>Sale Report</h1>
+            <nav class="sr-breadcrumb">
+                <a asp-controller="Home" asp-action="Index"><i class="bi bi-house-door-fill"></i></a>
+                <span class="sep">›</span>
+                <span class="cur">Sale Report</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="sr-wrap">
+
+        <!-- Hero -->
+        <div class="sr-hero">
+            <div class="sr-hero-circle"></div>
+            <div class="sr-hero-badge"><i class="bi bi-bar-chart-line-fill"></i></div>
+            <div class="sr-hero-text">
+                <h2>Sales Overview</h2>
+                <p>Filter and analyse your order revenue in real time</p>
+            </div>
+            <span class="sr-hero-pill">
+                <i class="bi bi-calendar3" style="font-size:11px;"></i>
+                @DateTime.Now.ToString("MMM yyyy")
+            </span>
+        </div>
+
+        <!-- Content surface -->
+        <div class="sr-content">
+
+            <!-- Filter bar -->
+            <form method="get">
+                <div class="sr-filter-bar">
+                    <div class="sr-filter-group">
+                        <div class="sr-filter-field">
+                            <i class="bi bi-calendar-event sr-filter-icon"></i>
+                            <input type="date" name="fromDate" class="sr-date-inp"
+                                   value="@(Context.Request.Query["fromDate"].ToString())"
+                                   placeholder="From date" />
+                        </div>
+                        <span class="sr-filter-sep">→</span>
+                        <div class="sr-filter-field">
+                            <i class="bi bi-calendar-check sr-filter-icon"></i>
+                            <input type="date" name="toDate" class="sr-date-inp"
+                                   value="@(Context.Request.Query["toDate"].ToString())"
+                                   placeholder="To date" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-filter">
+                        <i class="bi bi-funnel-fill"></i> Apply Filter
+                    </button>
+                    <a asp-action="Index" class="btn-reset-filter">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
+                </div>
+            </form>
+
+            <!-- KPI strip -->
+            <div class="sr-kpi-strip">
+                <div class="sr-kpi-cell kpi-green">
+                    <div class="sr-kpi-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="sr-kpi-info">
+                        <span class="sr-kpi-label">Total Revenue</span>
+                        <span class="sr-kpi-val">$@totalSales.ToString("N2")</span>
+                    </div>
+                </div>
+                <div class="sr-kpi-cell kpi-brand">
+                    <div class="sr-kpi-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="sr-kpi-info">
+                        <span class="sr-kpi-label">Total Orders</span>
+                        <span class="sr-kpi-val">@totalOrders</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table header -->
+            <div class="sr-table-head">
+                <div class="sr-table-title">
+                    <span class="title-bar"></span>
+                    <div>
+                        <h4>Order Transactions</h4>
+                        <small>Sorted by latest date</small>
+                    </div>
+                </div>
+                <span class="count-pill">@(Model?.Count ?? 0) orders</span>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="sr-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Date & Time</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Items</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var order in Model)
+                        {
+                            var statusStr = (order.OrderStatus.ToString() ?? "").ToLower();
+                            var badgeClass = statusStr switch {
+                                var s when s.Contains("paid")      => "s-paid",
+                                var s when s.Contains("cancel")    => "s-cancelled",
+                                var s when s.Contains("pending")   => "s-pending",
+                                _                                  => "s-default"
+                            };
+                            <tr>
+                                <td>
+                                    <div class="order-num">@order.OrderNumber</div>
+                                </td>
+                                <td>
+                                    <div class="date-main">@order.OrderDate.ToString("MMM dd, yyyy")</div>
+                                    <div class="date-time"><i class="bi bi-clock" style="font-size:10px;"></i> @order.OrderDate.ToString("HH:mm")</div>
+                                </td>
+                                <td>
+                                    <span class="amount-val">$@order.TotalAmount.ToString("N2")</span>
+                                </td>
+                                <td>
+                                    <span class="s-badge @badgeClass">
+                                        <i class="bi bi-circle-fill" style="font-size:7px;"></i>
+                                        @order.OrderStatus
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="items-badge">
+                                        <i class="bi bi-bag" style="color:var(--brand);font-size:13px;"></i>
+                                        @(order.OrderItems?.Count ?? 0) item@(order.OrderItems?.Count == 1 ? "" : "s")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5">
+                                <div class="sr-empty">
+                                    <div class="sr-empty-icon"><i class="bi bi-receipt"></i></div>
+                                    <strong>No orders found</strong>
+                                    <p>Try adjusting your date filter or check back later.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary footer -->
+            @if (Model != null && Model.Any())
+            {
+                <div class="sr-footer">
+                    <div class="sr-footer-stats">
+                        <span class="sr-footer-stat">
+                            <i class="bi bi-bag-check"></i>
+                            @totalOrders order@(totalOrders == 1 ? "" : "s")
+                        </span>
+                        <span class="sr-footer-stat">
+                            <i class="bi bi-box-seam"></i>
+                            @(Model.Sum(o => o.OrderItems?.Count ?? 0)) total items
+                        </span>
+                        <span class="sr-footer-stat" style="color:var(--text-light);">
+                            <i class="bi bi-clock"></i>
+                            Updated: @DateTime.Now.ToString("MMM dd, yyyy")
+                        </span>
+                    </div>
+                    <div class="sr-footer-total">
+                        Total Revenue: <span>$@totalSales.ToString("N2")</span>
+                    </div>
+                </div>
+            }
+
+        </div><!-- /.sr-content -->
+
+    </div><!-- /.sr-wrap -->
+</div><!-- /.sr-page -->

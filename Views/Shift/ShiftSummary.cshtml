@@ -1,0 +1,528 @@
+﻿@model Sandoohouse.Models.Shift
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "សង្ខេបវេនការងារ";
+    Layout = null;
+
+    var firstName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+    var lastName  = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
+
+    // ── Cambodia timezone helper (UTC+7) ──────────────────────────────────
+    var tz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+    DateTime ToKH(DateTime dt) =>
+        TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(dt, DateTimeKind.Utc), tz);
+
+    // ── Shift times in Cambodia local ─────────────────────────────────────
+    var startKH = ToKH(Model.StartTime);
+    var endKH   = Model.EndTime.HasValue ? ToKH(Model.EndTime.Value) : (DateTime?)null;
+
+    // ── Duration (calculated from Cambodia times) ─────────────────────────
+    var duration = endKH.HasValue ? endKH.Value - startKH : TimeSpan.Zero;
+    var hrs  = (int)duration.TotalHours;
+    var mins = duration.Minutes;
+
+    decimal totalInDrawer = Model.OpeningCash + Model.TotalSales;
+
+    var orders = Model.Orders?.ToList() ?? new List<Sandoohouse.Models.Order>();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" href="~/assets/img/kaiadmin/SandooHouse.ico" type="image/x-icon"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Noto+Sans+Khmer:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand:       #FF6B35;
+            --brand-dim:   rgba(255,107,53,.12);
+            --brand-glow:  rgba(255,107,53,.25);
+            --bg:          #0C1118;
+            --bg2:         #111923;
+            --bg3:         #161F2C;
+            --border:      rgba(255,255,255,.07);
+            --border-soft: rgba(255,255,255,.04);
+            --text:        #E8F0F8;
+            --muted:       #6B7F96;
+            --success:     #00B894;
+            --success-dim: rgba(0,184,148,.1);
+            --warning:     #F59E0B;
+            --font:        'Sora','Noto Sans Khmer',sans-serif;
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── animated bg dots ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,107,53,.08) 0%, transparent 60%),
+                radial-gradient(circle at 10% 80%, rgba(0,184,148,.04) 0%, transparent 40%);
+        }
+
+        .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+
+        /* ── topbar ── */
+        .topbar {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 20px; background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .topbar-logo { height: 28px; width: auto; }
+        .topbar-divider { width: 1px; height: 20px; background: var(--border); }
+        .topbar-title { font-size: 13px; font-weight: 700; color: var(--text); }
+        .topbar-spacer { flex: 1; }
+        .topbar-back {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 8px;
+            background: var(--bg3); border: 1px solid var(--border);
+            color: var(--muted); font-size: 12px; font-weight: 600;
+            text-decoration: none; font-family: var(--font);
+            transition: all .15s;
+        }
+        .topbar-back:hover { color: var(--text); border-color: rgba(255,255,255,.15); }
+        .topbar-print {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 8px;
+            background: var(--brand); border: none;
+            color: #fff; font-size: 12px; font-weight: 700;
+            cursor: pointer; font-family: var(--font);
+            transition: opacity .15s;
+        }
+        .topbar-print:hover { opacity: .88; }
+
+        /* ── hero header ── */
+        .hero {
+            margin-top: 36px; margin-bottom: 32px;
+            display: flex; flex-direction: column; gap: 6px;
+            animation: fadeUp .45s ease both;
+        }
+        .hero-eyebrow {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+            text-transform: uppercase; color: var(--brand);
+        }
+        .hero-eyebrow-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--brand);
+            box-shadow: 0 0 8px var(--brand);
+        }
+        .hero-title {
+            font-size: clamp(26px, 5vw, 38px);
+            font-weight: 800; color: var(--text); line-height: 1.1;
+        }
+        .hero-meta {
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .hero-meta-chip {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 12px; font-weight: 600; color: var(--muted);
+        }
+        .hero-meta-chip i { font-size: 11px; color: var(--brand); }
+        .shift-id-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px;
+            background: var(--brand-dim); border: 1px solid var(--brand-glow);
+            font-size: 11px; font-weight: 800; color: var(--brand);
+            letter-spacing: .4px;
+        }
+
+        /* ── stat cards grid ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px; margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 14px; padding: 18px 20px;
+            animation: fadeUp .45s ease both;
+        }
+        .stat-card:nth-child(1) { animation-delay: .05s; }
+        .stat-card:nth-child(2) { animation-delay: .10s; }
+        .stat-card:nth-child(3) { animation-delay: .15s; }
+        .stat-card:nth-child(4) { animation-delay: .20s; }
+        .stat-card:nth-child(5) { animation-delay: .25s; }
+        .stat-label {
+            font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .9px; color: var(--muted); margin-bottom: 8px;
+        }
+        .stat-val {
+            font-size: 26px; font-weight: 800; color: var(--text); line-height: 1;
+        }
+        .stat-val.brand  { color: var(--brand); }
+        .stat-val.success{ color: var(--success); }
+        .stat-sub {
+            font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 5px;
+        }
+
+        /* ── section ── */
+        .section {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 14px; margin-bottom: 20px;
+            overflow: hidden;
+            animation: fadeUp .45s ease both; animation-delay: .3s;
+        }
+        .section-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+        }
+        .section-title {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 700; color: var(--text);
+        }
+        .section-title i { color: var(--brand); font-size: 13px; }
+        .section-badge {
+            padding: 3px 9px; border-radius: 20px;
+            background: var(--brand-dim); border: 1px solid var(--brand-glow);
+            font-size: 11px; font-weight: 700; color: var(--brand);
+        }
+
+        /* ── cash summary rows ── */
+        .cash-rows { padding: 6px 0; }
+        .cash-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 13px 20px;
+            border-bottom: 1px solid var(--border-soft);
+            transition: background .12s;
+        }
+        .cash-row:last-child { border-bottom: none; }
+        .cash-row:hover { background: rgba(255,255,255,.02); }
+        .cash-row.total {
+            background: rgba(255,107,53,.04);
+            border-top: 1px solid var(--border);
+        }
+        .cash-row-label {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: var(--muted);
+        }
+        .cash-row-label i { font-size: 12px; color: var(--brand); width: 16px; text-align: center; }
+        .cash-row-val {
+            display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+        }
+        .cash-row-usd { font-size: 15px; font-weight: 800; color: var(--text); }
+        .cash-row-usd.brand   { color: var(--brand); }
+        .cash-row-usd.success { color: var(--success); }
+        .cash-row-khr { font-size: 11px; font-weight: 600; color: var(--muted); }
+
+        /* ── orders table ── */
+        .orders-table { width: 100%; border-collapse: collapse; }
+        .orders-table th {
+            padding: 10px 20px; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .8px;
+            color: var(--muted); text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .orders-table th:last-child { text-align: right; }
+        .orders-table td {
+            padding: 13px 20px; font-size: 13px; font-weight: 600;
+            color: var(--text); border-bottom: 1px solid var(--border-soft);
+            vertical-align: middle;
+        }
+        .orders-table td:last-child { text-align: right; }
+        .orders-table tr:last-child td { border-bottom: none; }
+        .orders-table tbody tr:hover td { background: rgba(255,255,255,.02); }
+        .order-num-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 8px; border-radius: 6px;
+            background: var(--bg3); border: 1px solid var(--border);
+            font-size: 11px; font-weight: 700; color: var(--muted);
+            font-family: 'Courier New', monospace;
+        }
+        .order-total-usd { font-size: 14px; font-weight: 800; color: var(--text); }
+        .order-total-khr { font-size: 10.5px; font-weight: 600; color: var(--muted); }
+
+        /* ── empty state ── */
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 10px; padding: 48px 20px; color: var(--muted);
+        }
+        .empty-state i { font-size: 28px; color: var(--border); }
+        .empty-state p { font-size: 13px; font-weight: 600; }
+
+        /* ── timeline ── */
+        .timeline {
+            display: flex; align-items: center; gap: 0;
+            padding: 20px 24px; flex-wrap: wrap; gap: 0;
+        }
+        .tl-block {
+            display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px;
+        }
+        .tl-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); }
+        .tl-val   { font-size: 14px; font-weight: 700; color: var(--text); }
+        .tl-sub   { font-size: 11px; font-weight: 600; color: var(--muted); }
+        .tl-arrow {
+            display: flex; align-items: center; padding: 0 16px; color: var(--brand);
+            font-size: 18px; margin-bottom: 4px;
+        }
+        .tl-dur-pill {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 20px;
+            background: var(--brand-dim); border: 1px solid var(--brand-glow);
+            font-size: 12px; font-weight: 700; color: var(--brand);
+        }
+
+        /* ── print styles ── */
+        @@media print {
+            body { background: #fff !important; color: #000 !important; }
+            .topbar, .topbar-back, .topbar-print { display: none !important; }
+            .page { padding: 0 !important; max-width: 100% !important; }
+            .stat-card, .section { border: 1px solid #ddd !important; background: #fff !important; }
+            .stat-val, .cash-row-usd, .order-total-usd, .hero-title, .tl-val { color: #000 !important; }
+            .stat-label, .cash-row-label, .cash-row-khr, .tl-label, .tl-sub, .section-title,
+            .hero-meta-chip, .order-total-khr { color: #555 !important; }
+        }
+
+        /* ── animations ── */
+        @@keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+    <img src="~/assets/img/kaiadmin/SandooHouse.ico" alt="Logo" class="topbar-logo"
+         onerror="this.src='https://via.placeholder.com/28x28?text=S'">
+    <div class="topbar-divider"></div>
+    <span class="topbar-title">សង្ខេបវេនការងារ</span>
+    <div class="topbar-spacer"></div>
+    <a href="javascript:history.back()" class="topbar-back">
+        <i class="fas fa-arrow-left"></i> ត្រឡប់ POS
+    </a>
+    <button class="topbar-print" onclick="window.print()">
+        <i class="fas fa-print"></i> បោះពុម្ព
+    </button>
+</header>
+
+<div class="page">
+
+    <!-- ── HERO ── -->
+    <div class="hero">
+        <div class="hero-eyebrow">
+            <div class="hero-eyebrow-dot"></div>
+            របាយការណ៍វេនការងារ
+            <span class="shift-id-badge"><i class="fas fa-hashtag" style="font-size:9px;"></i>SHIFT-@Model.Id</span>
+        </div>
+        <h1 class="hero-title">
+            @if (Model.IsClosed)
+            {
+                <span style="color:var(--success);">
+                    <i class="fas fa-check-circle" style="font-size:28px;margin-right:10px;vertical-align:middle;"></i>
+                </span>
+            }
+            else
+            {
+                <span style="color:var(--brand);">
+                    <i class="fas fa-circle" style="font-size:14px;margin-right:10px;vertical-align:middle;animation:pulse 1.5s infinite;"></i>
+                </span>
+            }
+            @(Model.IsClosed ? "វេនបានបិទ" : "វេនកំពុងដំណើរការ")
+        </h1>
+        <div class="hero-meta">
+            <span class="hero-meta-chip">
+                <i class="fas fa-user-circle"></i>
+                @(Model.CashierName ?? Model.ClosedBy ?? $"{firstName} {lastName}")
+            </span>
+            <span class="hero-meta-chip">
+                <i class="fas fa-calendar-alt"></i>
+                @startKH.ToString("dd MMM yyyy")
+            </span>
+            @if (Model.IsClosed && endKH.HasValue)
+            {
+                <span class="hero-meta-chip">
+                    <i class="fas fa-clock"></i>
+                    @hrs ម៉ោង @mins នាទី
+                </span>
+            }
+        </div>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">ការកម្មង់</div>
+            <div class="stat-val brand">@Model.TotalOrders</div>
+            <div class="stat-sub">ការលក់</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">ចំណូលលក់</div>
+            <div class="stat-val brand">$@Model.TotalSales.ToString("F2")</div>
+            <div class="stat-sub">@Math.Round(Model.TotalSales * 4100).ToString("N0") ៛</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">ប្រាក់ចំណូលដំបូង</div>
+            <div class="stat-val">$@Model.OpeningCash.ToString("F2")</div>
+            <div class="stat-sub">Opening cash</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">សរុបក្នុងថត</div>
+            <div class="stat-val success">$@totalInDrawer.ToString("F2")</div>
+            <div class="stat-sub">Est. cash in drawer</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">មធ្យមមួយការកម្មង់</div>
+            <div class="stat-val">
+                @(Model.TotalOrders > 0 ? "$" + (Model.TotalSales / Model.TotalOrders).ToString("F2") : "$0.00")
+            </div>
+            <div class="stat-sub">Average order</div>
+        </div>
+    </div>
+
+    <!-- ── TIMELINE ── -->
+    <div class="section" style="animation-delay:.22s;">
+        <div class="section-head">
+            <div class="section-title">
+                <i class="fas fa-stream"></i> ពេលវេលា
+            </div>
+        </div>
+        <div class="timeline">
+            <div class="tl-block">
+                <div class="tl-label">ចាប់ផ្ដើម</div>
+                <div class="tl-val">@startKH.ToString("hh:mm tt")</div>
+                <div class="tl-sub">@startKH.ToString("dd MMM yyyy")</div>
+            </div>
+            <div class="tl-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+            @if (Model.IsClosed && endKH.HasValue)
+            {
+                <div class="tl-block" style="align-items:center;">
+                    <div class="tl-dur-pill">
+                        <i class="fas fa-hourglass-end" style="font-size:11px;"></i>
+                        @hrs ម៉ោង @mins នាទី
+                    </div>
+                </div>
+                <div class="tl-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+                <div class="tl-block" style="align-items:flex-end;">
+                    <div class="tl-label">បញ្ចប់</div>
+                    <div class="tl-val">@endKH.Value.ToString("hh:mm tt")</div>
+                    <div class="tl-sub">@endKH.Value.ToString("dd MMM yyyy")</div>
+                </div>
+            }
+            else
+            {
+                <div class="tl-block" style="align-items:center;">
+                    <div class="tl-dur-pill" style="animation:pulse 1.5s infinite;">
+                        <i class="fas fa-circle" style="font-size:7px;"></i>
+                        កំពុងដំណើរការ
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── CASH SUMMARY ── -->
+    <div class="section" style="animation-delay:.28s;">
+        <div class="section-head">
+            <div class="section-title">
+                <i class="fas fa-cash-register"></i> សង្ខេបប្រាក់
+            </div>
+        </div>
+        <div class="cash-rows">
+            <div class="cash-row">
+                <div class="cash-row-label">
+                    <i class="fas fa-wallet"></i> ប្រាក់ចំណូលដំបូង
+                </div>
+                <div class="cash-row-val">
+                    <span class="cash-row-usd">$@Model.OpeningCash.ToString("F2")</span>
+                    <span class="cash-row-khr">@Math.Round(Model.OpeningCash * 4100).ToString("N0") ៛</span>
+                </div>
+            </div>
+            <div class="cash-row">
+                <div class="cash-row-label">
+                    <i class="fas fa-plus-circle"></i> ចំណូលពីការលក់
+                </div>
+                <div class="cash-row-val">
+                    <span class="cash-row-usd brand">+$@Model.TotalSales.ToString("F2")</span>
+                    <span class="cash-row-khr">@Math.Round(Model.TotalSales * 4100).ToString("N0") ៛</span>
+                </div>
+            </div>
+            <div class="cash-row total">
+                <div class="cash-row-label" style="color:var(--text);font-size:14px;">
+                    <i class="fas fa-calculator"></i> <strong>សរុបក្នុងថតប្រាក់</strong>
+                </div>
+                <div class="cash-row-val">
+                    <span class="cash-row-usd success" style="font-size:20px;">$@totalInDrawer.ToString("F2")</span>
+                    <span class="cash-row-khr">@Math.Round(totalInDrawer * 4100).ToString("N0") ៛</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── ORDERS TABLE ── -->
+    <div class="section" style="animation-delay:.34s;">
+        <div class="section-head">
+            <div class="section-title">
+                <i class="fas fa-receipt"></i> បញ្ជីការកម្មង់
+            </div>
+            <span class="section-badge">@orders.Count ការកម្មង់</span>
+        </div>
+
+        @if (!orders.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>គ្មានការកម្មង់នៅក្នុងវេននេះ</p>
+            </div>
+        }
+        else
+        {
+            <table class="orders-table">
+                <thead>
+                <tr>
+                    <th>លេខការកម្មង់</th>
+                    <th>ពេលវេលា</th>
+                    <th>បញ្ចុះ</th>
+                    <th>សរុប</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var order in orders.OrderByDescending(o => o.OrderDate))
+                {
+                    <tr>
+                        <td>
+                            <span class="order-num-badge">#@order.OrderNumber</span>
+                        </td>
+                        <td style="color:var(--muted);">
+                            @ToKH(order.OrderDate).ToString("hh:mm tt")
+                        </td>
+                        <td style="color:var(--warning);">
+                            @(order.DiscountAmount > 0 ? "-$" + order.DiscountAmount.ToString("F2") : "—")
+                        </td>
+                        <td>
+                            <div class="order-total-usd">$@order.TotalAmount.ToString("F2")</div>
+                            <div class="order-total-khr">@Math.Round(order.TotalAmount * 4100).ToString("N0") ៛</div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+
+</div>
+
+<style>
+    @@keyframes pulse {
+        0%,100% { opacity:1; }
+        50%      { opacity:.4; }
+    }
+</style>
+
+</body>
+</html>

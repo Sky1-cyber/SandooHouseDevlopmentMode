@@ -1,0 +1,300 @@
+﻿@using Sandoohouse.Models.Enum
+@model Sandoohouse.Models.ModelViewer.OrderModelViewer.EditOrderViewModel
+@{
+    ViewData["Title"] = "Edit Order";
+    var brands = ViewBag.Brands as List<Brand>;
+    var categories = ViewBag.Categories as List<Category>;
+    var menus = ViewBag.Menus as List<Menu>;
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="~/css/EditOrder.css"/>
+
+<div class="eo-page">
+
+    <!-- Header -->
+    <div class="eo-header">
+        <div class="eo-header-left">
+            <div class="eo-icon-box">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+            </div>
+            <div>
+                <div class="eo-title">Edit Order</div>
+                <div class="eo-chips">
+                    <span class="chip-order">#@Model.OrderNumber</span>
+                    @{
+                        var statusClass = Model.OrderStatus switch {
+                            OrderStatus.Pending    => "pending",
+                            OrderStatus.Paid       => "paid",
+                            OrderStatus.Canceled   => "cancelled",
+                            _                      => "pending"
+                        };
+                    }
+                    <span class="chip-status @statusClass">@Model.OrderStatus</span>
+                </div>
+            </div>
+        </div>
+
+        <a asp-action="Index" asp-controller="Home" class="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+            </svg>
+            Back to list
+        </a>
+    </div>
+
+    <form id="editOrderForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="orderId" value="@Model.Id" />
+
+        <!-- Info strip -->
+        <div class="eo-strip">
+            <div class="strip-card">
+                <div class="strip-label">Order date</div>
+                <div class="strip-value">@Model.OrderDate.ToString("yyyy-MM-dd HH:mm")</div>
+            </div>
+
+            <div class="strip-card">
+                <div class="strip-label">Order status</div>
+                <select id="orderStatus" class="strip-select">
+                    @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                    {
+                        var isSelected = status == Model.OrderStatus;
+                        if (isSelected)
+                        {
+                            <option value="@((int)status)" selected="selected">
+                                @status
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@((int)status)">
+                                @status
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="strip-card">
+                <div class="strip-label">Items in order</div>
+                <div class="strip-value brand" id="itemCountDisplay">
+                    @(Model.Items?.Count ?? 0) item@(Model.Items?.Count == 1 ? "" : "s")
+                </div>
+            </div>
+
+            <div class="strip-card">
+                <div class="strip-label">Payment method</div>
+                <div class="strip-value success">Cash</div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="eo-body">
+
+            <!-- LEFT: Menu catalog -->
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title">Menu catalog</div>
+                    <span class="panel-badge" id="menuCount">
+                        @(menus?.Count ?? 0) items
+                    </span>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-row">
+                    <select id="brandFilter" class="filter-sel">
+                        <option value="">All brands</option>
+                        @if (brands != null)
+                        {
+                            foreach (var brand in brands)
+                            {
+                                <option value="@brand.Id">@brand.BrandName</option>
+                            }
+                        }
+                    </select>
+
+                    <select id="categoryFilter" class="filter-sel">
+                        <option value="">All categories</option>
+                        @if (categories != null)
+                        {
+                            foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id" data-brand="@cat.BrandId">@cat.CategoryName</option>
+                            }
+                        }
+                    </select>
+
+                    <input type="text" id="menuSearch" class="filter-inp"
+                           placeholder="Search items…" autocomplete="off" />
+                </div>
+
+                <!-- Menu table -->
+                <div class="menu-scroll">
+                    <table class="menu-table">
+                        <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Brand</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="menuItemsList">
+                        @if (menus != null)
+                        {
+                            foreach (var menu in menus)
+                            {
+                                <tr data-brand="@menu.Category?.BrandId"
+                                    data-category="@menu.CategoryId"
+                                    data-name="@menu.MenuName.ToLower()">
+                                    <td>@menu.MenuName</td>
+                                    <td><span class="badge-brand">@menu.Category?.Brand?.BrandName</span></td>
+                                    <td><span class="badge-cat">@menu.Category?.CategoryName</span></td>
+                                    <td><span class="price-tag">@menu.Price.ToString("C2")</span></td>
+                                    <td>
+                                        <button type="button" class="btn-add add-to-order"
+                                                data-id="@menu.Id"
+                                                data-name="@menu.MenuName"
+                                                data-brandid="@menu.Category?.BrandId"
+                                                data-brandname="@menu.Category?.Brand?.BrandName"
+                                                data-price="@menu.Price">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="3"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                            </svg>
+                                            Add
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RIGHT: Order panel -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title">Order items</div>
+                        <span class="panel-badge" id="orderCount">
+                            @(Model.Items?.Count ?? 0)
+                        </span>
+                    </div>
+
+                    <!-- Order items list -->
+                    <div class="order-scroll" id="orderItemsContainer">
+                        <div id="orderItemsList">
+                            @if (Model.Items != null && Model.Items.Any())
+                            {
+                                foreach (var item in Model.Items)
+                                {
+                                    <div class="order-row"
+                                         data-id="@item.MenuItemId"
+                                         data-price="@item.Price"
+                                         data-brandid="@item.BrandId"
+                                         data-orderitemid="@item.Id">
+                                        <div class="order-row-info">
+                                            <div class="order-row-name">@item.MenuItemName</div>
+                                            <div class="order-row-brand">@item.Price.ToString("C2") each</div>
+                                        </div>
+                                        <div class="qty-ctrl">
+                                            <button type="button" class="qty-btn qty-dec">−</button>
+                                            <input type="number" class="qty-input item-quantity"
+                                                   value="@item.Quantity" min="1" />
+                                            <button type="button" class="qty-btn qty-inc">+</button>
+                                        </div>
+                                        <div class="row-sub item-subtotal">@item.Subtotal.ToString("C2")</div>
+                                        <button type="button" class="btn-remove remove-item" title="Remove item">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="2.5"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                <path d="M10 11v6M14 11v6"/>
+                                                <path d="M9 6V4h6v2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-state" id="emptyState">
+                                    <div class="empty-state-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                             stroke="currentColor" stroke-width="1.5"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="9" cy="21" r="1"/>
+                                            <circle cx="20" cy="21" r="1"/>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                        </svg>
+                                    </div>
+                                    <p>No items yet — add from the catalog</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Summary rows -->
+                    <div class="summary-body">
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal</span>
+                            <span class="summary-val" id="subtotalDisplay">@Model.TotalAmount.ToString("C2")</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Discount</span>
+                            <input type="number" class="summary-inp" id="discountAmount"
+                                   value="@Model.DiscountAmount" min="0" step="0.01" />
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Cash received</span>
+                            <input type="number" class="summary-inp" id="cashReceived"
+                                   value="@Model.CashReceived" min="0" step="0.01" />
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Change</span>
+                            <span class="summary-val" id="changeDisplay">@Model.ChangeAmount.ToString("C2")</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-total-bar">
+                        <span>Total amount</span>
+                        <span class="total-amount" id="totalDisplay">@Model.TotalAmount.ToString("C2")</span>
+                    </div>
+                </div>
+
+                <!-- Update button -->
+                <button type="button" id="updateOrderBtn" class="btn-update">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Update Order
+                </button>
+
+            </div>
+        </div>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="~/js/EditOrder.js"></script>

@@ -1,0 +1,77 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+    .access-container{
+        height: 80vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    }
+
+    .access-card{
+        max-width:520px;
+        border:none;
+        border-radius:15px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.1);
+        padding:40px;
+        text-align:center;
+        background:white;
+    }
+
+    .error-code{
+        font-size:90px;
+        font-weight:700;
+        color:#dc3545;
+    }
+
+    .error-icon{
+        font-size:60px;
+        color:#dc3545;
+    }
+
+    .btn-home{
+        border-radius:30px;
+        padding:10px 25px;
+    }
+</style>
+
+<div class="container access-container">
+
+    <div class="access-card">
+
+        <div class="error-icon mb-3">
+            <i class="bi bi-shield-lock-fill"></i>
+        </div>
+
+        <div class="error-code">
+            403
+        </div>
+
+        <h3 class="fw-bold mt-2">
+            Access Denied
+        </h3>
+
+        <p class="text-muted mt-2">
+            Sorry, you do not have permission to access this page.
+            Please contact your administrator if you believe this is a mistake.
+        </p>
+
+        <div class="mt-4">
+
+            <a href="/" class="btn btn-primary btn-home me-2">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-home">
+                <i class="bi bi-arrow-left"></i> Go Back
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
